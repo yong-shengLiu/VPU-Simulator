@@ -18,6 +18,148 @@ class HLGenerator:
         self.SEWB  = self._SEW // 8                       # byte for SEW
 
 
+    def CIM_Scatter_LS(self, mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr):
+        """
+        the function to load or store matrix between main memory and vrf
+        NOTE:
+        (1) "MMemeory_addr" is the byte address of the Main memory, 
+            "vrf_addr" is the byte address of the vrf
+        (2) mode can be "load" or "store"
+        
+        TODO:
+        (1) need to support vrf segment stride (Scatter2Scatter)
+        (2) vd may pass from a VRF shcedualer
+        """
+        
+        inst_list = []
+        arg_list  = []
+        print(f"SEW:  {self._SEW}")
+        print(f"LMUL: {self._LMUL}")
+        print("========")
+
+        # === The parameter checks whether a new C code instruction needs to be generated ====
+        static_vstart      = 0
+        static_vreg        = 0
+        static_target_addr = 0
+        
+        # === The parameter used to control vrf load/store flow ===
+        #  TODO (below parameter maybe fetch from the VPU simulator in the future)
+        vl       = 0
+        vreg     = 0      # to record the current vreg
+        vstart   = 0      # set vstart point (element idx)
+        
+        
+        # === strip-mining the AVL ===
+        for seg in range(segment):
+            print(f"{mode} [Seg{seg}]")
+
+            # === Pre-calculate start position of segment which in VRF and MMmemory===
+            vrfaddr     = vrf_addr + seg * seg_len
+            vreg        = (vrfaddr // (self.VLEN // 8)) // self._LMUL * self._LMUL
+            vstart      = vrfaddr % (self.VLEN // 8)
+
+            target_addr = (MMemeory_addr + seg * seg_stride) - (vstart * self.SEWB) # NOTE the targets address need to minus "static_vstart(byte)"
+
+            AVL         = seg_len // self.SEWB  # application element length for each segment
+            len         = 0
+            
+            while len < seg_len: # travel the byte for each segment
+                # === The condition to check the parameter change ===
+                vstart_change         = False
+                vreg_change           = False
+                target_addr_change    = False
+
+                print(f"VRF Byte Addr: {vrfaddr:6}", end=",  ")
+
+                print(f"vreg: {vreg:2}", end=",  ")
+                if vreg != static_vreg:
+                    static_vreg = vreg
+                    vreg_change   = True
+
+                print(f"vstart: {vstart:3}", end=",  ")
+                if vstart != static_vstart:
+                    static_vstart = vstart
+                    vstart_change = True
+
+                
+                print(f"Target Byte Addr: {target_addr:6} (0x{target_addr:X})", end=",  ")
+                if target_addr != static_target_addr:
+                    static_target_addr     = target_addr
+                    target_addr_change     = True
+                
+
+                # === update next vreg, vstart and current execute elen, vl===
+                check_vstart = (static_vstart == 0)
+                check_vlen   = AVL <= (self.VLMAX - static_vstart)
+
+                if check_vstart and check_vlen:
+                    # Case 1: vstart == 0 and VLEN is enough
+                    elen = AVL
+                    len  = len + elen * self.SEWB
+                    if elen == (self.VLMAX - vstart):
+                        vreg   = vreg + self._LMUL
+                        vstart = 0
+                    else:
+                        vreg   = vreg
+                        vstart = vstart + elen
+                    self.debug and print("case1", end=",  ")
+                elif check_vstart and not check_vlen:
+                    # Case 2: vstart == 0 and VLEN is NOT enough
+                    elen   = (self.VLMAX - vstart)
+                    len    = len + elen * self.SEWB
+                    vreg   = vreg + self._LMUL
+                    vstart = 0
+                    self.debug and print("case2", end=",  ")
+                elif not check_vstart and check_vlen:
+                    # Case 3: vstart != 0 and VLEN is enough
+                    elen = AVL
+                    len  = len + elen * self.SEWB
+                    if AVL == (self.VLMAX - vstart):
+                        vreg   = vreg + self._LMUL
+                        vstart = 0
+                    else:
+                        vreg   = vreg
+                        vstart = vstart + elen
+                    self.debug and print("case3", end=",  ")
+                else:
+                    # Case 4: vstart != 0 and VLEN is NOT enough
+                    elen   = (self.VLMAX - vstart)
+                    len    = len + elen * self.SEWB
+                    vreg   = vreg + self._LMUL
+                    vstart = 0
+                    self.debug and print("case4", end=",  ")
+
+                print(f"elen: {elen:3}", end=",  ")
+                
+                
+
+                vl = static_vstart + elen
+                print(f"vl: {vl:3}", end=",  ")
+                   
+                
+                print(f"len (byte): {len:4}")
+
+                
+                # === to check if there has new instruction needed ===
+                inst_list.append(self.VectorCodeGen('vset',   [vl, self._SEW, self._LMUL]))
+                arg_list.append([vl, self._SEW, self._LMUL])
+                if vstart_change: 
+                    inst_list.append(self.VectorCodeGen('vstart', [static_vstart]))
+                    arg_list.append([static_vstart])
+                if vreg_change or target_addr_change:
+                    mode == 'load'  and inst_list.append(self.VectorCodeGen('vload_a',  [self._SEW, static_vreg, static_target_addr]))
+                    mode == 'store' and inst_list.append(self.VectorCodeGen('vstore_a', [self._SEW, static_vreg, static_target_addr]))
+                    arg_list.append([self._SEW, static_vreg, static_target_addr])
+
+                # === Calculating the AVL ===
+                target_addr = static_target_addr + (static_vstart * self.SEWB) + len
+                vrfaddr     = vrfaddr + len
+                AVL         = AVL - elen
+                
+            print()
+
+        return inst_list, arg_list
+
     def LoadMatrix(self, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr):
         """
         the function to load matrix to vrf with vector flatten (byte addresss)
@@ -90,7 +232,7 @@ class HLGenerator:
                     vstart_change = True
 
                 
-                print(f"Target Byte Addr: {target_addr:6}", end=",  ")
+                print(f"Target Byte Addr: {target_addr:6} (0x{target_addr:X})", end=",  ")
                 if target_addr != static_target_addr:
                     static_target_addr     = target_addr
                     target_addr_change     = True
@@ -159,7 +301,7 @@ class HLGenerator:
                     arg_list.append([self._SEW, static_vd, static_target_addr])
 
                 # === Calculating the AVL ===
-                target_addr = target_addr + len
+                target_addr = static_target_addr + (static_vstart * self.SEWB) + len
                 vrfaddr     = vrfaddr + len
                 AVL         = AVL - elen
                 
@@ -298,7 +440,7 @@ class HLGenerator:
                     arg_list.append([self._SEW, static_vs, static_target_addr])
 
                 # === Calculating the AVL ===
-                target_addr = target_addr + len
+                target_addr = static_target_addr + (static_vstart * self.SEWB) + len
                 vrfaddr     = vrfaddr + len
                 AVL         = AVL - elen
                 
@@ -347,13 +489,10 @@ if __name__ == "__main__":
     DRAM_BASEADDR = 0xE0000000
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            inst, arg = instGenerator.LoadMatrix(20, 5120, 160, DRAM_BASEADDR, 12960) #(segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            inst, arg = instGenerator.CIM_Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
             for line in inst:
                 print(f"{line}")
-    
-
-    # with open(output_path, "w", encoding="utf-8") as f:
-    #     with redirect_stdout(f):
-    #         inst, arg = instGenerator.StoreMatrix(36, 128, 72, DRAM_BASEADDR, 12960) #(segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-    #         for line in inst:
-    #             print(f"{line}")
+            
+            inst, arg = instGenerator.CIM_Scatter_LS('store', 20, 0, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            for line in inst:
+                print(f"{line}")

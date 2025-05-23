@@ -37,7 +37,6 @@ class MEMORY:
             self.debug and print(f"0x{Dec64b:016X}")
             self.memory[idx] = Dec64b
 
-
     def dumpMem_data(self, mode):
         """
         The function to dump all of memory
@@ -74,7 +73,7 @@ class MEMORY:
     def take_data(self, start_addr, size, length):
         """
         the function to take data out of memory (start_addr is byte addr)
-        NOTE this function is too powerful, 
+        NOTE this function is "too powerful", 
              the normal main memory will not return the data list     
         """
         
