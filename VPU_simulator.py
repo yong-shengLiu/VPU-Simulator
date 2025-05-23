@@ -63,23 +63,35 @@ class VPU_simulator:
 if __name__ == "__main__":
     
     print("=== VPU Simulator testbench ===")
-    print("version: 2025.05.17")
+    print("version: 2025.05.23")
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    vrf_output_path = os.path.join(current_dir, "log", "vrf_result.txt")
+    dram_output_path = os.path.join(current_dir, "log", "dram_result.txt")
+    os.makedirs(os.path.dirname(vrf_output_path), exist_ok=True)   # create the output path
 
     sim     = VPU_simulator()
     instGen = HLGenerator()
 
 
     # === Preload DRAM ===
-    dir_np = 'C:/Users/david/Desktop/IwantGraduate/abstract/pattern/layer0.npy'
+    dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
     sim.preload_memory(dir_np)
 
     # === Load Matrix Insturction ===
-    loadMatricInsst, loadMatricArg = instGen.LoadMatrix(20, 5120, 160, DRAM_BASEADDR)    
+    loadMatricInsst, loadMatricArg = instGen.LoadMatrix(20, 5120, 160, DRAM_BASEADDR, 0)    
 
     sim.run(loadMatricInsst, loadMatricArg)
 
     # === Print out the current VRF memory mapping ===
-    with open(r"C:\Users\david\Desktop\IwantGraduate\abstract\VPU_simulator\simulation_result.txt", "w", encoding="utf-8") as f:
+    with open(vrf_output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             sim.vrf.dumpVRF_data()
+    print("VRF dump success")
+
+    # === Print out the current VRF memory mapping ===
+    with open(dram_output_path, "w", encoding="utf-8") as f:
+        with redirect_stdout(f):
+            sim.dram.dumpMem_data('debug')
+    print("DRAM dump success")
     
