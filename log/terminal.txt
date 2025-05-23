@@ -1,0 +1,309 @@
+SEW:  8
+LMUL: 1
+========
+load [Seg0]
+VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 160,  vl: 160,  len (byte):  160
+
+load [Seg1]
+VRF Byte Addr:    160,  vreg:  0,  vstart: 160,  Target Byte Addr: 3758101344 (0xE0001360),  elen: 160,  vl: 320,  len (byte):  160
+
+load [Seg2]
+VRF Byte Addr:    320,  vreg:  0,  vstart: 320,  Target Byte Addr: 3758106304 (0xE00026C0),  elen: 160,  vl: 480,  len (byte):  160
+
+load [Seg3]
+VRF Byte Addr:    480,  vreg:  0,  vstart: 480,  Target Byte Addr: 3758111264 (0xE0003A20),  elen:  32,  vl: 512,  len (byte):   32
+VRF Byte Addr:    512,  vreg:  1,  vstart:   0,  Target Byte Addr: 3758111776 (0xE0003C20),  elen: 128,  vl: 128,  len (byte):  160
+
+load [Seg4]
+VRF Byte Addr:    640,  vreg:  1,  vstart: 128,  Target Byte Addr: 3758116736 (0xE0004F80),  elen: 160,  vl: 288,  len (byte):  160
+
+load [Seg5]
+VRF Byte Addr:    800,  vreg:  1,  vstart: 288,  Target Byte Addr: 3758121696 (0xE00062E0),  elen: 160,  vl: 448,  len (byte):  160
+
+load [Seg6]
+VRF Byte Addr:    960,  vreg:  1,  vstart: 448,  Target Byte Addr: 3758126656 (0xE0007640),  elen:  64,  vl: 512,  len (byte):   64
+VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758127168 (0xE0007840),  elen:  96,  vl:  96,  len (byte):  160
+
+load [Seg7]
+VRF Byte Addr:   1120,  vreg:  2,  vstart:  96,  Target Byte Addr: 3758132128 (0xE0008BA0),  elen: 160,  vl: 256,  len (byte):  160
+
+load [Seg8]
+VRF Byte Addr:   1280,  vreg:  2,  vstart: 256,  Target Byte Addr: 3758137088 (0xE0009F00),  elen: 160,  vl: 416,  len (byte):  160
+
+load [Seg9]
+VRF Byte Addr:   1440,  vreg:  2,  vstart: 416,  Target Byte Addr: 3758142048 (0xE000B260),  elen:  96,  vl: 512,  len (byte):   96
+VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758142560 (0xE000B460),  elen:  64,  vl:  64,  len (byte):  160
+
+load [Seg10]
+VRF Byte Addr:   1600,  vreg:  3,  vstart:  64,  Target Byte Addr: 3758147520 (0xE000C7C0),  elen: 160,  vl: 224,  len (byte):  160
+
+load [Seg11]
+VRF Byte Addr:   1760,  vreg:  3,  vstart: 224,  Target Byte Addr: 3758152480 (0xE000DB20),  elen: 160,  vl: 384,  len (byte):  160
+
+load [Seg12]
+VRF Byte Addr:   1920,  vreg:  3,  vstart: 384,  Target Byte Addr: 3758157440 (0xE000EE80),  elen: 128,  vl: 512,  len (byte):  128
+VRF Byte Addr:   2048,  vreg:  4,  vstart:   0,  Target Byte Addr: 3758157952 (0xE000F080),  elen:  32,  vl:  32,  len (byte):  160
+
+load [Seg13]
+VRF Byte Addr:   2080,  vreg:  4,  vstart:  32,  Target Byte Addr: 3758162912 (0xE00103E0),  elen: 160,  vl: 192,  len (byte):  160
+
+load [Seg14]
+VRF Byte Addr:   2240,  vreg:  4,  vstart: 192,  Target Byte Addr: 3758167872 (0xE0011740),  elen: 160,  vl: 352,  len (byte):  160
+
+load [Seg15]
+VRF Byte Addr:   2400,  vreg:  4,  vstart: 352,  Target Byte Addr: 3758172832 (0xE0012AA0),  elen: 160,  vl: 512,  len (byte):  160
+
+load [Seg16]
+VRF Byte Addr:   2560,  vreg:  5,  vstart:   0,  Target Byte Addr: 3758178304 (0xE0014000),  elen: 160,  vl: 160,  len (byte):  160
+
+load [Seg17]
+VRF Byte Addr:   2720,  vreg:  5,  vstart: 160,  Target Byte Addr: 3758183264 (0xE0015360),  elen: 160,  vl: 320,  len (byte):  160
+
+load [Seg18]
+VRF Byte Addr:   2880,  vreg:  5,  vstart: 320,  Target Byte Addr: 3758188224 (0xE00166C0),  elen: 160,  vl: 480,  len (byte):  160
+
+load [Seg19]
+VRF Byte Addr:   3040,  vreg:  5,  vstart: 480,  Target Byte Addr: 3758193184 (0xE0017A20),  elen:  32,  vl: 512,  len (byte):   32
+VRF Byte Addr:   3072,  vreg:  6,  vstart:   0,  Target Byte Addr: 3758193696 (0xE0017C20),  elen: 128,  vl: 128,  len (byte):  160
+
+Inst number[0] -> type: vset [160, 8, 1]
+Inst number[1] -> type: vload_a [8, 0, 3758096384]
+Inst number[2] -> type: vset [320, 8, 1]
+Inst number[3] -> type: vstart [160]
+Inst number[4] -> type: vload_a [8, 0, 3758101344]
+Inst number[5] -> type: vset [480, 8, 1]
+Inst number[6] -> type: vstart [320]
+Inst number[7] -> type: vload_a [8, 0, 3758106304]
+Inst number[8] -> type: vset [512, 8, 1]
+Inst number[9] -> type: vstart [480]
+Inst number[10] -> type: vload_a [8, 0, 3758111264]
+Inst number[11] -> type: vset [128, 8, 1]
+Inst number[12] -> type: vstart [0]
+Inst number[13] -> type: vload_a [8, 1, 3758111776]
+Inst number[14] -> type: vset [288, 8, 1]
+Inst number[15] -> type: vstart [128]
+Inst number[16] -> type: vload_a [8, 1, 3758116736]
+Inst number[17] -> type: vset [448, 8, 1]
+Inst number[18] -> type: vstart [288]
+Inst number[19] -> type: vload_a [8, 1, 3758121696]
+Inst number[20] -> type: vset [512, 8, 1]
+Inst number[21] -> type: vstart [448]
+Inst number[22] -> type: vload_a [8, 1, 3758126656]
+Inst number[23] -> type: vset [96, 8, 1]
+Inst number[24] -> type: vstart [0]
+Inst number[25] -> type: vload_a [8, 2, 3758127168]
+Inst number[26] -> type: vset [256, 8, 1]
+Inst number[27] -> type: vstart [96]
+Inst number[28] -> type: vload_a [8, 2, 3758132128]
+Inst number[29] -> type: vset [416, 8, 1]
+Inst number[30] -> type: vstart [256]
+Inst number[31] -> type: vload_a [8, 2, 3758137088]
+Inst number[32] -> type: vset [512, 8, 1]
+Inst number[33] -> type: vstart [416]
+Inst number[34] -> type: vload_a [8, 2, 3758142048]
+Inst number[35] -> type: vset [64, 8, 1]
+Inst number[36] -> type: vstart [0]
+Inst number[37] -> type: vload_a [8, 3, 3758142560]
+Inst number[38] -> type: vset [224, 8, 1]
+Inst number[39] -> type: vstart [64]
+Inst number[40] -> type: vload_a [8, 3, 3758147520]
+Inst number[41] -> type: vset [384, 8, 1]
+Inst number[42] -> type: vstart [224]
+Inst number[43] -> type: vload_a [8, 3, 3758152480]
+Inst number[44] -> type: vset [512, 8, 1]
+Inst number[45] -> type: vstart [384]
+Inst number[46] -> type: vload_a [8, 3, 3758157440]
+Inst number[47] -> type: vset [32, 8, 1]
+Inst number[48] -> type: vstart [0]
+Inst number[49] -> type: vload_a [8, 4, 3758157952]
+Inst number[50] -> type: vset [192, 8, 1]
+Inst number[51] -> type: vstart [32]
+Inst number[52] -> type: vload_a [8, 4, 3758162912]
+Inst number[53] -> type: vset [352, 8, 1]
+Inst number[54] -> type: vstart [192]
+Inst number[55] -> type: vload_a [8, 4, 3758167872]
+Inst number[56] -> type: vset [512, 8, 1]
+Inst number[57] -> type: vstart [352]
+Inst number[58] -> type: vload_a [8, 4, 3758172832]
+Inst number[59] -> type: vset [160, 8, 1]
+Inst number[60] -> type: vstart [0]
+Inst number[61] -> type: vload_a [8, 5, 3758178304]
+Inst number[62] -> type: vset [320, 8, 1]
+Inst number[63] -> type: vstart [160]
+Inst number[64] -> type: vload_a [8, 5, 3758183264]
+Inst number[65] -> type: vset [480, 8, 1]
+Inst number[66] -> type: vstart [320]
+Inst number[67] -> type: vload_a [8, 5, 3758188224]
+Inst number[68] -> type: vset [512, 8, 1]
+Inst number[69] -> type: vstart [480]
+Inst number[70] -> type: vload_a [8, 5, 3758193184]
+Inst number[71] -> type: vset [128, 8, 1]
+Inst number[72] -> type: vstart [0]
+Inst number[73] -> type: vload_a [8, 6, 3758193696]
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 160,  vl: 160,  len (byte):  160
+
+store [Seg1]
+VRF Byte Addr:    160,  vreg:  0,  vstart: 160,  Target Byte Addr: 3758096224 (0xDFFFFF60),  elen: 160,  vl: 320,  len (byte):  160
+
+store [Seg2]
+VRF Byte Addr:    320,  vreg:  0,  vstart: 320,  Target Byte Addr: 3758096064 (0xDFFFFEC0),  elen: 160,  vl: 480,  len (byte):  160
+
+store [Seg3]
+VRF Byte Addr:    480,  vreg:  0,  vstart: 480,  Target Byte Addr: 3758095904 (0xDFFFFE20),  elen:  32,  vl: 512,  len (byte):   32
+VRF Byte Addr:    512,  vreg:  1,  vstart:   0,  Target Byte Addr: 3758096416 (0xE0000020),  elen: 128,  vl: 128,  len (byte):  160
+
+store [Seg4]
+VRF Byte Addr:    640,  vreg:  1,  vstart: 128,  Target Byte Addr: 3758096256 (0xDFFFFF80),  elen: 160,  vl: 288,  len (byte):  160
+
+store [Seg5]
+VRF Byte Addr:    800,  vreg:  1,  vstart: 288,  Target Byte Addr: 3758096096 (0xDFFFFEE0),  elen: 160,  vl: 448,  len (byte):  160
+
+store [Seg6]
+VRF Byte Addr:    960,  vreg:  1,  vstart: 448,  Target Byte Addr: 3758095936 (0xDFFFFE40),  elen:  64,  vl: 512,  len (byte):   64
+VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758096448 (0xE0000040),  elen:  96,  vl:  96,  len (byte):  160
+
+store [Seg7]
+VRF Byte Addr:   1120,  vreg:  2,  vstart:  96,  Target Byte Addr: 3758096288 (0xDFFFFFA0),  elen: 160,  vl: 256,  len (byte):  160
+
+store [Seg8]
+VRF Byte Addr:   1280,  vreg:  2,  vstart: 256,  Target Byte Addr: 3758096128 (0xDFFFFF00),  elen: 160,  vl: 416,  len (byte):  160
+
+store [Seg9]
+VRF Byte Addr:   1440,  vreg:  2,  vstart: 416,  Target Byte Addr: 3758095968 (0xDFFFFE60),  elen:  96,  vl: 512,  len (byte):   96
+VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758096480 (0xE0000060),  elen:  64,  vl:  64,  len (byte):  160
+
+store [Seg10]
+VRF Byte Addr:   1600,  vreg:  3,  vstart:  64,  Target Byte Addr: 3758096320 (0xDFFFFFC0),  elen: 160,  vl: 224,  len (byte):  160
+
+store [Seg11]
+VRF Byte Addr:   1760,  vreg:  3,  vstart: 224,  Target Byte Addr: 3758096160 (0xDFFFFF20),  elen: 160,  vl: 384,  len (byte):  160
+
+store [Seg12]
+VRF Byte Addr:   1920,  vreg:  3,  vstart: 384,  Target Byte Addr: 3758096000 (0xDFFFFE80),  elen: 128,  vl: 512,  len (byte):  128
+VRF Byte Addr:   2048,  vreg:  4,  vstart:   0,  Target Byte Addr: 3758096512 (0xE0000080),  elen:  32,  vl:  32,  len (byte):  160
+
+store [Seg13]
+VRF Byte Addr:   2080,  vreg:  4,  vstart:  32,  Target Byte Addr: 3758096352 (0xDFFFFFE0),  elen: 160,  vl: 192,  len (byte):  160
+
+store [Seg14]
+VRF Byte Addr:   2240,  vreg:  4,  vstart: 192,  Target Byte Addr: 3758096192 (0xDFFFFF40),  elen: 160,  vl: 352,  len (byte):  160
+
+store [Seg15]
+VRF Byte Addr:   2400,  vreg:  4,  vstart: 352,  Target Byte Addr: 3758096032 (0xDFFFFEA0),  elen: 160,  vl: 512,  len (byte):  160
+
+store [Seg16]
+VRF Byte Addr:   2560,  vreg:  5,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 160,  vl: 160,  len (byte):  160
+
+store [Seg17]
+VRF Byte Addr:   2720,  vreg:  5,  vstart: 160,  Target Byte Addr: 3758096224 (0xDFFFFF60),  elen: 160,  vl: 320,  len (byte):  160
+
+store [Seg18]
+VRF Byte Addr:   2880,  vreg:  5,  vstart: 320,  Target Byte Addr: 3758096064 (0xDFFFFEC0),  elen: 160,  vl: 480,  len (byte):  160
+
+store [Seg19]
+VRF Byte Addr:   3040,  vreg:  5,  vstart: 480,  Target Byte Addr: 3758095904 (0xDFFFFE20),  elen:  32,  vl: 512,  len (byte):   32
+VRF Byte Addr:   3072,  vreg:  6,  vstart:   0,  Target Byte Addr: 3758096416 (0xE0000020),  elen: 128,  vl: 128,  len (byte):  160
+
+Inst number[0] -> type: vset [160, 8, 1]
+-> Unknown instrtuction
+Inst number[1] -> type: None [8, 0, 3758096384]
+Inst number[2] -> type: vset [320, 8, 1]
+Inst number[3] -> type: vstart [160]
+-> Unknown instrtuction
+Inst number[4] -> type: None [8, 0, 3758096224]
+Inst number[5] -> type: vset [480, 8, 1]
+Inst number[6] -> type: vstart [320]
+-> Unknown instrtuction
+Inst number[7] -> type: None [8, 0, 3758096064]
+Inst number[8] -> type: vset [512, 8, 1]
+Inst number[9] -> type: vstart [480]
+-> Unknown instrtuction
+Inst number[10] -> type: None [8, 0, 3758095904]
+Inst number[11] -> type: vset [128, 8, 1]
+Inst number[12] -> type: vstart [0]
+-> Unknown instrtuction
+Inst number[13] -> type: None [8, 1, 3758096416]
+Inst number[14] -> type: vset [288, 8, 1]
+Inst number[15] -> type: vstart [128]
+-> Unknown instrtuction
+Inst number[16] -> type: None [8, 1, 3758096256]
+Inst number[17] -> type: vset [448, 8, 1]
+Inst number[18] -> type: vstart [288]
+-> Unknown instrtuction
+Inst number[19] -> type: None [8, 1, 3758096096]
+Inst number[20] -> type: vset [512, 8, 1]
+Inst number[21] -> type: vstart [448]
+-> Unknown instrtuction
+Inst number[22] -> type: None [8, 1, 3758095936]
+Inst number[23] -> type: vset [96, 8, 1]
+Inst number[24] -> type: vstart [0]
+-> Unknown instrtuction
+Inst number[25] -> type: None [8, 2, 3758096448]
+Inst number[26] -> type: vset [256, 8, 1]
+Inst number[27] -> type: vstart [96]
+-> Unknown instrtuction
+Inst number[28] -> type: None [8, 2, 3758096288]
+Inst number[29] -> type: vset [416, 8, 1]
+Inst number[30] -> type: vstart [256]
+-> Unknown instrtuction
+Inst number[31] -> type: None [8, 2, 3758096128]
+Inst number[32] -> type: vset [512, 8, 1]
+Inst number[33] -> type: vstart [416]
+-> Unknown instrtuction
+Inst number[34] -> type: None [8, 2, 3758095968]
+Inst number[35] -> type: vset [64, 8, 1]
+Inst number[36] -> type: vstart [0]
+-> Unknown instrtuction
+Inst number[37] -> type: None [8, 3, 3758096480]
+Inst number[38] -> type: vset [224, 8, 1]
+Inst number[39] -> type: vstart [64]
+-> Unknown instrtuction
+Inst number[40] -> type: None [8, 3, 3758096320]
+Inst number[41] -> type: vset [384, 8, 1]
+Inst number[42] -> type: vstart [224]
+-> Unknown instrtuction
+Inst number[43] -> type: None [8, 3, 3758096160]
+Inst number[44] -> type: vset [512, 8, 1]
+Inst number[45] -> type: vstart [384]
+-> Unknown instrtuction
+Inst number[46] -> type: None [8, 3, 3758096000]
+Inst number[47] -> type: vset [32, 8, 1]
+Inst number[48] -> type: vstart [0]
+-> Unknown instrtuction
+Inst number[49] -> type: None [8, 4, 3758096512]
+Inst number[50] -> type: vset [192, 8, 1]
+Inst number[51] -> type: vstart [32]
+-> Unknown instrtuction
+Inst number[52] -> type: None [8, 4, 3758096352]
+Inst number[53] -> type: vset [352, 8, 1]
+Inst number[54] -> type: vstart [192]
+-> Unknown instrtuction
+Inst number[55] -> type: None [8, 4, 3758096192]
+Inst number[56] -> type: vset [512, 8, 1]
+Inst number[57] -> type: vstart [352]
+-> Unknown instrtuction
+Inst number[58] -> type: None [8, 4, 3758096032]
+Inst number[59] -> type: vset [160, 8, 1]
+Inst number[60] -> type: vstart [0]
+-> Unknown instrtuction
+Inst number[61] -> type: None [8, 5, 3758096384]
+Inst number[62] -> type: vset [320, 8, 1]
+Inst number[63] -> type: vstart [160]
+-> Unknown instrtuction
+Inst number[64] -> type: None [8, 5, 3758096224]
+Inst number[65] -> type: vset [480, 8, 1]
+Inst number[66] -> type: vstart [320]
+-> Unknown instrtuction
+Inst number[67] -> type: None [8, 5, 3758096064]
+Inst number[68] -> type: vset [512, 8, 1]
+Inst number[69] -> type: vstart [480]
+-> Unknown instrtuction
+Inst number[70] -> type: None [8, 5, 3758095904]
+Inst number[71] -> type: vset [128, 8, 1]
+Inst number[72] -> type: vstart [0]
+-> Unknown instrtuction
+Inst number[73] -> type: None [8, 6, 3758096416]

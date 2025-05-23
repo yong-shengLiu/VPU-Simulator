@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from contextlib import redirect_stdout
 import tkinter as tk
@@ -271,13 +272,18 @@ class VRF:
 
 if __name__ == "__main__":
     print("=== VRF testbench ===")
-    print("version: 2025.05.20")
+    print("version: 2025.05.23")
     
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(current_dir, "log", "vrf_idx.txt")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
+
+
     # === Construct a VRF ===
-    vrf = VRF()
+    vrf = VRF(SEW=8, LMUL=1)
 
     # === Print out the current VRF memory mapping (not synchronize with the change of vset currently)===
-    with open(r"C:\Users\david\Desktop\IwantGraduate\abstract\VPU_simulator\vrf_output.txt", "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             vrf.VRF_Idx()
 
