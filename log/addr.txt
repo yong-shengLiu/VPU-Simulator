@@ -1,0 +1,143 @@
+SEW:  8
+LMUL: 1
+========
+Seg0
+Source V Byte Addr:  12960,  vreg(vd): 25,  vstart: 160,  Target Byte Addr: 3758096224,  elen: 160,  vl: 320,  len (byte):  160
+
+Seg1
+Source V Byte Addr:  13120,  vreg(vd): 25,  vstart: 320,  Target Byte Addr: 3758101184,  elen: 160,  vl: 480,  len (byte):  160
+
+Seg2
+Source V Byte Addr:  13280,  vreg(vd): 25,  vstart: 480,  Target Byte Addr: 3758106144,  elen:  32,  vl: 512,  len (byte):   32
+Source V Byte Addr:  13312,  vreg(vd): 26,  vstart:   0,  Target Byte Addr: 3758106176,  elen: 128,  vl: 128,  len (byte):  160
+
+Seg3
+Source V Byte Addr:  13440,  vreg(vd): 26,  vstart: 128,  Target Byte Addr: 3758111616,  elen: 160,  vl: 288,  len (byte):  160
+
+Seg4
+Source V Byte Addr:  13600,  vreg(vd): 26,  vstart: 288,  Target Byte Addr: 3758116576,  elen: 160,  vl: 448,  len (byte):  160
+
+Seg5
+Source V Byte Addr:  13760,  vreg(vd): 26,  vstart: 448,  Target Byte Addr: 3758121536,  elen:  64,  vl: 512,  len (byte):   64
+Source V Byte Addr:  13824,  vreg(vd): 27,  vstart:   0,  Target Byte Addr: 3758121600,  elen:  96,  vl:  96,  len (byte):  160
+
+Seg6
+Source V Byte Addr:  13920,  vreg(vd): 27,  vstart:  96,  Target Byte Addr: 3758127008,  elen: 160,  vl: 256,  len (byte):  160
+
+Seg7
+Source V Byte Addr:  14080,  vreg(vd): 27,  vstart: 256,  Target Byte Addr: 3758131968,  elen: 160,  vl: 416,  len (byte):  160
+
+Seg8
+Source V Byte Addr:  14240,  vreg(vd): 27,  vstart: 416,  Target Byte Addr: 3758136928,  elen:  96,  vl: 512,  len (byte):   96
+Source V Byte Addr:  14336,  vreg(vd): 28,  vstart:   0,  Target Byte Addr: 3758137024,  elen:  64,  vl:  64,  len (byte):  160
+
+Seg9
+Source V Byte Addr:  14400,  vreg(vd): 28,  vstart:  64,  Target Byte Addr: 3758142400,  elen: 160,  vl: 224,  len (byte):  160
+
+Seg10
+Source V Byte Addr:  14560,  vreg(vd): 28,  vstart: 224,  Target Byte Addr: 3758147360,  elen: 160,  vl: 384,  len (byte):  160
+
+Seg11
+Source V Byte Addr:  14720,  vreg(vd): 28,  vstart: 384,  Target Byte Addr: 3758152320,  elen: 128,  vl: 512,  len (byte):  128
+Source V Byte Addr:  14848,  vreg(vd): 29,  vstart:   0,  Target Byte Addr: 3758152448,  elen:  32,  vl:  32,  len (byte):  160
+
+Seg12
+Source V Byte Addr:  14880,  vreg(vd): 29,  vstart:  32,  Target Byte Addr: 3758157792,  elen: 160,  vl: 192,  len (byte):  160
+
+Seg13
+Source V Byte Addr:  15040,  vreg(vd): 29,  vstart: 192,  Target Byte Addr: 3758162752,  elen: 160,  vl: 352,  len (byte):  160
+
+Seg14
+Source V Byte Addr:  15200,  vreg(vd): 29,  vstart: 352,  Target Byte Addr: 3758167712,  elen: 160,  vl: 512,  len (byte):  160
+
+Seg15
+Source V Byte Addr:  15360,  vreg(vd): 30,  vstart:   0,  Target Byte Addr: 3758173184,  elen: 160,  vl: 160,  len (byte):  160
+
+Seg16
+Source V Byte Addr:  15520,  vreg(vd): 30,  vstart: 160,  Target Byte Addr: 3758178144,  elen: 160,  vl: 320,  len (byte):  160
+
+Seg17
+Source V Byte Addr:  15680,  vreg(vd): 30,  vstart: 320,  Target Byte Addr: 3758183104,  elen: 160,  vl: 480,  len (byte):  160
+
+Seg18
+Source V Byte Addr:  15840,  vreg(vd): 30,  vstart: 480,  Target Byte Addr: 3758188064,  elen:  32,  vl: 512,  len (byte):   32
+Source V Byte Addr:  15872,  vreg(vd): 31,  vstart:   0,  Target Byte Addr: 3758188096,  elen: 128,  vl: 128,  len (byte):  160
+
+Seg19
+Source V Byte Addr:  16000,  vreg(vd): 31,  vstart: 128,  Target Byte Addr: 3758193536,  elen: 160,  vl: 288,  len (byte):  160
+
+VSET(320, e8, m1);
+write_csr(vstart, 160);
+asm volatile("vle8.v v25, (%0)" ::"r"((uint8_t*)3758096224));
+VSET(480, e8, m1);
+write_csr(vstart, 320);
+asm volatile("vle8.v v25, (%0)" ::"r"((uint8_t*)3758101184));
+VSET(512, e8, m1);
+write_csr(vstart, 480);
+asm volatile("vle8.v v25, (%0)" ::"r"((uint8_t*)3758106144));
+VSET(128, e8, m1);
+write_csr(vstart, 0);
+asm volatile("vle8.v v26, (%0)" ::"r"((uint8_t*)3758106176));
+VSET(288, e8, m1);
+write_csr(vstart, 128);
+asm volatile("vle8.v v26, (%0)" ::"r"((uint8_t*)3758111616));
+VSET(448, e8, m1);
+write_csr(vstart, 288);
+asm volatile("vle8.v v26, (%0)" ::"r"((uint8_t*)3758116576));
+VSET(512, e8, m1);
+write_csr(vstart, 448);
+asm volatile("vle8.v v26, (%0)" ::"r"((uint8_t*)3758121536));
+VSET(96, e8, m1);
+write_csr(vstart, 0);
+asm volatile("vle8.v v27, (%0)" ::"r"((uint8_t*)3758121600));
+VSET(256, e8, m1);
+write_csr(vstart, 96);
+asm volatile("vle8.v v27, (%0)" ::"r"((uint8_t*)3758127008));
+VSET(416, e8, m1);
+write_csr(vstart, 256);
+asm volatile("vle8.v v27, (%0)" ::"r"((uint8_t*)3758131968));
+VSET(512, e8, m1);
+write_csr(vstart, 416);
+asm volatile("vle8.v v27, (%0)" ::"r"((uint8_t*)3758136928));
+VSET(64, e8, m1);
+write_csr(vstart, 0);
+asm volatile("vle8.v v28, (%0)" ::"r"((uint8_t*)3758137024));
+VSET(224, e8, m1);
+write_csr(vstart, 64);
+asm volatile("vle8.v v28, (%0)" ::"r"((uint8_t*)3758142400));
+VSET(384, e8, m1);
+write_csr(vstart, 224);
+asm volatile("vle8.v v28, (%0)" ::"r"((uint8_t*)3758147360));
+VSET(512, e8, m1);
+write_csr(vstart, 384);
+asm volatile("vle8.v v28, (%0)" ::"r"((uint8_t*)3758152320));
+VSET(32, e8, m1);
+write_csr(vstart, 0);
+asm volatile("vle8.v v29, (%0)" ::"r"((uint8_t*)3758152448));
+VSET(192, e8, m1);
+write_csr(vstart, 32);
+asm volatile("vle8.v v29, (%0)" ::"r"((uint8_t*)3758157792));
+VSET(352, e8, m1);
+write_csr(vstart, 192);
+asm volatile("vle8.v v29, (%0)" ::"r"((uint8_t*)3758162752));
+VSET(512, e8, m1);
+write_csr(vstart, 352);
+asm volatile("vle8.v v29, (%0)" ::"r"((uint8_t*)3758167712));
+VSET(160, e8, m1);
+write_csr(vstart, 0);
+asm volatile("vle8.v v30, (%0)" ::"r"((uint8_t*)3758173184));
+VSET(320, e8, m1);
+write_csr(vstart, 160);
+asm volatile("vle8.v v30, (%0)" ::"r"((uint8_t*)3758178144));
+VSET(480, e8, m1);
+write_csr(vstart, 320);
+asm volatile("vle8.v v30, (%0)" ::"r"((uint8_t*)3758183104));
+VSET(512, e8, m1);
+write_csr(vstart, 480);
+asm volatile("vle8.v v30, (%0)" ::"r"((uint8_t*)3758188064));
+VSET(128, e8, m1);
+write_csr(vstart, 0);
+asm volatile("vle8.v v31, (%0)" ::"r"((uint8_t*)3758188096));
+VSET(288, e8, m1);
+write_csr(vstart, 128);
+asm volatile("vle8.v v31, (%0)" ::"r"((uint8_t*)3758193536));
