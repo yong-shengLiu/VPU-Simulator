@@ -61,8 +61,15 @@ class LSU:
         """
         this function is used to store data to Main Mempry
         NOTE: "stride" is main memory byte stride defined by RVV
+        TODO: 
+        (1) this function is not same as Ara, not only 64b store when vstart is not 0
         """
-        static_byte_addr = 0
+        if stride == 1:
+            static_byte_addr = base_addr + (self._vstart * (self._vsew // 8))
+        else:
+            static_byte_addr = base_addr + (self._vstart * stride)
+        byte_strb        = 0
+        store_data       = 0
 
         for element in range(self.elen):
             # === 64b axi addr pre-calculate ===
@@ -70,14 +77,22 @@ class LSU:
                 byte_addr = base_addr + ((self._vstart + element) * (self._vsew // 8))
             else:
                 byte_addr = base_addr + ((self._vstart + element) * stride)
-            self.debug and print(f"Fetch Addr: 0x{byte_addr:X}", end=", ")
+            print(f"Store Addr: 0x{byte_addr:X}")
 
-            # === Store data to Main memory per byte===
-            updata_addr = (static_byte_addr >> 3) != (byte_addr >> 3)
+            
+            # === Store data to Main memory per 64b ===
+            updata_addr = ( (static_byte_addr >> 3) != (byte_addr >> 3) )
 
             if updata_addr:
+                print(f"Store Addr: 0x{static_byte_addr:X}, strb: {byte_strb:X}, data: 0x{store_data:X}")
+                self.memory.store64bData(static_byte_addr, byte_strb, store_data)  # TODO add DRAM perfomance counter here !!
                 static_byte_addr = byte_addr
-                # rtn_data = self.memory.take64bData(static_byte_addr)
+                byte_strb  = 0
+                store_data = 0
+            else:
+                byte_strb = byte_strb   | (1 << (byte_addr & 0b111))  # byte strb
+                store_data = store_data | (data_list[element] << ((byte_addr & 0b111) * 8))
+                
 
 if __name__ == "__main__":
     print("===== LoadStoreUnit testbench =====")
@@ -95,12 +110,15 @@ if __name__ == "__main__":
     dram.init_byte_to_mem(byte_pattern)               # the preload pattern which is represent in byte
 
     # === Load test ===
-    lsu.AxiAddrSet(20, 5, 16)
+    lsu.AxiAddrSet(20, 5, 16) #(vl, vstart, vsew)
     print(f"sew: {lsu._vsew}, elen: {lsu.elen}")
     vector = lsu.LoadMemory(0xE0000000, 1)  # stride is byte stride
     print([f"0x{val:X}"  for val in vector])
 
-    
     # === Store test ===
+    lsu.AxiAddrSet(6, 0, 16) #(vl, vstart, vsew)
+    print(f"sew: {lsu._vsew}, elen: {lsu.elen}")
+    lsu.StoreMemory(0xE0000000, 1, [0x1111, 0x2222, 0x3333, 0x4444, 0x5555, 0x6666])  # (self, base_addr, stride, data_list)
+    
 
     

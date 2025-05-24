@@ -90,8 +90,8 @@ if __name__ == "__main__":
             loadMatricInsst, loadMatricArg = instGen.CIM_Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0)
             sim.run(loadMatricInsst, loadMatricArg)
 
-            # # === Store Matrix Insturction ===
-            storeMatricInsst, storeMatricArg = instGen.CIM_Scatter_LS('store', 20, 0, 160, DRAM_BASEADDR, 0)
+            # === Store Matrix Insturction ===
+            storeMatricInsst, storeMatricArg = instGen.CIM_Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0)
             sim.run(storeMatricInsst, storeMatricArg)
 
 

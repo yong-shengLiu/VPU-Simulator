@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from contextlib import redirect_stdout
 
@@ -70,6 +71,25 @@ class MEMORY:
         
         return self.memory[align64_addr]
 
+    def store64bData(self, addr, byte_strb, data):
+        """
+        the function to store data into memory (addr is byte addr)
+        NOTE this function need master to provide the byte_strb(8bit), high->store, low->don't store
+        """
+
+        relative_start_addr = addr - self.BASEADDR
+        align64_addr = (relative_start_addr >> 3)
+
+        # === store data ===
+        bit_mask = 0
+        for byte in range(8):
+            if byte_strb & (1 << byte):
+                bit_mask = bit_mask | (0b11111111 << (byte * 8))
+        inv_mask = ~bit_mask & 0xFFFFFFFFFFFFFFFF  # assume 64-bit memory entry
+        
+        self.memory[align64_addr] = (self.memory[align64_addr] & inv_mask) | (data & bit_mask) 
+        
+
     def take_data(self, start_addr, size, length):
         """
         the function to take data out of memory (start_addr is byte addr)
@@ -116,9 +136,13 @@ class MEMORY:
 
         return temp_vector
 
-
-    # the function to store data into memory (start_addr is byte addr)
     def store_data(self, start_addr, size, vector):
+        """
+        the function to store data into memory (start_addr is byte addr)
+        NOTE this function is "too powerful", 
+             the normal main memory will not take the data list as input    
+        """
+
         relative_start_addr = start_addr - self.BASEADDR
 
         length = len(vector)
@@ -156,12 +180,13 @@ class MEMORY:
 
 if __name__ == "__main__":
     print("===== main memory testbench =====")
-    print("version: 2025.05.18")
+    print("version: 2025.05.24")
 
     dram = MEMORY(DataWidth=64, Depth=409600, debug=False)
 
     # load the DRAM pattern (float 32b)
-    dir_np = 'C:/Users/david/Desktop/IwantGraduate/abstract/pattern/layer0.npy'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
     dram_pattern = np.load(dir_np)
 
     # 32b to 8b
@@ -171,11 +196,11 @@ if __name__ == "__main__":
     dram.init_byte_to_mem(dram_pattern)
 
     # 8 bit testbench
-    print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0, 8,  15).astype(np.uint8 )]) # align & start from 0
-    print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(2, 8,  15).astype(np.uint8 )]) # align 2Byte
-    print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(4, 8,  15).astype(np.uint8 )]) # align 4Byte
-    print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(8, 8,  15).astype(np.uint8 )]) # align 8Byte
-    print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(3, 8,  15).astype(np.uint8 )]) # non-align
+    # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0, 8,  15).astype(np.uint8 )]) # align & start from 0
+    # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(2, 8,  15).astype(np.uint8 )]) # align 2Byte
+    # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(4, 8,  15).astype(np.uint8 )]) # align 4Byte
+    # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(8, 8,  15).astype(np.uint8 )]) # align 8Byte
+    # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(3, 8,  15).astype(np.uint8 )]) # non-align
 
     # 16 bit testbench
     # print("16bit: ", [f"0x{val:04X}"  for val in dram.take_data(0, 16, 10).astype(np.uint16)]) # align & start from 0
@@ -213,8 +238,13 @@ if __name__ == "__main__":
     # data8 = np.array([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xdf, 0x78, 0x99], dtype=np.uint8)
     # dram.store_data(320, 8, data8)
 
+    dram.store64bData(0, 0b1, 0x1111111111111111) #(addr, byte_strb, data)
+    dram.store64bData(8, 0b110, 0x1111111111111111) #(addr, byte_strb, data)
+    dram.store64bData(16, 0b10000000, 0x1111111111111111) #(addr, byte_strb, data)
+
     # === Print out the current DRAM ===
-    with open(r"C:\Users\david\Desktop\IwantGraduate\abstract\VPU_simulator\dram.txt", "w", encoding="utf-8") as f:
+    output_path = os.path.join(current_dir, "log", "dram.txt")
+    with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             dram.dumpMem_data(mode = 'debug')
             # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0x1400, 8, 160)])
