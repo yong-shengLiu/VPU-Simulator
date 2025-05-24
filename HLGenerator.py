@@ -146,7 +146,7 @@ class HLGenerator:
                 if vstart_change: 
                     inst_list.append(self.VectorCodeGen('vstart', [static_vstart]))
                     arg_list.append([static_vstart])
-                if vreg_change or target_addr_change:
+                if vreg_change or target_addr_change or vstart_change:
                     mode == 'load'  and inst_list.append(self.VectorCodeGen('vload_a',  [self._SEW, static_vreg, static_target_addr]))
                     mode == 'store' and inst_list.append(self.VectorCodeGen('vstore_a', [self._SEW, static_vreg, static_target_addr]))
                     arg_list.append([self._SEW, static_vreg, static_target_addr])
@@ -479,10 +479,11 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.05.23")
+    print("version: 2025.05.24")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "addr.txt")
+    golden_path = os.path.join(current_dir, "log", "golden.txt")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
 
     # === Print out the current DRAM ===
@@ -493,6 +494,17 @@ if __name__ == "__main__":
             for line in inst:
                 print(f"{line}")
             
-            inst, arg = instGenerator.CIM_Scatter_LS('store', 20, 0, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            inst, arg = instGenerator.CIM_Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
             for line in inst:
                 print(f"{line}")
+    
+    # === Load the Golden Pattern ===
+    dir_np = os.path.join(current_dir, "pattern", "conv0.npy")
+    row_pattern = np.load(dir_np)
+    byte_pattern = row_pattern.flatten().astype(np.uint8)
+
+    with open(golden_path, "w", encoding="utf-8") as f:
+        with redirect_stdout(f):
+            for i in range(0, len(byte_pattern), 8):
+                row = byte_pattern[i:i+8]
+                print(" ".join(f"{b:02x}" for b in row), end=" \n")  # hex format, padded to 2 digits
