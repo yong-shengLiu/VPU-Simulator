@@ -38,12 +38,13 @@ class MEMORY:
             self.debug and print(f"0x{Dec64b:016X}")
             self.memory[idx] = Dec64b
 
-    def dumpMem_data(self, mode):
+    def dumpMem_data(self, mode, Depth=None):
         """
         The function to dump all of memory
         Support mode:
         1. debug: used to dump python level memory in txt with 64b per data
         2. rtl: used to generate the hex file for rtl "readmemh" with 8b per data
+        3. golden: used to generate the hex with "little-endian" 64b per row
         """
 
         if mode == 'debug':
@@ -59,6 +60,15 @@ class MEMORY:
                     byte_mask  = 0b11111111 << (byte * 8)
                     byte_value = (value & byte_mask) >> (byte * 8)
                     print(f"{byte_value:02X}")
+        elif mode == 'golden':
+            print("----- Memory data (little-endian) -----")
+            for idx, value in enumerate(self.memory):
+                # Convert 64-bit integer to little-endian byte sequence
+                little_endian_value = int(value).to_bytes(8, byteorder='little', signed=False)
+                print(" ".join(f"{byte:02x}" for byte in little_endian_value), end=" \n")
+                
+                if Depth is not None and idx >= Depth - 1:
+                    break
 
     def take64bData(self, addr):
         """

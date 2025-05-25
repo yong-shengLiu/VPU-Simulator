@@ -79,8 +79,13 @@ class DISPATCHER:
             self.vd         = arg[1]
             self.scalar_imm = arg[2]
             type = 'vload_a'
+        elif "vse" in CAPI:   # [sew, vs, base_addr]  TODO decode uint stride, stride, index
+            self.SEW        = arg[0]
+            self.vd         = arg[1]   # TODO need to pass to lane
+            self.scalar_imm = arg[2]
+            type = 'vstore_a'
         else:
-            print("-> Unknown instrtuction")
+            print("-> Unknown instrtuction (in dispatcher.decodeCAPI)")
         
         return type
 

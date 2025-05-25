@@ -49,12 +49,14 @@ class VPU_simulator:
                 self.vrf.vset(self.dispatcher.SEW, self.dispatcher.LMUL)
                 self.vrf.load(arg[1], self.dispatcher.vstart, element_length, temp_vector)
             
-            if type == 'store_a':  # [sew, vs, base_addr]
+            if type == 'vstore_a':  # [sew, vs, base_addr]
                 # TODO VRF element length need be calculate in lane
                 # === load from VRF ===
                 element_length = self.dispatcher.vl - self.dispatcher.vstart
                 self.vrf.vset(self.dispatcher.SEW, self.dispatcher.LMUL)
                 temp_vector = self.vrf.take(arg[1], self.dispatcher.vstart, element_length)
+
+                print( [f"0x{val:X}"  for val in temp_vector] )
 
                 # === store to maine memory ===
                 self.lsu.AxiAddrSet(self.dispatcher.vl, self.dispatcher.vstart, self.dispatcher.SEW)
@@ -104,6 +106,6 @@ if __name__ == "__main__":
     # === Print out the current VRF memory mapping ===
     with open(dram_output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            sim.dram.dumpMem_data('debug')
+            sim.dram.dumpMem_data('golden', Depth=400)
     print("DRAM dump success")
     

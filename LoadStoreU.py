@@ -72,26 +72,31 @@ class LSU:
         store_data       = 0
 
         for element in range(self.elen):
-            # === 64b axi addr pre-calculate ===
+            # === 64b axi addr byte increasing ===
             if stride == 1:
                 byte_addr = base_addr + ((self._vstart + element) * (self._vsew // 8))
             else:
                 byte_addr = base_addr + ((self._vstart + element) * stride)
-            print(f"Store Addr: 0x{byte_addr:X}")
-
             
-            # === Store data to Main memory per 64b ===
-            updata_addr = ( (static_byte_addr >> 3) != (byte_addr >> 3) )
 
-            if updata_addr:
-                print(f"Store Addr: 0x{static_byte_addr:X}, strb: {byte_strb:X}, data: 0x{store_data:X}")
+            # === Prepare data to be store ===
+            for byte_inc in range(self._vsew // 8):
+                byte_strb  = byte_strb  | (1 << ((byte_addr+byte_inc) & 0b111))  # byte strb
+        
+            store_data = store_data | (data_list[element] << ((byte_addr & 0b111) * 8))
+            self.debug and print(f"Prepare Addr: 0x{byte_addr:X}, strb: {byte_strb:X}, data: 0x{store_data:X}")
+
+            updata_addr = (static_byte_addr >> 3) != ( (byte_addr+(self._vsew // 8)) >> 3 )
+
+            # === Store data to Main memory per 64b ===
+            if updata_addr or element == self.elen - 1:
+                self.debug and print(f"Store Addr: 0x{static_byte_addr:X}")
                 self.memory.store64bData(static_byte_addr, byte_strb, store_data)  # TODO add DRAM perfomance counter here !!
-                static_byte_addr = byte_addr
+                static_byte_addr = byte_addr+(self._vsew // 8)
                 byte_strb  = 0
                 store_data = 0
-            else:
-                byte_strb = byte_strb   | (1 << (byte_addr & 0b111))  # byte strb
-                store_data = store_data | (data_list[element] << ((byte_addr & 0b111) * 8))
+
+                
                 
 
 if __name__ == "__main__":
