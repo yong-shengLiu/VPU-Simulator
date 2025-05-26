@@ -199,7 +199,7 @@ if __name__ == "__main__":
     dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
     dram_pattern = np.load(dir_np)
 
-    # 32b to 8b
+    # FP32b to uint8b
     dram_pattern = dram_pattern.flatten().astype(np.uint8)
 
     # the preload pattern is represent in byte
