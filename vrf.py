@@ -262,7 +262,7 @@ class VRF:
             else:
                 shift_amount = int(VRF_dimension[3] * self._SEW)
                 element_mask = ((1 << self._SEW) - 1)
-                element = word_8B >> shift_amount & element_mask
+                element = int(word_8B) >> shift_amount & element_mask
 
             self.debug and print("hex: ", hex(element), "dec: ", element, "Dimension: ", VRF_dimension)
             rtn_vec.append(element)

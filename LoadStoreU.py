@@ -51,7 +51,7 @@ class LSU:
             self.debug and print(f"data: 0x{rtn_data:X}")
             
             # === add element to the return list ===
-            element_value = (rtn_data >> ((byte_addr & 0b111) * 8)) & ((1 << self._vsew) - 1)
+            element_value = (int(rtn_data) >> ((byte_addr & 0b111) * 8)) & ((1 << self._vsew) - 1)
             vector_list.append(element_value)
         
 

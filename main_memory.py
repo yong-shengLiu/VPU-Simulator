@@ -97,7 +97,7 @@ class MEMORY:
                 bit_mask = bit_mask | (0b11111111 << (byte * 8))
         inv_mask = ~bit_mask & 0xFFFFFFFFFFFFFFFF  # assume 64-bit memory entry
         
-        self.memory[align64_addr] = (self.memory[align64_addr] & inv_mask) | (data & bit_mask) 
+        self.memory[align64_addr] = (int(self.memory[align64_addr]) & inv_mask) | (data & bit_mask) 
         
 
     def take_data(self, start_addr, size, length):
