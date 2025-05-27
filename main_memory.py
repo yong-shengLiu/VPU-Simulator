@@ -18,10 +18,14 @@ class MEMORY:
     
     
     # the function to initial bulk data to memory in byte
-    def init_byte_to_mem(self, pattern):
+    def init_byte_to_mem(self, pattern, byte_num):
+        """
+        The function to initial bulk data to memory in byte
+        support byte_num: 1, 2, 4, 8
+        """
         # === Reshape to (N, 8) ===
-        dram_reshape = pattern.reshape(-1, 8)
-        self.debug and print("reshape: ", dram_reshape.shape)
+        dram_reshape = pattern.reshape(-1, 8//byte_num)  # Reshape per 8 bytes
+        print("reshape: ", dram_reshape.shape)
         
 
         # === load into memory ===s
@@ -29,11 +33,11 @@ class MEMORY:
             self.debug and print(chunk)
             
             chunk = chunk[::-1]  # reverse each chunk (little-endian)
-
+ 
             Dec64b = 0
-            for byte in chunk:
-                self.debug and print(hex(byte))
-                Dec64b = (Dec64b << 8) | int(byte)
+            for word in chunk:
+                self.debug and print(word)
+                Dec64b = (Dec64b << (8*byte_num)) | int(word)
             
             self.debug and print(f"0x{Dec64b:016X}")
             self.memory[idx] = Dec64b
@@ -190,20 +194,22 @@ class MEMORY:
 
 if __name__ == "__main__":
     print("===== main memory testbench =====")
-    print("version: 2025.05.24")
+    print("version: 2025.05.27")
 
     dram = MEMORY(DataWidth=64, Depth=409600, debug=False)
 
     # load the DRAM pattern (float 32b)
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
+    # dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
+    dir_np = os.path.join(current_dir, "pattern", "bf16_Mat64_512.npy")
     dram_pattern = np.load(dir_np)
 
     # FP32b to uint8b
-    dram_pattern = dram_pattern.flatten().astype(np.uint8)
+    # dram_pattern = dram_pattern.flatten().astype(np.uint8)
 
     # the preload pattern is represent in byte
-    dram.init_byte_to_mem(dram_pattern)
+    # dram.init_byte_to_mem(dram_pattern, 1) # (pattern, byte_num)
+    dram.init_byte_to_mem(dram_pattern, 2) # (pattern, byte_num)
 
     # 8 bit testbench
     # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0, 8,  15).astype(np.uint8 )]) # align & start from 0
@@ -248,14 +254,16 @@ if __name__ == "__main__":
     # data8 = np.array([0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xdf, 0x78, 0x99], dtype=np.uint8)
     # dram.store_data(320, 8, data8)
 
+    '''
     dram.store64bData(0, 0b1, 0x1111111111111111) #(addr, byte_strb, data)
     dram.store64bData(8, 0b110, 0x1111111111111111) #(addr, byte_strb, data)
     dram.store64bData(16, 0b10000000, 0x1111111111111111) #(addr, byte_strb, data)
-
+    '''
     # === Print out the current DRAM ===
     output_path = os.path.join(current_dir, "log", "dram.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             dram.dumpMem_data(mode = 'debug')
-            # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0x1400, 8, 160)])
+            # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0x1400, 8, 160)])'
+    
 

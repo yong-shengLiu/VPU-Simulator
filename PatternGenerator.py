@@ -42,10 +42,45 @@ def Gen_Matrix(row, column, datatype):
     else:
         raise ValueError(f"Unsupported datatype: {datatype}")
 
-def Gen_File():
-    """"
-    This function is used to generate the file for VPU Main memory
-    """
+def Gen_golden(element_array, kernal_size, debug=False):
+    H, W   = element_array.shape
+    kH, kW = kernal_size
+
+    tiles = []
+
+    for row in range(0, H, kH):
+        for col in range(0, W, kW):
+            
+            # === Extract the tile ===
+            tile = element_array[row:row+kH, col:col+kW]
+
+            # === Seperate to exp and mantissa ===
+            exp_array      = np.zeros((kH, kW), dtype=np.uint8)
+            mantissa_array = np.zeros((kH, kW), dtype=np.uint8)
+            for r in range(kH):
+                for c in range(kW):
+                    element = tile[r, c] # element in row-major order
+
+                    # === Seperate to exp and mantissa ===
+                    exponent = (element >> 7) & 0xFF
+                    mant_plus = ((element & 0x8000) >> 8) | (1 << 6) | (element & 0x7F >> 1) # {sign, 1, mantissa[6:1]}
+                    sign = (element >> 15) & 0x1
+                    debug and print(f"Element: {hex(element)}, Exponent: {exponent}, Mant_plus: {mant_plus:08b}, Sign: {sign}")
+                    exp_array[r, c]      = exponent
+                    mantissa_array[r, c] = mant_plus
+
+            # === find the block maxmium exponent ===
+            block_max_exp = np.max(exp_array)
+            debug and print(f"Block max exponent: {block_max_exp}")
+
+            # === Calculate the different between the block maxmium ===
+            shift_array = block_max_exp - exp_array
+            debug and print(f"Shift array:\n{shift_array}")
+
+            # === shift the mantissa ===
+            aligned_mantissas = mantissa_array >> shift_array
+            debug and print(f"Aligned mantissas:\n{aligned_mantissas}")
+
 
 if __name__ == "__main__":
     print("=== Pattern Generator testbench ===")
@@ -56,8 +91,21 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
 
 
+    # bf16_mat = Gen_Matrix(64, 512, "BF16")
     bf16_mat = Gen_Matrix(64, 512, "BF16")
+
+    # Flatten in row-major order
+    bf16_flat = bf16_mat.flatten(order='C')  # 'C' = row-major
+
+    # Save as .npy file
+    np.save("pattern/bf16_Mat64_512.npy", bf16_flat)
+
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             np.set_printoptions(threshold=np.inf)  # Prevent truncation
-            print(f"Generated BF16 Matrix:\n{bf16_mat}")
+            hex_formatter = np.vectorize(lambda x: hex(x))
+            print(f"Generated BF16 Matrix:\n{hex_formatter(bf16_flat)}")
+    
+
+    kernal_size = (64, 64)
+    Gen_golden(bf16_mat, kernal_size)
