@@ -17,7 +17,6 @@ class MEMORY:
         self.memory = np.zeros((self.Depth), dtype=np.uint64)
     
     
-    # the function to initial bulk data to memory in byte
     def init_byte_to_mem(self, pattern, byte_num):
         """
         The function to initial bulk data to memory in byte
@@ -28,7 +27,7 @@ class MEMORY:
         print("reshape: ", dram_reshape.shape)
         
 
-        # === load into memory ===s
+        # === load into memory ===
         for idx, chunk in enumerate(dram_reshape):
             self.debug and print(chunk)
             

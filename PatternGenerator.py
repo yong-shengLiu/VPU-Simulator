@@ -46,7 +46,7 @@ def Gen_golden(element_array, kernal_size, debug=False):
     H, W   = element_array.shape
     kH, kW = kernal_size
 
-    tiles = []
+    Block_Max_exp = []
 
     for row in range(0, H, kH):
         for col in range(0, W, kW):
@@ -63,7 +63,7 @@ def Gen_golden(element_array, kernal_size, debug=False):
 
                     # === Seperate to exp and mantissa ===
                     exponent = (element >> 7) & 0xFF
-                    mant_plus = ((element & 0x8000) >> 8) | (1 << 6) | (element & 0x7F >> 1) # {sign, 1, mantissa[6:1]}
+                    mant_plus = (element >> 8 & 0x80) | 0x40 | (element >> 1 & 0x3F) # {sign, 1, mantissa[6:1]}
                     sign = (element >> 15) & 0x1
                     debug and print(f"Element: {hex(element)}, Exponent: {exponent}, Mant_plus: {mant_plus:08b}, Sign: {sign}")
                     exp_array[r, c]      = exponent
@@ -72,33 +72,53 @@ def Gen_golden(element_array, kernal_size, debug=False):
             # === find the block maxmium exponent ===
             block_max_exp = np.max(exp_array)
             debug and print(f"Block max exponent: {block_max_exp}")
+            Block_Max_exp.append(block_max_exp)
 
             # === Calculate the different between the block maxmium ===
             shift_array = block_max_exp - exp_array
             debug and print(f"Shift array:\n{shift_array}")
 
             # === shift the mantissa ===
-            aligned_mantissas = mantissa_array >> shift_array
+            mantissa_array = mantissa_array.astype(np.int8)
+            aligned_mantissas = mantissa_array >> shift_array  # for signed right shift
+            mantissa_array = mantissa_array.astype(np.uint8)
+            aligned_mantissas = aligned_mantissas.astype(np.uint8)
             debug and print(f"Aligned mantissas:\n{aligned_mantissas}")
+
+
+        print(hex(mantissa_array[0, 0]))
+        print(hex(aligned_mantissas[0, 0]))
+
+    return aligned_mantissas, Block_Max_exp
 
 
 if __name__ == "__main__":
     print("=== Pattern Generator testbench ===")
-    print("version: 2025.05.27")
+    print("version: 2025.05.28")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Matrix.txt")
+    pattern_path = os.path.join(current_dir, "pattern", "bf16_Mat64_512.npy")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
+    os.makedirs("pattern", exist_ok=True)
 
 
     # bf16_mat = Gen_Matrix(64, 512, "BF16")
-    bf16_mat = Gen_Matrix(64, 512, "BF16")
+    bf16_mat = Gen_Matrix(1, 512, "BF16")
+    kernal_size = (1, 64)
+    al_mant_golden, Max_exp_golden = Gen_golden(bf16_mat, kernal_size)
+
+    print(Max_exp_golden)
+
+
 
     # Flatten in row-major order
     bf16_flat = bf16_mat.flatten(order='C')  # 'C' = row-major
+    print(type(bf16_flat))
+    print(bf16_mat.shape)
 
     # Save as .npy file
-    np.save("pattern/bf16_Mat64_512.npy", bf16_flat)
+    np.save(pattern_path, bf16_flat)
 
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
@@ -107,5 +127,4 @@ if __name__ == "__main__":
             print(f"Generated BF16 Matrix:\n{hex_formatter(bf16_flat)}")
     
 
-    kernal_size = (64, 64)
-    Gen_golden(bf16_mat, kernal_size)
+    

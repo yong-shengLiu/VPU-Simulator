@@ -89,11 +89,11 @@ if __name__ == "__main__":
     with open(terminal_output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             # === Load Matrix Insturction ===
-            loadMatricInsst, loadMatricArg = instGen.CIM_Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0)
+            loadMatricInsst, loadMatricArg = instGen.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0)
             sim.run(loadMatricInsst, loadMatricArg)
 
             # === Store Matrix Insturction ===
-            storeMatricInsst, storeMatricArg = instGen.CIM_Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0)
+            storeMatricInsst, storeMatricArg = instGen.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0)
             sim.run(storeMatricInsst, storeMatricArg)
 
 

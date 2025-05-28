@@ -1,10 +1,12 @@
 import os
 import numpy as np
 from contextlib import redirect_stdout
+from VectorCodeGen import VectorCodeGenerator  # Import the VectorCodeGen class from the appropriate module
 
 
 class HLGenerator:
     def __init__(self, VLEN=4096, DataWidth=64, debug=False):
+        self.codegen = VectorCodeGenerator()  # Initialize the VectorCodeGen class
 
         # === parameters ===
         self.VLEN      = VLEN
@@ -18,7 +20,7 @@ class HLGenerator:
         self.SEWB  = self._SEW // 8                       # byte for SEW
 
 
-    def CIM_Scatter_LS(self, mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr):
+    def Scatter_LS(self, mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr):
         """
         the function to load or store matrix between main memory and vrf
         NOTE:
@@ -141,14 +143,14 @@ class HLGenerator:
 
                 
                 # === to check if there has new instruction needed ===
-                inst_list.append(self.VectorCodeGen('vset',   [vl, self._SEW, self._LMUL]))
+                inst_list.append(self.codegen.VectorCodeGen('vset',   [vl, self._SEW, self._LMUL]))
                 arg_list.append([vl, self._SEW, self._LMUL])
                 if vstart_change: 
-                    inst_list.append(self.VectorCodeGen('vstart', [static_vstart]))
+                    inst_list.append(self.codegen.VectorCodeGen('vstart', [static_vstart]))
                     arg_list.append([static_vstart])
                 if vreg_change or target_addr_change or vstart_change:
-                    mode == 'load'  and inst_list.append(self.VectorCodeGen('vload_a',  [self._SEW, static_vreg, static_target_addr]))
-                    mode == 'store' and inst_list.append(self.VectorCodeGen('vstore_a', [self._SEW, static_vreg, static_target_addr]))
+                    mode == 'load'  and inst_list.append(self.codegen.VectorCodeGen('vload_a',  [self._SEW, static_vreg, static_target_addr]))
+                    mode == 'store' and inst_list.append(self.codegen.VectorCodeGen('vstore_a', [self._SEW, static_vreg, static_target_addr]))
                     arg_list.append([self._SEW, static_vreg, static_target_addr])
 
                 # === Calculating the AVL ===
@@ -160,67 +162,167 @@ class HLGenerator:
 
         return inst_list, arg_list
 
-    def Vector_LS(self, mode, MMemeory_addr, vrf_addr, data_len):
+
+    def VVOperation(self, mode, vs1_addr, vs2_addr, vd_addr):
         """
-        this function is used to generate the C code to load or store vector data
-        NOTE
-        (1) mode can be "load" or "store"
-        (2) will combine with some vecter arthmetic operation
+        this function is used to generate the "Vector = Vector ? Vector" operation
+        vs1_addr: source vector 1 byte address
+        vs2_addr: source vector 2 byte address
+        vd_addr:  destination vector byte address
+
+        TODO
+        (1) Change vstart
+        (2) Change vset
         """
 
-        # === Set the vl, vstart, vsew and lmul ===
+        vs1 = vs1_addr // (self.VLEN // 8) // self._LMUL
+        vs2 = vs2_addr // (self.VLEN // 8) // self._LMUL
+        vd  = vd_addr  // (self.VLEN // 8) // self._LMUL
 
-        # === Load or Store the data ===
+        if mode == 'vand':
+            inst = self.codegen.VectorCodeGen('vand_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
 
-    def VectorCodeGen(self, type, require_list):
-        """
-        this function is used to generate the VPU C code to run in RTL
-        """
+        if mode == 'vsrl':
+            inst = self.codegen.VectorCodeGen('vsrl_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
         
-        if type == 'vset':  # [vl, sew, lmul]
-            vl, sew, lmul = require_list
-            return f'VSET({vl}, e{sew}, m{lmul});'
+        if mode == 'vsra':
+            inst = self.codegen.VectorCodeGen('vsra_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
+        
+        if mode == 'vsll':
+            inst = self.codegen.VectorCodeGen('vsll_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
 
-        elif type == 'vstart':  # [vstart]
-            vstart = require_list[0]
-            return f'write_csr(vstart, {vstart});'
+        if mode == 'vor':
+            inst = self.codegen.VectorCodeGen('vor_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
 
-        elif type == 'vload_a':  # [sew, vd, base_addr]
-            sew, vd, base_addr = require_list
-            return (f'asm volatile("vle{sew}.v v{vd}, (%0)" '
-                    f'::"r"((uint{sew}_t*){base_addr}));')
+        if mode == 'vsub':
+            inst = self.codegen.VectorCodeGen('vsub_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
 
-        elif type == 'vstore_a': # [sew, vs, base_addr]
-            sew, vs, base_addr = require_list
-            return (f'asm volatile("vse{sew}.v v{vs}, (%0)" '
-                    f'::"r"((uint{sew}_t*){base_addr}));')
+        if mode == 'vredmaxu':
+            inst = self.codegen.VectorCodeGen('vredmaxu_vv', [vs1, vs2, vd])
+            arg  = [vs1, vs2, vd]
 
-        else:
-            raise ValueError(f"Unsupported instruction type: {type}")
+        return inst, arg
+    
+
+    def VXOperation(self, mode, vs_addr, scalar, vd_addr):
+        """
+        this function is used to generate the "Vector = Vector ? scalar" operation
+        vs_addr: source vector byte address
+        scalar:  source scalar value
+        vd_addr: destination vector byte address
+
+        TODO
+        (1) Change vstart
+        (2) Change vset
+        """
+
+        vs = vs_addr // (self.VLEN // 8) // self._LMUL
+        vd = vd_addr // (self.VLEN // 8) // self._LMUL
+
+        if mode == 'vand':
+            inst = self.codegen.VectorCodeGen('vand_vx', [vs, scalar, vd])
+            arg  = [vs, scalar, vd]
+
+        if mode == 'vsrl':
+            inst = self.codegen.VectorCodeGen('vsrl_vx', [vs, scalar, vd])
+            arg  = [vs, scalar, vd]
+        
+        if mode == 'vsll':
+            inst = self.codegen.VectorCodeGen('vsll_vx', [vs, scalar, vd])
+            arg  = [vs, scalar, vd]
+        
+        if mode == 'vor':
+            inst = self.codegen.VectorCodeGen('vor_vx', [vs, scalar, vd])
+            arg  = [vs, scalar, vd]
+        
+        if mode == 'vsub':
+            inst = self.codegen.VectorCodeGen('vsub_vx', [vs, scalar, vd])
+            arg  = [vs, scalar, vd]
+        
+        if mode == 'vslideup':
+            inst = self.codegen.VectorCodeGen('vslideup_vx', [vs, scalar, vd])
+            arg  = [vs, scalar, vd]
+        
+        return inst, arg
+
     
 
 if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.05.24")
+    print("version: 2025.05.28")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    output_path = os.path.join(current_dir, "log", "addr.txt")
+    output_path = os.path.join(current_dir, "log", "Codeflow.txt")
     golden_path = os.path.join(current_dir, "log", "golden.txt")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
 
-    # === Print out the current DRAM ===
+    # === Print out the operation flow ===
     DRAM_BASEADDR = 0xE0000000
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            inst, arg = instGenerator.CIM_Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # === Testbench for CIM Load/Store ===
+            # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
+            
+            # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
+
+            # === Testbench for Block-scale quantize ===
+            # Load
+            inst, arg = instGenerator.Scatter_LS('load', 1, 512, 512, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
             for line in inst:
                 print(f"{line}")
             
-            inst, arg = instGenerator.CIM_Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            for line in inst:
-                print(f"{line}")
+            # Seperate exp.
+            inst, arg = instGenerator.VXOperation('vsrl', 0, 7, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # >> 7
+            inst, arg = instGenerator.VXOperation('vand', 0, 0xFF, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # & FF
+
+
+            # Seperate mantissa_plus
+            inst, arg = instGenerator.VXOperation('vsrl', 0, 8, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # >> 8
+            inst, arg = instGenerator.VXOperation('vand', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # & FF
+            inst, arg = instGenerator.VXOperation('vor', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # | 0x40
+            inst, arg = instGenerator.VXOperation('vsrl', 0, 1, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # >> 1
+            inst, arg = instGenerator.VXOperation('vand', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # & 3F
+            inst, arg = instGenerator.VVOperation('vor', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
+            print(f"{inst}") # v | v
+
+
+            # Find exp. max
+            inst, arg = instGenerator.VVOperation('vredmaxu', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
+            print(f"{inst}") # x = max(v)
+            # TODO ping-pong sliding or it can slide in one register
+            inst, arg = instGenerator.VXOperation('vslideup', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # v = v slide x
+
+
+            # calculate exp. difference
+            inst, arg = instGenerator.VXOperation('vsub', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # v = v - x
+
+
+            # signed shift mantissa
+            inst, arg = instGenerator.VVOperation('vsra', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
+            print(f"{inst}") # vs1 >> vs2
+
+            
     
     # === Load the Golden Pattern ===
     dir_np = os.path.join(current_dir, "pattern", "conv0.npy")
