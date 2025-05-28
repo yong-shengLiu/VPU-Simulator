@@ -5,27 +5,43 @@ class VectorCodeGenerator:
             'vstart':      self._handle_vstart,
             'vload_a':     self._handle_vload_a,
             'vstore_a':    self._handle_vstore_a,
-            'vand_vv':     self._handle_vand_vv,
-            'vand_vx':     self._handle_vand_vx,
-            'vsrl_vv':     self._handle_vsrl_vv,
-            'vsrl_vx':     self._handle_vsrl_vx,
-            'vsra_vv':     self._handle_vsra_vv,
-            'vsra_vx':     self._handle_vsra_vx,
-            'vsll_vv':     self._handle_vsll_vv,
-            'vsll_vx':     self._handle_vsll_vx,
-            'vor_vv':      self._handle_vor_vv,
-            'vor_vx':      self._handle_vor_vx,
-            'vsub_vv':     self._handle_vsub_vv,
-            'vsub_vx':     self._handle_vsub_vx,
-            'vslideup_vx': self._handle_vslideup_vx,
-            'vredmaxu_vv': self._handle_vredmaxu,
-            # Add more handlers here...
         }
 
-    def VectorCodeGen(self, type, require_list):
-        if type not in self.handlers:
-            raise ValueError(f"Unsupported instruction type: {type}")
-        return self.handlers[type](require_list)
+        # Group vv/vx/vi/vf format instructions dynamically
+        self._format_instruction_list  = ([
+            ('vv', ['vadd', 'vredsum', 'vfadd', 'vsub', 'vredor', 'vfsub', 'vredxor', 'vfredosum', 'vminu', 'vredminu', 'vfmin', 'vmin', 'vredmin', 'vfredmin', 'vmaxu', 'vredmaxu', 'vfmax', 'vmax', 'vredmax', 'vfredmax', 'vand', 'vaadd', 'vfsgnjn', 'vor', 'vasubu', 'vfsgnjx', 'vxor', 'vasub', 'vrgather', 'vrgatherei16', 'vadc', 'VWXUNARY0', 'VWFUNARY0', 'vmadc', 'vsbc', 'VXUNARY0', 'VFUNARY0', 'vmsbc', 'vmerge/vmv', 'vcompress', 'vmseq', 'vmandnot', 'vmfeq', 'vmsne', 'vmand', 'vmfle', 'vmsltu', 'vmor', 'vmslt', 'vmxor', 'vmflt', 'vmsleu', 'vmornot', 'vmfne', 'vmsle', 'vmnand', 'vmnor', 'vmxnor', 'vsaddu', 'vdivu', 'vfdiv', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vfnmadd', 'vssrl', 'vssra', 'vnmsub', 'vfnmsub', 'vnsrl', 'vnsra', 'vmacc', 'vfnmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vfnmsac', 'vwredsumu', 'vwaddu', 'vfwadd', 'vwredsum', 'vwadd', 'vfwredusum']),
+            ('vx', ['vadd', 'vsub', 'vrsub', 'vminu', 'vmin', 'vmaxu', 'vmax', 'vand', 'vaadd', 'vor', 'vasubu', 'vxor', 'vasub', 'vrgather', 'vslideup', 'vslide1up', 'vslidedown', 'vslide1down', 'vadc', 'VRXUNARY0', 'vmadc', 'vsbc', 'vmsbc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsltu', 'vmslt', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vdivu', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vssrl', 'vssra', 'vnmsub', 'vnsrl', 'vnsra', 'vmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vwaddu', 'vwadd']),
+            ('vi', ['vadd', 'vrsub', 'vand', 'vor', 'vxor', 'vrgather', 'vslideup', 'vslidedown', 'vadc', 'vmadc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vsadd', 'vsll', 'vsrl', 'vsra', 'vssrl', 'vssra', 'vnsrl', 'vnsra', 'vnclipu', 'vnclip']),
+            ('vf', ['vfadd', 'vfsub', 'vfmin', 'vfmax', 'vfsgnjn', 'vfsgnjx', 'vfslide1up', 'vfslide1down', 'VRFUNARY0', 'vfmerge/vfmv', 'vmfeq', 'vmfle', 'vmflt', 'vmfne', 'vmfgt', 'vmfge', 'vfdiv', 'vfrdiv', 'vfrsub', 'vfnmadd', 'vfnmsub', 'vfnmacc', 'vfnmsac', 'vfwadd']),
+        ])
+
+        self._register_value_format_instructions(self._format_instruction_list )
+
+
+    def _register_value_format_instructions(self, format_instr_list):
+        for fmt, names in format_instr_list:
+            for name in names:
+                key = f'{name}_{fmt}'
+                self.handlers[key] = self._make_format_handler(fmt, name)
+    
+    def _make_format_handler(self, fmt, opname):
+        if fmt == 'vv':
+            return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, v{args[1]}");'
+        elif fmt == 'vx':
+            return lambda args: f'asm volatile("{opname}.vx v{args[2]}, v{args[0]}, %[A]" :: [A] "r"({args[1]}));'
+        elif fmt == 'vi':
+            return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, {args[1]}");'
+        # TODO handle vf format
+        elif fmt == 'vf':
+            return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, v{args[1]}");'
+        else:
+            raise ValueError(f"Unsupported format: {fmt}")
+
+    def VectorCodeGen(self, inst_type, require_list):
+        if inst_type not in self.handlers:
+            raise ValueError(f"Unsupported instruction type: {inst_type}")
+        return self.handlers[inst_type](require_list)
+
 
     # === Individual handler methods ===
     def _handle_vset(self, args):
@@ -44,58 +60,13 @@ class VectorCodeGenerator:
         sew, vs, base_addr = args
         return f'asm volatile("vse{sew}.v v{vs}, (%0)" :: "r"((uint{sew}_t*){base_addr}));'
 
-    def _handle_vand_vv(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vand.vv v{vd}, v{vs1}, v{vs2}");'
+if __name__ == "__main__":
+    print("=== VectorCodeGen testbench ===")
+    print("version: 2025.05.29")
 
-    def _handle_vand_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vand.vx v{vd}, v{vs}, %[A]" :: [A] "r"({scalar}));'
-
-    def _handle_vsrl_vv(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vsrl.vv v{vd}, v{vs1}, v{vs2}");'
-
-    def _handle_vsrl_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vsrl.vx v{vd}, v{vs}, %[A]" :: [A] "r"({scalar}));'
+    codegen = VectorCodeGenerator()  # Initialize the VectorCodeGen class
     
-    def _handle_vsra_vv(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vsra.vv v{vd}, v{vs1}, v{vs2}");'
-
-    def _handle_vsra_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vsra.vx v{vd}, v{vs}, %[A]" :: [A] "r"({scalar}));'
-
-    def _handle_vsll_vv(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vsll.vv v{vd}, v{vs1}, v{vs2}");'
-
-    def _handle_vsll_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vsll.vx v{vd}, v{vs}, %[A]" :: [A] "r"({scalar}));'
-
-    def _handle_vor_vv(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vor.vv v{vd}, v{vs1}, v{vs2}");'
-
-    def _handle_vor_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vor.vx v{vd}, v{vs}, %[A]" :: [A] "r"({scalar}));'
-    
-    def _handle_vsub_vv(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vsub.vv v{vd}, v{vs1}, v{vs2}");'
-
-    def _handle_vsub_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vsub.vx v{vd}, v{vs}, %[A]" :: [A] "r"({scalar}));'
-
-    def _handle_vslideup_vx(self, args):
-        vs, scalar, vd = args
-        return f'asm volatile("vslideup.vi v{vd}, v{vs}, {scalar}");'
-    
-    def _handle_vredmaxu(self, args):
-        vs1, vs2, vd = args
-        return f'asm volatile("vredmaxu.vs {vd}, v{vs1}, v{vs2}");'
+    print(codegen.VectorCodeGen('vset', [128, 8, 1]))
+    print(codegen.VectorCodeGen('vadd_vv', [1, 2, 3]))
+    print(codegen.VectorCodeGen('vor_vv', [1, 2, 3]))
+    print(codegen.VectorCodeGen('vsrl_vi', [1, 2, 3]))

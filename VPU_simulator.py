@@ -23,7 +23,7 @@ class VPU_simulator:
     def preload_memory(self, dir_path):
         raw_pattern = np.load(dir_path)                        # load file
         byte_pattern = raw_pattern.flatten().astype(np.uint8)  # fp32 to uint8
-        self.dram.init_byte_to_mem(byte_pattern)               # the preload pattern which is represent in byte
+        self.dram.init_byte_to_mem(byte_pattern, 1)            # the preload pattern which is represent in byte
 
 
     def run(self, inst_list, arg_list):

@@ -165,93 +165,67 @@ class HLGenerator:
 
     def VVOperation(self, mode, vs1_addr, vs2_addr, vd_addr):
         """
-        this function is used to generate the "Vector = Vector ? Vector" operation
-        vs1_addr: source vector 1 byte address
-        vs2_addr: source vector 2 byte address
-        vd_addr:  destination vector byte address
+        Generates a VV (vector-vector) instruction string and its argument list.
+        vs1_addr, vs2_addr, vd_addr: byte addresses of the source and destination vectors
 
-        TODO
-        (1) Change vstart
-        (2) Change vset
+        TODO: vset and vstart
         """
 
-        vs1 = vs1_addr // (self.VLEN // 8) // self._LMUL
-        vs2 = vs2_addr // (self.VLEN // 8) // self._LMUL
-        vd  = vd_addr  // (self.VLEN // 8) // self._LMUL
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
 
-        if mode == 'vand':
-            inst = self.codegen.VectorCodeGen('vand_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
+        vs1 = addr_to_reg(vs1_addr)
+        vs2 = addr_to_reg(vs2_addr)
+        vd  = addr_to_reg(vd_addr)
 
-        if mode == 'vsrl':
-            inst = self.codegen.VectorCodeGen('vsrl_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
-        
-        if mode == 'vsra':
-            inst = self.codegen.VectorCodeGen('vsra_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
-        
-        if mode == 'vsll':
-            inst = self.codegen.VectorCodeGen('vsll_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
-
-        if mode == 'vor':
-            inst = self.codegen.VectorCodeGen('vor_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
-
-        if mode == 'vsub':
-            inst = self.codegen.VectorCodeGen('vsub_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
-
-        if mode == 'vredmaxu':
-            inst = self.codegen.VectorCodeGen('vredmaxu_vv', [vs1, vs2, vd])
-            arg  = [vs1, vs2, vd]
+        # Generate instruction
+        arg = [vs1, vs2, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_vv', arg)
 
         return inst, arg
-    
 
     def VXOperation(self, mode, vs_addr, scalar, vd_addr):
         """
-        this function is used to generate the "Vector = Vector ? scalar" operation
-        vs_addr: source vector byte address
-        scalar:  source scalar value
-        vd_addr: destination vector byte address
+        Generates a VX (vector-scalar) instruction string and its argument list.
+        vs_addr, vd_addr: byte addresses of the source and destination vectors
 
-        TODO
-        (1) Change vstart
-        (2) Change vset
+        TODO: vset and vstart
         """
 
-        vs = vs_addr // (self.VLEN // 8) // self._LMUL
-        vd = vd_addr // (self.VLEN // 8) // self._LMUL
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
 
-        if mode == 'vand':
-            inst = self.codegen.VectorCodeGen('vand_vx', [vs, scalar, vd])
-            arg  = [vs, scalar, vd]
+        vs1 = addr_to_reg(vs_addr)
+        vd  = addr_to_reg(vd_addr)
 
-        if mode == 'vsrl':
-            inst = self.codegen.VectorCodeGen('vsrl_vx', [vs, scalar, vd])
-            arg  = [vs, scalar, vd]
-        
-        if mode == 'vsll':
-            inst = self.codegen.VectorCodeGen('vsll_vx', [vs, scalar, vd])
-            arg  = [vs, scalar, vd]
-        
-        if mode == 'vor':
-            inst = self.codegen.VectorCodeGen('vor_vx', [vs, scalar, vd])
-            arg  = [vs, scalar, vd]
-        
-        if mode == 'vsub':
-            inst = self.codegen.VectorCodeGen('vsub_vx', [vs, scalar, vd])
-            arg  = [vs, scalar, vd]
-        
-        if mode == 'vslideup':
-            inst = self.codegen.VectorCodeGen('vslideup_vx', [vs, scalar, vd])
-            arg  = [vs, scalar, vd]
-        
+        # Generate instruction
+        arg = [vs1, scalar, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_vx', arg)
+
         return inst, arg
 
-    
+    def VIOperation(self, mode, vs_addr, immediate, vd_addr):
+        """
+        Generates a VI (vector-immediate) instruction string and its argument list.
+        vs_addr, vd_addr: byte addresses of the source and destination vectors
+
+        TODO: vset and vstart
+        """
+
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
+
+        vs1 = addr_to_reg(vs_addr)
+        vd  = addr_to_reg(vd_addr)
+
+        # Generate instruction
+        arg = [vs1, immediate, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_vi', arg)
+
+        return inst, arg
 
 if __name__ == "__main__":
     
@@ -284,22 +258,22 @@ if __name__ == "__main__":
                 print(f"{line}")
             
             # Seperate exp.
-            inst, arg = instGenerator.VXOperation('vsrl', 0, 7, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vsrl', 0, 7, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # >> 7
-            inst, arg = instGenerator.VXOperation('vand', 0, 0xFF, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vand', 0, 0xFF, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # & FF
 
 
             # Seperate mantissa_plus
-            inst, arg = instGenerator.VXOperation('vsrl', 0, 8, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vsrl', 0, 8, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # >> 8
-            inst, arg = instGenerator.VXOperation('vand', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vand', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # & FF
-            inst, arg = instGenerator.VXOperation('vor', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vor', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # | 0x40
-            inst, arg = instGenerator.VXOperation('vsrl', 0, 1, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vsrl', 0, 1, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # >> 1
-            inst, arg = instGenerator.VXOperation('vand', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vand', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # & 3F
             inst, arg = instGenerator.VVOperation('vor', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
             print(f"{inst}") # v | v
@@ -309,7 +283,7 @@ if __name__ == "__main__":
             inst, arg = instGenerator.VVOperation('vredmaxu', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
             print(f"{inst}") # x = max(v)
             # TODO ping-pong sliding or it can slide in one register
-            inst, arg = instGenerator.VXOperation('vslideup', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vslideup', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # v = v slide x
 
 
