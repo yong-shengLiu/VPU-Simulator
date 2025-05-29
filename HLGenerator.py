@@ -184,6 +184,28 @@ class HLGenerator:
         inst = self.codegen.VectorCodeGen(f'{mode}_vv', arg)
 
         return inst, arg
+    
+    def VSOperation(self, mode, vs1_addr, vs2_addr, vd_addr):
+        """
+        Generates a VV (vector-vector) instruction string and its argument list.
+        vs1_addr, vs2_addr, vd_addr: byte addresses of the source and destination vectors
+
+        TODO: vset and vstart
+        """
+
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
+
+        vs1 = addr_to_reg(vs1_addr)
+        vs2 = addr_to_reg(vs2_addr)
+        vd  = addr_to_reg(vd_addr)
+
+        # Generate instruction
+        arg = [vs1, vs2, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_vs', arg)
+
+        return inst, arg
 
     def VXOperation(self, mode, vs_addr, scalar, vd_addr):
         """
@@ -227,6 +249,17 @@ class HLGenerator:
 
         return inst, arg
 
+    def ScalarOperation(self, mode, reg, value):
+        """
+        TODO: Support Arithmetic operation
+        """
+
+        if mode == 'equal':
+            inst = f'{reg} = {value};'
+            arg = [reg, value]
+
+        return inst, arg
+    
 if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
@@ -258,32 +291,43 @@ if __name__ == "__main__":
                 print(f"{line}")
             
             # Seperate exp.
-            inst, arg = instGenerator.VIOperation('vsrl', 0, 7, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.VIOperation('vsrl', 0, 7, 1024) #(mode, vs_addr, immediate, vd_addr)
             print(f"{inst}") # >> 7
-            inst, arg = instGenerator.VIOperation('vand', 0, 0xFF, 1024) #(mode, vs_addr, scalar, vd_addr)
+            
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0xFF) # scalar = 0xFF
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vand', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # & FF
 
 
             # Seperate mantissa_plus
             inst, arg = instGenerator.VIOperation('vsrl', 0, 8, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # >> 8
-            inst, arg = instGenerator.VIOperation('vand', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # & FF
-            inst, arg = instGenerator.VIOperation('vor', 0, 0x80, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x80) # scalar = 0xFF
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vand', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
+            print(f"{inst}") # & 80
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x40) # scalar = 0xFF
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vor', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # | 0x40
             inst, arg = instGenerator.VIOperation('vsrl', 0, 1, 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # >> 1
-            inst, arg = instGenerator.VIOperation('vand', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x3F) # scalar = 0xFF
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vand', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # & 3F
             inst, arg = instGenerator.VVOperation('vor', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
             print(f"{inst}") # v | v
 
 
             # Find exp. max
-            inst, arg = instGenerator.VVOperation('vredmaxu', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
+            inst, arg = instGenerator.VSOperation('vredmaxu', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
             print(f"{inst}") # x = max(v)
             # TODO ping-pong sliding or it can slide in one register
-            inst, arg = instGenerator.VIOperation('vslideup', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x3F) # scalar = 0xFF
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vslideup', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
             print(f"{inst}") # v = v slide x
 
 
