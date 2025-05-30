@@ -19,8 +19,23 @@ class HLGenerator:
         self.VLMAX = self._LMUL * self.VLEN // self._SEW  # Maximum number of elements
         self.SEWB  = self._SEW // 8                       # byte for SEW
 
+    def VSET(self, vl, sew=None, lmul=None):
+        """
+        Set the vl, SEW and LMUL for the vector operations.
+        TODO: vstart
+        """
+        if sew is not None:
+            self._SEW = sew
+        if lmul is not None:
+            self._LMUL = lmul
+        self.VLMAX = self._LMUL * self.VLEN // self._SEW
 
-    def Scatter_LS(self, mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr):
+        inst = self.codegen.VectorCodeGen('vset',   [vl, self._SEW, self._LMUL])
+        arg  = [vl, self._SEW, self._LMUL]
+
+        return inst, arg
+        
+    def Scatter_LS(self, mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew=None, lmul=None):
         """
         the function to load or store matrix between main memory and vrf
         NOTE:
@@ -32,6 +47,11 @@ class HLGenerator:
         (1) need to support vrf segment stride (Scatter2Scatter)
         (2) vd may pass from a VRF shcedualer
         """
+        
+        if sew is not None:
+            self._SEW = sew
+        if lmul is not None:
+            self._LMUL = lmul
         
         inst_list = []
         arg_list  = []
@@ -162,8 +182,7 @@ class HLGenerator:
 
         return inst_list, arg_list
 
-
-    def VVOperation(self, mode, vs1_addr, vs2_addr, vd_addr):
+    def VVOperation(self, mode, vd_addr, vs1_addr, vs2_addr):
         """
         Generates a VV (vector-vector) instruction string and its argument list.
         vs1_addr, vs2_addr, vd_addr: byte addresses of the source and destination vectors
@@ -185,7 +204,7 @@ class HLGenerator:
 
         return inst, arg
     
-    def VSOperation(self, mode, vs1_addr, vs2_addr, vd_addr):
+    def VSOperation(self, mode, vd_addr, vs1_addr, vs2_addr):
         """
         Generates a VV (vector-vector) instruction string and its argument list.
         vs1_addr, vs2_addr, vd_addr: byte addresses of the source and destination vectors
@@ -207,7 +226,7 @@ class HLGenerator:
 
         return inst, arg
 
-    def VXOperation(self, mode, vs_addr, scalar, vd_addr):
+    def VXOperation(self, mode, vd_addr, vs_addr, scalar):
         """
         Generates a VX (vector-scalar) instruction string and its argument list.
         vs_addr, vd_addr: byte addresses of the source and destination vectors
@@ -228,7 +247,28 @@ class HLGenerator:
 
         return inst, arg
 
-    def VIOperation(self, mode, vs_addr, immediate, vd_addr):
+    def WXOperation(self, mode, vd_addr, vs_addr, scalar):
+        """
+        Generates a WX (Widening vector-scalar) instruction string and its argument list.
+        vs_addr, vd_addr: byte addresses of the source and destination vectors
+
+        TODO: vset and vstart
+        """
+
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
+
+        vs1 = addr_to_reg(vs_addr)
+        vd  = addr_to_reg(vd_addr)
+
+        # Generate instruction
+        arg = [vs1, scalar, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_wx', arg)
+
+        return inst, arg
+
+    def VIOperation(self, mode, vd_addr, vs_addr, immediate):
         """
         Generates a VI (vector-immediate) instruction string and its argument list.
         vs_addr, vd_addr: byte addresses of the source and destination vectors
@@ -248,7 +288,7 @@ class HLGenerator:
         inst = self.codegen.VectorCodeGen(f'{mode}_vi', arg)
 
         return inst, arg
-
+    
     def ScalarOperation(self, mode, reg, value):
         """
         TODO: Support Arithmetic operation
@@ -264,7 +304,7 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.05.28")
+    print("version: 2025.05.29")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Codeflow.txt")
@@ -286,39 +326,61 @@ if __name__ == "__main__":
 
             # === Testbench for Block-scale quantize ===
             # Load
-            inst, arg = instGenerator.Scatter_LS('load', 1, 512, 512, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            
+            inst, arg = instGenerator.Scatter_LS('load', 1, 512, 512, DRAM_BASEADDR, 0, sew=16, lmul=2) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
             for line in inst:
                 print(f"{line}")
             
             # Seperate exp.
-            inst, arg = instGenerator.VIOperation('vsrl', 0, 7, 1024) #(mode, vs_addr, immediate, vd_addr)
-            print(f"{inst}") # >> 7
-            
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0xFF) # scalar = 0xFF
+            print(f'uint32_t scalar = 0;')
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 7) # scalar = 7
             print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vand', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # & FF
+
+            inst, arg = instGenerator.VSET(512, 8, 1) # (vl, sew=None, lmul=None)
+            print(f"{inst}")
+            inst, arg = instGenerator.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+            print(f"{inst}") # >> 7
+
+
+            print()
 
 
             # Seperate mantissa_plus
-            inst, arg = instGenerator.VIOperation('vsrl', 0, 8, 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # >> 8
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x80) # scalar = 0xFF
+            # mant_plus = (element >> 8 & 0x80) | 0x40 | (element >> 1 & 0x3F)
+            inst, arg = instGenerator.VSET(512, 8, 1) # (vl, sew=None, lmul=None)
             print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vand', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # & 80
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x40) # scalar = 0xFF
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 8) # scalar = 8
             print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vor', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # | 0x40
-            inst, arg = instGenerator.VIOperation('vsrl', 0, 1, 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # >> 1
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x3F) # scalar = 0xFF
+            inst, arg = instGenerator.WXOperation('vnsrl', 2048, 0, 'scalar') # >> 8 (mode, vd_addr, vs_addr, scalar)
             print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vand', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # & 3F
-            inst, arg = instGenerator.VVOperation('vor', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
-            print(f"{inst}") # v | v
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x80) # scalar = 0x80
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vand', 1536, 2048, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+            print(f"{inst}")
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x40) # scalar = 0x40
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vor', 1536, 1536, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+            print(f"{inst}")
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 1) # scalar = 1
+            print(f"{inst}")
+            inst, arg = instGenerator.WXOperation('vnsrl', 2048, 0, 'scalar') # >> 1 (mode, vd_addr, vs_addr, scalar)
+            print(f"{inst}")
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x3F) # scalar = 0x3F
+            print(f"{inst}")
+            inst, arg = instGenerator.VXOperation('vand',2048 , 2048, 'scalar') # & 3F(mode, vd_addr, vs_addr, scalar)
+            print(f"{inst}")
+            inst, arg = instGenerator.VVOperation('vor', 1536, 1536, 2048) #(mode, vd_addr, vs1_addr, vs2_addr)
+            print(f"{inst}")
+
+
+            # Store the result to DRAM
+            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1024, 1024) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            for line in inst:
+                print(f"{line}")
+            
+            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1536, 1536) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            for line in inst:
+                print(f"{line}")
 
 
             # Find exp. max
@@ -331,14 +393,14 @@ if __name__ == "__main__":
             print(f"{inst}") # v = v slide x
 
 
-            # calculate exp. difference
-            inst, arg = instGenerator.VXOperation('vsub', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # v = v - x
+            # # calculate exp. difference
+            # inst, arg = instGenerator.VXOperation('vsub', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
+            # print(f"{inst}") # v = v - x
 
 
-            # signed shift mantissa
-            inst, arg = instGenerator.VVOperation('vsra', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
-            print(f"{inst}") # vs1 >> vs2
+            # # signed shift mantissa
+            # inst, arg = instGenerator.VVOperation('vsra', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
+            # print(f"{inst}") # vs1 >> vs2
 
             
     
@@ -352,3 +414,15 @@ if __name__ == "__main__":
             for i in range(0, len(byte_pattern), 8):
                 row = byte_pattern[i:i+8]
                 print(" ".join(f"{b:02x}" for b in row), end=" \n")  # hex format, padded to 2 digits
+
+
+    
+    
+        print(hex(((int(0xBE80) >> 7) & 0xFF)))
+        print(hex(((int(0x3F66) >> 7) & 0xFF)))
+        print(hex(((int(0x3EED) >> 7) & 0xFF)))
+        print(hex(((int(0x3E4A) >> 7) & 0xFF)))
+    
+
+
+    

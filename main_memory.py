@@ -72,6 +72,8 @@ class MEMORY:
                 
                 if Depth is not None and idx >= Depth - 1:
                     break
+        else:
+            raise ValueError("dumpMem_data: Unsupported mode. Use 'debug', 'rtl', or 'golden'.")
 
     def take64bData(self, addr):
         """
@@ -193,7 +195,7 @@ class MEMORY:
 
 if __name__ == "__main__":
     print("===== main memory testbench =====")
-    print("version: 2025.05.27")
+    print("version: 2025.05.30")
 
     dram = MEMORY(DataWidth=64, Depth=409600, debug=False)
 
@@ -259,10 +261,10 @@ if __name__ == "__main__":
     dram.store64bData(16, 0b10000000, 0x1111111111111111) #(addr, byte_strb, data)
     '''
     # === Print out the current DRAM ===
-    output_path = os.path.join(current_dir, "log", "dram.txt")
+    output_path = os.path.join(current_dir, "log", "dram_rtl.hex")
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            dram.dumpMem_data(mode = 'debug')
+            dram.dumpMem_data(mode = 'rtl')
             # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0x1400, 8, 160)])'
     
 

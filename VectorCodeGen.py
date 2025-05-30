@@ -9,11 +9,12 @@ class VectorCodeGenerator:
 
         # Group vv/vx/vi/vf format instructions dynamically
         self._format_instruction_list  = ([
-            ('vv', ['vadd', 'vredsum', 'vfadd', 'vsub', 'vredor', 'vfsub', 'vredxor', 'vfredosum', 'vminu', 'vredminu', 'vfmin', 'vmin', 'vredmin', 'vfredmin', 'vmaxu', 'vfmax', 'vmax', 'vredmax', 'vfredmax', 'vand', 'vaadd', 'vfsgnjn', 'vor', 'vasubu', 'vfsgnjx', 'vxor', 'vasub', 'vrgather', 'vrgatherei16', 'vadc', 'VWXUNARY0', 'VWFUNARY0', 'vmadc', 'vsbc', 'VXUNARY0', 'VFUNARY0', 'vmsbc', 'vmerge/vmv', 'vcompress', 'vmseq', 'vmandnot', 'vmfeq', 'vmsne', 'vmand', 'vmfle', 'vmsltu', 'vmor', 'vmslt', 'vmxor', 'vmflt', 'vmsleu', 'vmornot', 'vmfne', 'vmsle', 'vmnand', 'vmnor', 'vmxnor', 'vsaddu', 'vdivu', 'vfdiv', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vfnmadd', 'vssrl', 'vssra', 'vnmsub', 'vfnmsub', 'vnsrl', 'vnsra', 'vmacc', 'vfnmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vfnmsac', 'vwredsumu', 'vwaddu', 'vfwadd', 'vwredsum', 'vwadd', 'vfwredusum']),
+            ('vv', ['vadd', 'vredsum', 'vfadd', 'vsub', 'vredor', 'vfsub', 'vredxor', 'vfredosum', 'vminu', 'vredminu', 'vfmin', 'vmin', 'vredmin', 'vfredmin', 'vmaxu', 'vfmax', 'vmax', 'vredmax', 'vfredmax', 'vand', 'vaadd', 'vfsgnjn', 'vor', 'vasubu', 'vfsgnjx', 'vxor', 'vasub', 'vrgather', 'vrgatherei16', 'vadc', 'VWXUNARY0', 'VWFUNARY0', 'vmadc', 'vsbc', 'VXUNARY0', 'VFUNARY0', 'vmsbc', 'vmerge/vmv', 'vcompress', 'vmseq', 'vmandnot', 'vmfeq', 'vmsne', 'vmand', 'vmfle', 'vmsltu', 'vmor', 'vmslt', 'vmxor', 'vmflt', 'vmsleu', 'vmornot', 'vmfne', 'vmsle', 'vmnand', 'vmnor', 'vmxnor', 'vsaddu', 'vdivu', 'vfdiv', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vfnmadd', 'vssrl', 'vssra', 'vnmsub', 'vfnmsub', 'vnsra', 'vmacc', 'vfnmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vfnmsac', 'vwredsumu', 'vwaddu', 'vfwadd', 'vwredsum', 'vwadd', 'vfwredusum']),
             ('vs', ['vredmaxu']),
-            ('vx', ['vadd', 'vsub', 'vrsub', 'vminu', 'vmin', 'vmaxu', 'vmax', 'vand', 'vaadd', 'vor', 'vasubu', 'vxor', 'vasub', 'vrgather', 'vslideup', 'vslide1up', 'vslidedown', 'vslide1down', 'vadc', 'VRXUNARY0', 'vmadc', 'vsbc', 'vmsbc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsltu', 'vmslt', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vdivu', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vssrl', 'vssra', 'vnmsub', 'vnsrl', 'vnsra', 'vmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vwaddu', 'vwadd']),
-            ('vi', ['vadd', 'vrsub', 'vand', 'vor', 'vxor', 'vrgather', 'vslideup', 'vslidedown', 'vadc', 'vmadc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vsadd', 'vsll', 'vsrl', 'vsra', 'vssrl', 'vssra', 'vnsrl', 'vnsra', 'vnclipu', 'vnclip']),
+            ('vx', ['vadd', 'vsub', 'vrsub', 'vminu', 'vmin', 'vmaxu', 'vmax', 'vand', 'vaadd', 'vor', 'vasubu', 'vxor', 'vasub', 'vrgather', 'vslideup', 'vslide1up', 'vslidedown', 'vslide1down', 'vadc', 'VRXUNARY0', 'vmadc', 'vsbc', 'vmsbc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsltu', 'vmslt', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vdivu', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vssrl', 'vssra', 'vnmsub', 'vnsra', 'vmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vwaddu', 'vwadd']),
+            ('vi', ['vadd', 'vrsub', 'vand', 'vor', 'vxor', 'vrgather', 'vslideup', 'vslidedown', 'vadc', 'vmadc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vsadd', 'vsll', 'vsrl', 'vsra', 'vssrl', 'vssra', 'vnsra', 'vnclipu', 'vnclip']),
             ('vf', ['vfadd', 'vfsub', 'vfmin', 'vfmax', 'vfsgnjn', 'vfsgnjx', 'vfslide1up', 'vfslide1down', 'VRFUNARY0', 'vfmerge/vfmv', 'vmfeq', 'vmfle', 'vmflt', 'vmfne', 'vmfgt', 'vmfge', 'vfdiv', 'vfrdiv', 'vfrsub', 'vfnmadd', 'vfnmsub', 'vfnmacc', 'vfnmsac', 'vfwadd']),
+            ('wx', ['vnsrl']),
         ])
 
         self._register_value_format_instructions(self._format_instruction_list )
@@ -31,12 +32,14 @@ class VectorCodeGenerator:
         elif fmt == 'vs':
             return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, v{args[1]}");'
         elif fmt == 'vx':
-            return lambda args: f'asm volatile("{opname}.vx v{args[2]}, v{args[0]}, %[A]" :: [A] "r"({args[1]}));'
+            return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, %[A]" :: [A] "r"({args[1]}));'
         elif fmt == 'vi':
             return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, {args[1]}");'
         # TODO handle vf format
         elif fmt == 'vf':
             return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, v{args[1]}");'
+        elif fmt == 'wx':
+            return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, %[A]" :: [A] "r"({args[1]}));'
         else:
             raise ValueError(f"Unsupported format: {fmt}")
 

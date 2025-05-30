@@ -280,7 +280,7 @@ if __name__ == "__main__":
 
 
     # === Construct a VRF ===
-    vrf = VRF(SEW=8, LMUL=1)
+    vrf = VRF(SEW=16, LMUL=2)
 
     # === Print out the current VRF memory mapping (not synchronize with the change of vset currently)===
     with open(output_path, "w", encoding="utf-8") as f:

@@ -47,6 +47,8 @@ def Gen_golden(element_array, kernal_size, debug=False):
     kH, kW = kernal_size
 
     Block_Max_exp = []
+    exp_array_temp = []
+    mantissa_array_temp = []
 
     for row in range(0, H, kH):
         for col in range(0, W, kW):
@@ -69,6 +71,9 @@ def Gen_golden(element_array, kernal_size, debug=False):
                     exp_array[r, c]      = exponent
                     mantissa_array[r, c] = mant_plus
 
+            exp_array_temp.append(exp_array)
+            mantissa_array_temp.append(mantissa_array)
+
             # === find the block maxmium exponent ===
             block_max_exp = np.max(exp_array)
             debug and print(f"Block max exponent: {block_max_exp}")
@@ -89,7 +94,10 @@ def Gen_golden(element_array, kernal_size, debug=False):
         print(hex(mantissa_array[0, 0]))
         print(hex(aligned_mantissas[0, 0]))
 
-    return aligned_mantissas, Block_Max_exp
+    exp_array_temp_flat = np.concatenate([tile.flatten() for tile in exp_array_temp])
+    mantissa_array_temp_flat = np.concatenate([tile.flatten() for tile in mantissa_array_temp])
+
+    return aligned_mantissas, Block_Max_exp, mantissa_array_temp_flat, exp_array_temp_flat
 
 
 if __name__ == "__main__":
@@ -99,6 +107,7 @@ if __name__ == "__main__":
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Matrix.txt")
     pattern_path = os.path.join(current_dir, "pattern", "bf16_Mat64_512.npy")
+    temp_golden = os.path.join(current_dir, "log", "temp_golden.txt")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
     os.makedirs("pattern", exist_ok=True)
 
@@ -106,9 +115,21 @@ if __name__ == "__main__":
     # bf16_mat = Gen_Matrix(64, 512, "BF16")
     bf16_mat = Gen_Matrix(1, 512, "BF16")
     kernal_size = (1, 64)
-    al_mant_golden, Max_exp_golden = Gen_golden(bf16_mat, kernal_size)
+    al_mant_golden, Max_exp_golden, mant_golden, exp_golden = Gen_golden(bf16_mat, kernal_size)
 
-    print(Max_exp_golden)
+
+    with open(temp_golden, "w", encoding="utf-8") as f:
+        with redirect_stdout(f):
+            for idx, element in enumerate(exp_golden):
+                print(hex(element)[2:], end=" ")
+                
+                if (idx + 1) % 8 == 0:
+                    print()
+            for idx, element in enumerate(mant_golden):
+                print(hex(element)[2:], end=" ")
+                
+                if (idx + 1) % 8 == 0:
+                    print()
 
 
 
