@@ -422,7 +422,10 @@ if __name__ == "__main__":
             print(f"{inst}") # >> 7
 
 
-            print()
+            # Store the result to DRAM
+            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1536, 1024) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            for line in inst:
+                print(f"{line}")
 
 
             # Seperate mantissa_plus
@@ -451,6 +454,12 @@ if __name__ == "__main__":
             print(f"{inst}")
             inst, arg = instGenerator.VVOperation('vor', 1536, 1536, 2048) #(mode, vd_addr, vs1_addr, vs2_addr)
             print(f"{inst}")
+
+
+            # Store the result to DRAM
+            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+2560, 1536) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            for line in inst:
+                print(f"{line}")
 
 
             # Find exp. max, and calculate the difference
@@ -487,7 +496,7 @@ if __name__ == "__main__":
 
 
             # Store the result to DRAM
-            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1024, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+3584, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
             for line in inst:
                 print(f"{line}")
 

@@ -107,7 +107,7 @@ def Gen_golden(element_array, kernal_size, debug=False):
 
 if __name__ == "__main__":
     print("=== Pattern Generator testbench ===")
-    print("version: 2025.05.28")
+    print("version: 2025.05.29")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Matrix.txt")
@@ -124,6 +124,18 @@ if __name__ == "__main__":
 
     with open(temp_golden, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
+            for idx, element in enumerate(exp_golden):
+                print(f'{element:02x}', end=" ")
+                
+                if (idx + 1) % 8 == 0:
+                    print()
+
+            for idx, element in enumerate(mant_golden):
+                print(f'{element:02x}', end=" ")
+                
+                if (idx + 1) % 8 == 0:
+                    print()
+            
             for al_mant in al_mant_golden:
                 for idx, element in enumerate(al_mant.flatten()):
                     print(f'{element:02x}', end=" ")
