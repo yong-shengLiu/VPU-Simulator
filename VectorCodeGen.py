@@ -11,6 +11,9 @@ class VectorCodeGenerator:
         self._format_instruction_list  = ([
             ('vv', ['vadd', 'vredsum', 'vfadd', 'vsub', 'vredor', 'vfsub', 'vredxor', 'vfredosum', 'vminu', 'vredminu', 'vfmin', 'vmin', 'vredmin', 'vfredmin', 'vmaxu', 'vfmax', 'vmax', 'vredmax', 'vfredmax', 'vand', 'vaadd', 'vfsgnjn', 'vor', 'vasubu', 'vfsgnjx', 'vxor', 'vasub', 'vrgather', 'vrgatherei16', 'vadc', 'VWXUNARY0', 'VWFUNARY0', 'vmadc', 'vsbc', 'VXUNARY0', 'VFUNARY0', 'vmsbc', 'vmerge/vmv', 'vcompress', 'vmseq', 'vmandnot', 'vmfeq', 'vmsne', 'vmand', 'vmfle', 'vmsltu', 'vmor', 'vmslt', 'vmxor', 'vmflt', 'vmsleu', 'vmornot', 'vmfne', 'vmsle', 'vmnand', 'vmnor', 'vmxnor', 'vsaddu', 'vdivu', 'vfdiv', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vfnmadd', 'vssrl', 'vssra', 'vnmsub', 'vfnmsub', 'vnsra', 'vmacc', 'vfnmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vfnmsac', 'vwredsumu', 'vwaddu', 'vfwadd', 'vwredsum', 'vwadd', 'vfwredusum']),
             ('vs', ['vredmaxu']),
+            ('v.v', ['vmv']),
+            ('v.x', ['vmv']),
+            ('x.s', ['vmv']),
             ('vx', ['vadd', 'vsub', 'vrsub', 'vminu', 'vmin', 'vmaxu', 'vmax', 'vand', 'vaadd', 'vor', 'vasubu', 'vxor', 'vasub', 'vrgather', 'vslideup', 'vslide1up', 'vslidedown', 'vslide1down', 'vadc', 'VRXUNARY0', 'vmadc', 'vsbc', 'vmsbc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsltu', 'vmslt', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vdivu', 'vsadd', 'vdiv', 'vssubu', 'vremu', 'vssub', 'vrem', 'vsll', 'vmul', 'vsmul', 'vmulh', 'vsrl', 'vsra', 'vmadd', 'vssrl', 'vssra', 'vnmsub', 'vnsra', 'vmacc', 'vnclipu', 'vnclip', 'vnmsac', 'vwaddu', 'vwadd']),
             ('vi', ['vadd', 'vrsub', 'vand', 'vor', 'vxor', 'vrgather', 'vslideup', 'vslidedown', 'vadc', 'vmadc', 'vmerge/vmv', 'vmseq', 'vmsne', 'vmsleu', 'vmsle', 'vmsgtu', 'vmsgt', 'vsaddu', 'vsadd', 'vsll', 'vsrl', 'vsra', 'vssrl', 'vssra', 'vnsra', 'vnclipu', 'vnclip']),
             ('vf', ['vfadd', 'vfsub', 'vfmin', 'vfmax', 'vfsgnjn', 'vfsgnjx', 'vfslide1up', 'vfslide1down', 'VRFUNARY0', 'vfmerge/vfmv', 'vmfeq', 'vmfle', 'vmflt', 'vmfne', 'vmfgt', 'vmfge', 'vfdiv', 'vfrdiv', 'vfrsub', 'vfnmadd', 'vfnmsub', 'vfnmacc', 'vfnmsac', 'vfwadd']),
@@ -31,6 +34,12 @@ class VectorCodeGenerator:
             return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, v{args[1]}");'
         elif fmt == 'vs':
             return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, v{args[1]}");'
+        elif fmt == 'v.v':
+            return lambda args: f'asm volatile("{opname}.v.v v{args[1]}, v{args[0]}");'
+        elif fmt == 'v.x':
+            return lambda args: f'asm volatile("{opname}.v.x v{args[1]}, %[A]" ::[A] "r"({args[0]}));'
+        elif fmt == 'x.s':
+            return lambda args: f'asm volatile("{opname}.x.s %0, v{args[0]}" : "=r"({args[1]}));'
         elif fmt == 'vx':
             return lambda args: f'asm volatile("{opname}.{fmt} v{args[2]}, v{args[0]}, %[A]" :: [A] "r"({args[1]}));'
         elif fmt == 'vi':

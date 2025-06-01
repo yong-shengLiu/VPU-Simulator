@@ -204,7 +204,28 @@ class HLGenerator:
 
         return inst, arg
     
-    def VSOperation(self, mode, vd_addr, vs1_addr, vs2_addr):
+    def V2VOperation(self, mode, vd_addr, vs_addr):
+        """
+        Generates a VV (vector to vector) instruction string and its argument list.
+        vs1_addr, vs2_addr, vd_addr: byte addresses of the source and destination vectors
+
+        TODO: vset and vstart
+        """
+
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
+
+        vs = addr_to_reg(vs_addr)
+        vd  = addr_to_reg(vd_addr)
+
+        # Generate instruction
+        arg = [vs, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_v.v', arg)
+
+        return inst, arg
+
+    def VSOperation(self, mode, vd_addr, vs1_addr, vs2_addr, mask=None):
         """
         Generates a VV (vector-vector) instruction string and its argument list.
         vs1_addr, vs2_addr, vd_addr: byte addresses of the source and destination vectors
@@ -224,15 +245,27 @@ class HLGenerator:
         arg = [vs1, vs2, vd]
         inst = self.codegen.VectorCodeGen(f'{mode}_vs', arg)
 
+        if mask is not None:
+            # Insert the mask before the final quote
+            insert_str = f', v0.t'
+            inst = inst.rstrip('");') + insert_str + '");'
+            arg.append(mask)
+
         return inst, arg
 
-    def VXOperation(self, mode, vd_addr, vs_addr, scalar):
+    def VXOperation(self, mode, vd_addr, vs_addr, scalar, mask=None):
         """
         Generates a VX (vector-scalar) instruction string and its argument list.
         vs_addr, vd_addr: byte addresses of the source and destination vectors
 
         TODO: vset and vstart
         """
+        def insert_mask(inst_str, mask='v0.t'):
+            split_marker = '%[A]"'
+            if split_marker in inst_str:
+                return inst_str.replace(split_marker, f'%[A], {mask}"')
+            else:
+                raise ValueError("Expected assembly format not found.")
 
         # Convert byte address to register index
         def addr_to_reg(addr):
@@ -244,6 +277,54 @@ class HLGenerator:
         # Generate instruction
         arg = [vs1, scalar, vd]
         inst = self.codegen.VectorCodeGen(f'{mode}_vx', arg)
+
+        
+
+        # Example usage
+        if mask is not None:
+            # Insert the mask before the final quote
+            inst = insert_mask(inst)
+            arg.append(mask)
+            
+        return inst, arg
+
+    def XVOperation(self, mode, vd_addr, scalar):
+        """
+        Generates a XV (scalar2vector) instruction string and its argument list.
+        vs_addr, vd_addr: byte addresses of the source and destination vectors
+
+        TODO: vset and vstart
+        """
+
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
+
+        vd  = addr_to_reg(vd_addr)
+
+        # Generate instruction
+        arg = [scalar, vd]
+        inst = self.codegen.VectorCodeGen(f'{mode}_v.x', arg)
+
+        return inst, arg
+
+    def XSOperation(self, mode, vs_addr, scalar):
+        """
+        Generates a XS (vector[0] to scalar) instruction string and its argument list.
+        vs_addr, vd_addr: byte addresses of the source and destination vectors
+
+        TODO: vset and vstart
+        """
+
+        # Convert byte address to register index
+        def addr_to_reg(addr):
+            return addr // (self.VLEN // 8) // self._LMUL
+
+        vs = addr_to_reg(vs_addr)
+
+        # Generate instruction
+        arg = [vs, scalar]
+        inst = self.codegen.VectorCodeGen(f'{mode}_x.s', arg)
 
         return inst, arg
 
@@ -325,8 +406,7 @@ if __name__ == "__main__":
             #     print(f"{line}")
 
             # === Testbench for Block-scale quantize ===
-            # Load
-            
+            # Load BF16 matrix from DRAM
             inst, arg = instGenerator.Scatter_LS('load', 1, 512, 512, DRAM_BASEADDR, 0, sew=16, lmul=2) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
             for line in inst:
                 print(f"{line}")
@@ -373,34 +453,43 @@ if __name__ == "__main__":
             print(f"{inst}")
 
 
-            # Store the result to DRAM
-            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1024, 1024) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
-            for line in inst:
-                print(f"{line}")
-            
-            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1536, 1536) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
-            for line in inst:
-                print(f"{line}")
-
-
-            # Find exp. max
-            inst, arg = instGenerator.VSOperation('vredmaxu', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
-            print(f"{inst}") # x = max(v)
-            # TODO ping-pong sliding or it can slide in one register
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x3F) # scalar = 0xFF
+            # Find exp. max, and calculate the difference
+            print(f"VLOAD_8(v5, 0x00);")  # zero vector
+            print(f'uint8_t EXPMax = 0;')  # TODO How to let CIM know the Block maximum exp.
+            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 64) # scalar = 64
             print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vslideup', 0, 'scalar', 1024) #(mode, vs_addr, scalar, vd_addr)
-            print(f"{inst}") # v = v slide x
+
+            for iter in range(0, 512//64):
+                # Create a mask for the block
+                mask = ["0x00"] * 64
+                for i in range(8):
+                    mask[iter * 8 + i] = "0xff"
+                bytes_str = ", ".join(mask)
+
+                print(f"VLOAD_8(v0, {bytes_str});")  # mask
+
+                # find the block maximum
+                inst, arg = instGenerator.VSOperation('vredmaxu', 2048, 1024, 2560, mask='yes') #(mode, vd_addr, vs1_addr, vs2_addr)
+                print(f"{inst}") # x = max(v)
+
+                # Store the block maximum to scalar
+                inst, arg = instGenerator.XSOperation('vmv', 2048, 'EXPMax') #(mode, vs_addr, scalar)
+                print(f"{inst}")
+
+                # calculate the difference
+                inst, arg = instGenerator.VXOperation('vrsub', 512, 1024, 'EXPMax', mask='yes') #(mode, vd_addr, vs_addr, scalar, mask=None)
+                print(f"{inst}")
 
 
-            # # calculate exp. difference
-            # inst, arg = instGenerator.VXOperation('vsub', 0, 0x3F, 1024) #(mode, vs_addr, scalar, vd_addr)
-            # print(f"{inst}") # v = v - x
+            # signed shift mantissa
+            inst, arg = instGenerator.VVOperation('vsra', 0, 1536, 512) #(mode, vd_addr, vs1_addr, vs2_addr)
+            print(f"{inst}") # vs1 >> vs2
 
 
-            # # signed shift mantissa
-            # inst, arg = instGenerator.VVOperation('vsra', 0, 512, 1024) #(mode, vs1_addr, vs2_addr, vd_addr)
-            # print(f"{inst}") # vs1 >> vs2
+            # Store the result to DRAM
+            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1024, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            for line in inst:
+                print(f"{line}")
 
             
     

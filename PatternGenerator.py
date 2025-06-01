@@ -46,9 +46,11 @@ def Gen_golden(element_array, kernal_size, debug=False):
     H, W   = element_array.shape
     kH, kW = kernal_size
 
+    aligned_mantissas_list = []
     Block_Max_exp = []
     exp_array_temp = []
     mantissa_array_temp = []
+    diff_array_temp = []
 
     for row in range(0, H, kH):
         for col in range(0, W, kW):
@@ -81,6 +83,7 @@ def Gen_golden(element_array, kernal_size, debug=False):
 
             # === Calculate the different between the block maxmium ===
             shift_array = block_max_exp - exp_array
+            diff_array_temp.append(shift_array)
             debug and print(f"Shift array:\n{shift_array}")
 
             # === shift the mantissa ===
@@ -89,6 +92,7 @@ def Gen_golden(element_array, kernal_size, debug=False):
             mantissa_array = mantissa_array.astype(np.uint8)
             aligned_mantissas = aligned_mantissas.astype(np.uint8)
             debug and print(f"Aligned mantissas:\n{aligned_mantissas}")
+            aligned_mantissas_list.append(aligned_mantissas)
 
 
         print(hex(mantissa_array[0, 0]))
@@ -96,8 +100,9 @@ def Gen_golden(element_array, kernal_size, debug=False):
 
     exp_array_temp_flat = np.concatenate([tile.flatten() for tile in exp_array_temp])
     mantissa_array_temp_flat = np.concatenate([tile.flatten() for tile in mantissa_array_temp])
+    diff_array_temp_flat = np.concatenate([tile.flatten() for tile in diff_array_temp])
 
-    return aligned_mantissas, Block_Max_exp, mantissa_array_temp_flat, exp_array_temp_flat
+    return aligned_mantissas_list, Block_Max_exp, mantissa_array_temp_flat, exp_array_temp_flat, diff_array_temp_flat
 
 
 if __name__ == "__main__":
@@ -115,23 +120,16 @@ if __name__ == "__main__":
     # bf16_mat = Gen_Matrix(64, 512, "BF16")
     bf16_mat = Gen_Matrix(1, 512, "BF16")
     kernal_size = (1, 64)
-    al_mant_golden, Max_exp_golden, mant_golden, exp_golden = Gen_golden(bf16_mat, kernal_size)
-
+    al_mant_golden, Max_exp_golden, mant_golden, exp_golden, diff_golden = Gen_golden(bf16_mat, kernal_size)
 
     with open(temp_golden, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            for idx, element in enumerate(exp_golden):
-                print(hex(element)[2:], end=" ")
-                
-                if (idx + 1) % 8 == 0:
-                    print()
-            for idx, element in enumerate(mant_golden):
-                print(hex(element)[2:], end=" ")
-                
-                if (idx + 1) % 8 == 0:
-                    print()
-
-
+            for al_mant in al_mant_golden:
+                for idx, element in enumerate(al_mant.flatten()):
+                    print(f'{element:02x}', end=" ")
+                    
+                    if (idx + 1) % 8 == 0:
+                        print()
 
     # Flatten in row-major order
     bf16_flat = bf16_mat.flatten(order='C')  # 'C' = row-major
