@@ -62,6 +62,8 @@ class VPU_simulator:
                 self.lsu.AxiAddrSet(self.dispatcher.vl, self.dispatcher.vstart, self.dispatcher.SEW)
                 self.lsu.StoreMemory(arg[2], 1, temp_vector) # set unit stride
             
+            else:
+                print("Error: VPU-Simulatro not support")
             # === set instruction break point ===
             # if inst_number == 5: break
 
@@ -70,7 +72,7 @@ class VPU_simulator:
 if __name__ == "__main__":
     
     print("=== VPU Simulator testbench ===")
-    print("version: 2025.05.23")
+    print("version: 2025.06.02")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     terminal_output_path = os.path.join(current_dir, "log", "terminal.txt")
@@ -92,9 +94,13 @@ if __name__ == "__main__":
             loadMatricInsst, loadMatricArg = instGen.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0)
             sim.run(loadMatricInsst, loadMatricArg)
 
-            # === Store Matrix Insturction ===
-            storeMatricInsst, storeMatricArg = instGen.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0)
-            sim.run(storeMatricInsst, storeMatricArg)
+            # # === Store Matrix Insturction ===
+            # storeMatricInsst, storeMatricArg = instGen.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0)
+            # sim.run(storeMatricInsst, storeMatricArg)
+
+            # === Arithmetic Insturction ===
+            arithinst, aritharg = instGen.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+            sim.run(arithinst, aritharg)
 
 
     # === Print out the current VRF memory mapping ===

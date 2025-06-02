@@ -4,18 +4,30 @@ LMUL: 2
 load [Seg0]
 VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 512,  vl: 512,  len (byte):  512
 
-VSET(512, e16, m2);
-asm volatile("vle16.v v0, (%0)" :: "r"((uint16_t*)3758096384));
-uint32_t scalar = 0;
-scalar = 7;
-VSET(512, e8, m1);
-asm volatile("vnsrl.wx v2, v0, %[A]" :: [A] "r"(scalar));
 SEW:  8
 LMUL: 1
 ========
 store [Seg0]
 VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758097920 (0xE0000600),  elen: 512,  vl: 512,  len (byte):  512
 
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758098944 (0xE0000A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758099968 (0xE0000E00),  elen: 512,  vl: 512,  len (byte):  512
+
+VSET(512, e16, m2);
+asm volatile("vle16.v v0, (%0)" :: "r"((uint16_t*)3758096384));
+uint32_t scalar = 0;
+scalar = 7;
+VSET(512, e8, m1);
+asm volatile("vnsrl.wx v2, v0, %[A]" :: [A] "r"(scalar));
 VSET(512, e8, m1);
 asm volatile("vse8.v v2, (%0)" :: "r"((uint8_t*)3758097920));
 VSET(512, e8, m1);
@@ -30,12 +42,6 @@ asm volatile("vnsrl.wx v4, v0, %[A]" :: [A] "r"(scalar));
 scalar = 63;
 asm volatile("vand.vx v4, v4, %[A]" :: [A] "r"(scalar));
 asm volatile("vor.vv v3, v3, v4");
-SEW:  8
-LMUL: 1
-========
-store [Seg0]
-VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758098944 (0xE0000A00),  elen: 512,  vl: 512,  len (byte):  512
-
 VSET(512, e8, m1);
 asm volatile("vse8.v v3, (%0)" :: "r"((uint8_t*)3758098944));
 VLOAD_8(v5, 0x00);
@@ -74,11 +80,5 @@ asm volatile("vredmaxu.vs v4, v2, v5, v0.t");
 asm volatile("vmv.x.s %0, v4" : "=r"(EXPMax));
 asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
 asm volatile("vsra.vv v0, v3, v1");
-SEW:  8
-LMUL: 1
-========
-store [Seg0]
-VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758099968 (0xE0000E00),  elen: 512,  vl: 512,  len (byte):  512
-
 VSET(512, e8, m1);
 asm volatile("vse8.v v0, (%0)" :: "r"((uint8_t*)3758099968));

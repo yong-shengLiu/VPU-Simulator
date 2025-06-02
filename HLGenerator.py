@@ -2,11 +2,13 @@ import os
 import numpy as np
 from contextlib import redirect_stdout
 from VectorCodeGen import VectorCodeGenerator  # Import the VectorCodeGen class from the appropriate module
+from VRF_scheduler import VRFScheduler
 
 
 class HLGenerator:
     def __init__(self, VLEN=4096, DataWidth=64, debug=False):
         self.codegen = VectorCodeGenerator()  # Initialize the VectorCodeGen class
+        self.sched   = VRFScheduler()  # Initialize VRF Scheduler
 
         # === parameters ===
         self.VLEN      = VLEN
@@ -181,6 +183,79 @@ class HLGenerator:
             print()
 
         return inst_list, arg_list
+
+    def Block_Scale(self, Main_Base):
+        
+        def append_inst_arg(inst, arg, generator_func, *args, **kwargs):
+            temp_inst, temp_arg = generator_func(*args, **kwargs)
+            
+            # If any returned value is not a list, convert it to a list
+            if not isinstance(temp_inst, list):
+                temp_inst = [temp_inst]
+            if not isinstance(temp_arg, list):
+                temp_arg = [temp_arg]
+
+            inst.extend(temp_inst)
+            arg.extend(temp_arg)
+        
+        inst = []
+        arg  = []
+
+        # === Load BF16 matrix from DRAM ===
+        append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base, 0, sew=16, lmul=2)
+
+        # === Seperate exp. ===
+        append_inst_arg(inst, arg, self.PurePrint, 'uint32_t scalar = 0;')
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 7)# Scalar = 7
+        append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
+        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', 1024, 0, 'scalar')# >> 7
+
+        # Store the result to DRAM (TODO need to remove)
+        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+1536, 1024)
+
+        # === Seperate mantissa_plus ===
+        append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 8)
+        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', 2048, 0, 'scalar')
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 0x80)
+        append_inst_arg(inst, arg, self.VXOperation, 'vand', 1536, 2048, 'scalar') # (element >> 8 & 0x80)
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 0x40)
+        append_inst_arg(inst, arg, self.VXOperation, 'vor', 1536, 1536, 'scalar')  # (element >> 8 & 0x80) | 0x40
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 1)
+        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', 2048, 0, 'scalar')
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 0x3F)
+        append_inst_arg(inst, arg, self.VXOperation, 'vand', 2048, 2048, 'scalar') # (element >> 1 & 0x3F)
+        append_inst_arg(inst, arg, self.VVOperation, 'vor', 1536, 1536, 2048)      # (element >> 8 & 0x80) | 0x40 | (element >> 1 & 0x3F)
+
+
+        # Store the result to DRAM (TODO need to remove)
+        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+2560, 1536)
+
+
+        # === Find exp. max and calculate the difference ===
+        append_inst_arg(inst, arg, self.PurePrint, 'VLOAD_8(v5, 0x00);')
+        append_inst_arg(inst, arg, self.PurePrint, 'uint8_t EXPMax = 0;')
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 64)
+
+        for iter in range(0, 512 // 64):
+            mask = ["0x00"] * 64
+            for i in range(8):
+                mask[iter * 8 + i] = "0xff"
+            bytes_str = ", ".join(mask)
+
+            append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v0, {bytes_str});')  # load mask
+
+            append_inst_arg(inst, arg, self.VSOperation, 'vredmaxu', 2048, 1024, 2560, mask='yes')  # find the block maximum
+            append_inst_arg(inst, arg, self.XSOperation, 'vmv', 2048, 'EXPMax')                     # Store the block maximum to scalar
+            append_inst_arg(inst, arg, self.VXOperation, 'vrsub', 512, 1024, 'EXPMax', mask='yes')  # calculate the difference
+
+        # === signed shift mantissa ===
+        append_inst_arg(inst, arg, self.VVOperation, 'vsra', 0, 1536, 512)
+
+        # Store the result to DRAM
+        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+3584, 0)
+
+        return inst, arg
 
     def VVOperation(self, mode, vd_addr, vs1_addr, vs2_addr):
         """
@@ -381,6 +456,15 @@ class HLGenerator:
 
         return inst, arg
     
+    def PurePrint(self, string):
+        """
+        TODO: This Only Gen C code, cannot used in Python VPU
+        """
+        
+        inst = string
+        arg = 0
+
+        return inst, arg
 if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
@@ -405,98 +489,8 @@ if __name__ == "__main__":
             # for line in inst:
             #     print(f"{line}")
 
-            # === Testbench for Block-scale quantize ===
-            # Load BF16 matrix from DRAM
-            inst, arg = instGenerator.Scatter_LS('load', 1, 512, 512, DRAM_BASEADDR, 0, sew=16, lmul=2) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
-            for line in inst:
-                print(f"{line}")
-            
-            # Seperate exp.
-            print(f'uint32_t scalar = 0;')
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 7) # scalar = 7
-            print(f"{inst}")
-
-            inst, arg = instGenerator.VSET(512, 8, 1) # (vl, sew=None, lmul=None)
-            print(f"{inst}")
-            inst, arg = instGenerator.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
-            print(f"{inst}") # >> 7
-
-
-            # Store the result to DRAM
-            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+1536, 1024) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
-            for line in inst:
-                print(f"{line}")
-
-
-            # Seperate mantissa_plus
-            # mant_plus = (element >> 8 & 0x80) | 0x40 | (element >> 1 & 0x3F)
-            inst, arg = instGenerator.VSET(512, 8, 1) # (vl, sew=None, lmul=None)
-            print(f"{inst}")
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 8) # scalar = 8
-            print(f"{inst}")
-            inst, arg = instGenerator.WXOperation('vnsrl', 2048, 0, 'scalar') # >> 8 (mode, vd_addr, vs_addr, scalar)
-            print(f"{inst}")
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x80) # scalar = 0x80
-            print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vand', 1536, 2048, 'scalar') #(mode, vd_addr, vs_addr, scalar)
-            print(f"{inst}")
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x40) # scalar = 0x40
-            print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vor', 1536, 1536, 'scalar') #(mode, vd_addr, vs_addr, scalar)
-            print(f"{inst}")
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 1) # scalar = 1
-            print(f"{inst}")
-            inst, arg = instGenerator.WXOperation('vnsrl', 2048, 0, 'scalar') # >> 1 (mode, vd_addr, vs_addr, scalar)
-            print(f"{inst}")
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 0x3F) # scalar = 0x3F
-            print(f"{inst}")
-            inst, arg = instGenerator.VXOperation('vand',2048 , 2048, 'scalar') # & 3F(mode, vd_addr, vs_addr, scalar)
-            print(f"{inst}")
-            inst, arg = instGenerator.VVOperation('vor', 1536, 1536, 2048) #(mode, vd_addr, vs1_addr, vs2_addr)
-            print(f"{inst}")
-
-
-            # Store the result to DRAM
-            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+2560, 1536) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
-            for line in inst:
-                print(f"{line}")
-
-
-            # Find exp. max, and calculate the difference
-            print(f"VLOAD_8(v5, 0x00);")  # zero vector
-            print(f'uint8_t EXPMax = 0;')  # TODO How to let CIM know the Block maximum exp.
-            inst, arg = instGenerator.ScalarOperation('equal', 'scalar', 64) # scalar = 64
-            print(f"{inst}")
-
-            for iter in range(0, 512//64):
-                # Create a mask for the block
-                mask = ["0x00"] * 64
-                for i in range(8):
-                    mask[iter * 8 + i] = "0xff"
-                bytes_str = ", ".join(mask)
-
-                print(f"VLOAD_8(v0, {bytes_str});")  # mask
-
-                # find the block maximum
-                inst, arg = instGenerator.VSOperation('vredmaxu', 2048, 1024, 2560, mask='yes') #(mode, vd_addr, vs1_addr, vs2_addr)
-                print(f"{inst}") # x = max(v)
-
-                # Store the block maximum to scalar
-                inst, arg = instGenerator.XSOperation('vmv', 2048, 'EXPMax') #(mode, vs_addr, scalar)
-                print(f"{inst}")
-
-                # calculate the difference
-                inst, arg = instGenerator.VXOperation('vrsub', 512, 1024, 'EXPMax', mask='yes') #(mode, vd_addr, vs_addr, scalar, mask=None)
-                print(f"{inst}")
-
-
-            # signed shift mantissa
-            inst, arg = instGenerator.VVOperation('vsra', 0, 1536, 512) #(mode, vd_addr, vs1_addr, vs2_addr)
-            print(f"{inst}") # vs1 >> vs2
-
-
-            # Store the result to DRAM
-            inst, arg = instGenerator.Scatter_LS('store', 1, 512, 512, DRAM_BASEADDR+3584, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr, sew, lmul)
+            # # === Testbench for Block-scale quantize ===
+            inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR) #(Main_Base)
             for line in inst:
                 print(f"{line}")
 
