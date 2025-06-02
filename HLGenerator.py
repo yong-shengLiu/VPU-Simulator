@@ -198,62 +198,85 @@ class HLGenerator:
             inst.extend(temp_inst)
             arg.extend(temp_arg)
         
+        def v2byte(vreg):
+            return vreg*512
         inst = []
         arg  = []
 
+        
         # === Load BF16 matrix from DRAM ===
-        append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base, 0, sew=16, lmul=2)
+        bf16 = self.sched.allocate('BF16', 2) # allocate BF16
+        append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base, v2byte(bf16[0]), sew=16, lmul=2)
 
         # === Seperate exp. ===
+        Exp = self.sched.allocate('Exp', 1) # allocate Exp
         append_inst_arg(inst, arg, self.PurePrint, 'uint32_t scalar = 0;')
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 7)# Scalar = 7
         append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
-        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', 1024, 0, 'scalar')# >> 7
+        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', v2byte(Exp[0]), v2byte(bf16[0]), 'scalar')# >> 7
 
         # Store the result to DRAM (TODO need to remove)
-        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+1536, 1024)
+        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+1536, v2byte(Exp[0]))
 
         # === Seperate mantissa_plus ===
+        Mant = self.sched.allocate('Mant', 1) # allocate Mant
         append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 8)
-        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', 2048, 0, 'scalar')
+        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', v2byte(Mant[0]), v2byte(bf16[0]), 'scalar') # (element >> 8)
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 0x80)
-        append_inst_arg(inst, arg, self.VXOperation, 'vand', 1536, 2048, 'scalar') # (element >> 8 & 0x80)
+        append_inst_arg(inst, arg, self.VXOperation, 'vand', v2byte(Mant[0]), v2byte(Mant[0]), 'scalar') # (element >> 8 & 0x80)
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 0x40)
-        append_inst_arg(inst, arg, self.VXOperation, 'vor', 1536, 1536, 'scalar')  # (element >> 8 & 0x80) | 0x40
+        append_inst_arg(inst, arg, self.VXOperation, 'vor', v2byte(Mant[0]), v2byte(Mant[0]), 'scalar')  # (element >> 8 & 0x80) | 0x40
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 1)
-        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', 2048, 0, 'scalar')
+        temp = self.sched.allocate('temp', 1) # allocate temp
+        append_inst_arg(inst, arg, self.WXOperation, 'vnsrl', v2byte(temp[0]), v2byte(bf16[0]), 'scalar')
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 0x3F)
-        append_inst_arg(inst, arg, self.VXOperation, 'vand', 2048, 2048, 'scalar') # (element >> 1 & 0x3F)
-        append_inst_arg(inst, arg, self.VVOperation, 'vor', 1536, 1536, 2048)      # (element >> 8 & 0x80) | 0x40 | (element >> 1 & 0x3F)
-
+        append_inst_arg(inst, arg, self.VXOperation, 'vand', v2byte(temp[0]), v2byte(temp[0]), 'scalar') # (element >> 1 & 0x3F)
+        append_inst_arg(inst, arg, self.VVOperation, 'vor', v2byte(Mant[0]), v2byte(temp[0]), v2byte(Mant[0]))      # (element >> 8 & 0x80) | 0x40 | (element >> 1 & 0x3F)
+        self.sched.free('temp')
+        self.sched.free('BF16')
 
         # Store the result to DRAM (TODO need to remove)
-        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+2560, 1536)
+        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+2560, v2byte(Mant[0]))
 
 
         # === Find exp. max and calculate the difference ===
-        append_inst_arg(inst, arg, self.PurePrint, 'VLOAD_8(v5, 0x00);')
+        mask = self.sched.allocate('mask', 1) # NOTE allocate mask, must be v0
+        diff = self.sched.allocate('diff', 1) # allocate diff
+        MaxExp = self.sched.allocate('MaxExp', 1) # allocate MaxExp
+
+        append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{MaxExp[0]}, 0x00);')
         append_inst_arg(inst, arg, self.PurePrint, 'uint8_t EXPMax = 0;')
         append_inst_arg(inst, arg, self.ScalarOperation, 'equal', 'scalar', 64)
 
         for iter in range(0, 512 // 64):
-            mask = ["0x00"] * 64
+            Emask = ["0x00"] * 64
             for i in range(8):
-                mask[iter * 8 + i] = "0xff"
-            bytes_str = ", ".join(mask)
+                Emask[iter * 8 + i] = "0xff"
+            bytes_str = ", ".join(Emask)
 
-            append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v0, {bytes_str});')  # load mask
+            append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
 
-            append_inst_arg(inst, arg, self.VSOperation, 'vredmaxu', 2048, 1024, 2560, mask='yes')  # find the block maximum
-            append_inst_arg(inst, arg, self.XSOperation, 'vmv', 2048, 'EXPMax')                     # Store the block maximum to scalar
-            append_inst_arg(inst, arg, self.VXOperation, 'vrsub', 512, 1024, 'EXPMax', mask='yes')  # calculate the difference
+            temp = self.sched.allocate('temp', 1) # allocate temp
+            append_inst_arg(inst, arg, self.VSOperation, 'vredmaxu', v2byte(temp[0]), v2byte(Exp[0]), v2byte(MaxExp[0]), mask='yes')  # find the block maximum
+            append_inst_arg(inst, arg, self.XSOperation, 'vmv', v2byte(temp[0]), 'EXPMax')          # Store the block maximum to scalar
+            self.sched.free('temp')
+            append_inst_arg(inst, arg, self.VXOperation, 'vrsub', v2byte(diff[0]), v2byte(Exp[0]), 'EXPMax', mask='yes')  # calculate the difference
 
+
+        self.sched.free('mask')
+        self.sched.free('MaxExp')
+        self.sched.free('Exp')
+        
         # === signed shift mantissa ===
-        append_inst_arg(inst, arg, self.VVOperation, 'vsra', 0, 1536, 512)
+        ShiftMant = self.sched.allocate('ShiftMant', 1) # allocate ShiftMant
+        append_inst_arg(inst, arg, self.VVOperation, 'vsra', v2byte(ShiftMant[0]), v2byte(Mant[0]), v2byte(diff[0]))
 
-        # Store the result to DRAM
-        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+3584, 0)
+        self.sched.free('Mant')
+        self.sched.free('diff')
+
+        # Store the result to DRAM　(TODO need to remove)
+        append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+3584, v2byte(ShiftMant[0]))
 
         return inst, arg
 
@@ -515,6 +538,6 @@ if __name__ == "__main__":
         print(hex(((int(0x3EED) >> 7) & 0xFF)))
         print(hex(((int(0x3E4A) >> 7) & 0xFF)))
     
-
-
+    
+    instGenerator.sched.status()
     
