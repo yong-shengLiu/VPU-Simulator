@@ -36,9 +36,57 @@ class VRFScheduler:
 
 if __name__ == "__main__":
     sched = VRFScheduler()
-    sched.allocate("opA", 3)
-    sched.allocate("opB", 2)
-    # sched.allocate("opB", 31)
-    # sched.status()
-    sched.free("opA")
-    # sched.status()
+
+    sched.allocate("mask", 1)   # mask
+    sched.allocate("MaxExp", 1) # all zero
+
+    total_row = 64
+    row_exe = 22
+
+    # find Exp. Maximum
+    for start_row in range(0, total_row, row_exe):
+        end_row = min(start_row + row_exe, total_row)
+
+        for i in range(start_row, end_row):
+            # load exponent
+            sched.allocate(f"Exp{i}", 1)
+
+            # find reduction max, store to scalar
+            sched.allocate('temp', 1)
+            sched.free('temp')
+        
+        for i in range(start_row, end_row):
+            sched.free(f"Exp{i}")
+    
+    
+    sched.free("MaxExp")
+
+
+    row_exe = 13
+
+
+    # Calculate the Exp different and shift Mant
+    for start_row in range(0, total_row, row_exe):
+        end_row = min(start_row + row_exe, total_row)
+        
+        for i in range(start_row, end_row):
+            # load exponent
+            sched.allocate(f"Exp{i}", 1)
+            
+            # different
+            sched.allocate(f"diff{i}", 1)
+            sched.free(f"Exp{i}")
+
+            # load Mant. & shift
+            sched.allocate(f"Mant{i}", 1)
+
+        sched.status()
+        for i in range(start_row, end_row):
+            sched.free(f"diff{i}")
+            sched.free(f"Mant{i}")
+        
+    
+    sched.free("mask")
+    
+
+    

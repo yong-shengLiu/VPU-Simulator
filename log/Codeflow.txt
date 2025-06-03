@@ -1,84 +1,1982 @@
-SEW:  16
-LMUL: 2
+SEW:  8
+LMUL: 1
 ========
 load [Seg0]
-VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 512,  vl: 512,  len (byte):  512
+VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg1]
+VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758096896 (0xE0000200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg2]
+VRF Byte Addr:   2048,  vreg:  4,  vstart:   0,  Target Byte Addr: 3758097408 (0xE0000400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg3]
+VRF Byte Addr:   2560,  vreg:  5,  vstart:   0,  Target Byte Addr: 3758097920 (0xE0000600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg4]
+VRF Byte Addr:   3072,  vreg:  6,  vstart:   0,  Target Byte Addr: 3758098432 (0xE0000800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg5]
+VRF Byte Addr:   3584,  vreg:  7,  vstart:   0,  Target Byte Addr: 3758098944 (0xE0000A00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg6]
+VRF Byte Addr:   4096,  vreg:  8,  vstart:   0,  Target Byte Addr: 3758099456 (0xE0000C00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg7]
+VRF Byte Addr:   4608,  vreg:  9,  vstart:   0,  Target Byte Addr: 3758099968 (0xE0000E00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg8]
+VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758100480 (0xE0001000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg9]
+VRF Byte Addr:   5632,  vreg: 11,  vstart:   0,  Target Byte Addr: 3758100992 (0xE0001200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg10]
+VRF Byte Addr:   6144,  vreg: 12,  vstart:   0,  Target Byte Addr: 3758101504 (0xE0001400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg11]
+VRF Byte Addr:   6656,  vreg: 13,  vstart:   0,  Target Byte Addr: 3758102016 (0xE0001600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg12]
+VRF Byte Addr:   7168,  vreg: 14,  vstart:   0,  Target Byte Addr: 3758102528 (0xE0001800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg13]
+VRF Byte Addr:   7680,  vreg: 15,  vstart:   0,  Target Byte Addr: 3758103040 (0xE0001A00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg14]
+VRF Byte Addr:   8192,  vreg: 16,  vstart:   0,  Target Byte Addr: 3758103552 (0xE0001C00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg15]
+VRF Byte Addr:   8704,  vreg: 17,  vstart:   0,  Target Byte Addr: 3758104064 (0xE0001E00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg16]
+VRF Byte Addr:   9216,  vreg: 18,  vstart:   0,  Target Byte Addr: 3758104576 (0xE0002000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg17]
+VRF Byte Addr:   9728,  vreg: 19,  vstart:   0,  Target Byte Addr: 3758105088 (0xE0002200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg18]
+VRF Byte Addr:  10240,  vreg: 20,  vstart:   0,  Target Byte Addr: 3758105600 (0xE0002400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg19]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758106112 (0xE0002600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg20]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758106624 (0xE0002800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg21]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758107136 (0xE0002A00),  elen: 512,  vl: 512,  len (byte):  512
 
 SEW:  8
 LMUL: 1
 ========
-store [Seg0]
-VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758097920 (0xE0000600),  elen: 512,  vl: 512,  len (byte):  512
+load [Seg0]
+VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg1]
+VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758096896 (0xE0000200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg2]
+VRF Byte Addr:   2048,  vreg:  4,  vstart:   0,  Target Byte Addr: 3758097408 (0xE0000400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg3]
+VRF Byte Addr:   2560,  vreg:  5,  vstart:   0,  Target Byte Addr: 3758097920 (0xE0000600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg4]
+VRF Byte Addr:   3072,  vreg:  6,  vstart:   0,  Target Byte Addr: 3758098432 (0xE0000800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg5]
+VRF Byte Addr:   3584,  vreg:  7,  vstart:   0,  Target Byte Addr: 3758098944 (0xE0000A00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg6]
+VRF Byte Addr:   4096,  vreg:  8,  vstart:   0,  Target Byte Addr: 3758099456 (0xE0000C00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg7]
+VRF Byte Addr:   4608,  vreg:  9,  vstart:   0,  Target Byte Addr: 3758099968 (0xE0000E00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg8]
+VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758100480 (0xE0001000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg9]
+VRF Byte Addr:   5632,  vreg: 11,  vstart:   0,  Target Byte Addr: 3758100992 (0xE0001200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg10]
+VRF Byte Addr:   6144,  vreg: 12,  vstart:   0,  Target Byte Addr: 3758101504 (0xE0001400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg11]
+VRF Byte Addr:   6656,  vreg: 13,  vstart:   0,  Target Byte Addr: 3758102016 (0xE0001600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg12]
+VRF Byte Addr:   7168,  vreg: 14,  vstart:   0,  Target Byte Addr: 3758102528 (0xE0001800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg13]
+VRF Byte Addr:   7680,  vreg: 15,  vstart:   0,  Target Byte Addr: 3758103040 (0xE0001A00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg14]
+VRF Byte Addr:   8192,  vreg: 16,  vstart:   0,  Target Byte Addr: 3758103552 (0xE0001C00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg15]
+VRF Byte Addr:   8704,  vreg: 17,  vstart:   0,  Target Byte Addr: 3758104064 (0xE0001E00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg16]
+VRF Byte Addr:   9216,  vreg: 18,  vstart:   0,  Target Byte Addr: 3758104576 (0xE0002000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg17]
+VRF Byte Addr:   9728,  vreg: 19,  vstart:   0,  Target Byte Addr: 3758105088 (0xE0002200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg18]
+VRF Byte Addr:  10240,  vreg: 20,  vstart:   0,  Target Byte Addr: 3758105600 (0xE0002400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg19]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758106112 (0xE0002600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg20]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758106624 (0xE0002800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg21]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758107136 (0xE0002A00),  elen: 512,  vl: 512,  len (byte):  512
 
 SEW:  8
 LMUL: 1
 ========
-store [Seg0]
-VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758098944 (0xE0000A00),  elen: 512,  vl: 512,  len (byte):  512
+load [Seg0]
+VRF Byte Addr:   1024,  vreg:  2,  vstart:   0,  Target Byte Addr: 3758096384 (0xE0000000),  elen: 512,  vl: 512,  len (byte):  512
 
-SEW:  8
-LMUL: 1
-========
-store [Seg0]
-VRF Byte Addr:      0,  vreg:  0,  vstart:   0,  Target Byte Addr: 3758099968 (0xE0000E00),  elen: 512,  vl: 512,  len (byte):  512
+load [Seg1]
+VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758096896 (0xE0000200),  elen: 512,  vl: 512,  len (byte):  512
 
-VSET(512, e16, m2);
-asm volatile("vle16.v v0, (%0)" :: "r"((uint16_t*)3758096384));
-uint32_t scalar = 0;
-scalar = 7;
+load [Seg2]
+VRF Byte Addr:   2048,  vreg:  4,  vstart:   0,  Target Byte Addr: 3758097408 (0xE0000400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg3]
+VRF Byte Addr:   2560,  vreg:  5,  vstart:   0,  Target Byte Addr: 3758097920 (0xE0000600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg4]
+VRF Byte Addr:   3072,  vreg:  6,  vstart:   0,  Target Byte Addr: 3758098432 (0xE0000800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg5]
+VRF Byte Addr:   3584,  vreg:  7,  vstart:   0,  Target Byte Addr: 3758098944 (0xE0000A00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg6]
+VRF Byte Addr:   4096,  vreg:  8,  vstart:   0,  Target Byte Addr: 3758099456 (0xE0000C00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg7]
+VRF Byte Addr:   4608,  vreg:  9,  vstart:   0,  Target Byte Addr: 3758099968 (0xE0000E00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg8]
+VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758100480 (0xE0001000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg9]
+VRF Byte Addr:   5632,  vreg: 11,  vstart:   0,  Target Byte Addr: 3758100992 (0xE0001200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg10]
+VRF Byte Addr:   6144,  vreg: 12,  vstart:   0,  Target Byte Addr: 3758101504 (0xE0001400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg11]
+VRF Byte Addr:   6656,  vreg: 13,  vstart:   0,  Target Byte Addr: 3758102016 (0xE0001600),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg12]
+VRF Byte Addr:   7168,  vreg: 14,  vstart:   0,  Target Byte Addr: 3758102528 (0xE0001800),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg13]
+VRF Byte Addr:   7680,  vreg: 15,  vstart:   0,  Target Byte Addr: 3758103040 (0xE0001A00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg14]
+VRF Byte Addr:   8192,  vreg: 16,  vstart:   0,  Target Byte Addr: 3758103552 (0xE0001C00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg15]
+VRF Byte Addr:   8704,  vreg: 17,  vstart:   0,  Target Byte Addr: 3758104064 (0xE0001E00),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg16]
+VRF Byte Addr:   9216,  vreg: 18,  vstart:   0,  Target Byte Addr: 3758104576 (0xE0002000),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg17]
+VRF Byte Addr:   9728,  vreg: 19,  vstart:   0,  Target Byte Addr: 3758105088 (0xE0002200),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg18]
+VRF Byte Addr:  10240,  vreg: 20,  vstart:   0,  Target Byte Addr: 3758105600 (0xE0002400),  elen: 512,  vl: 512,  len (byte):  512
+
+load [Seg19]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758106112 (0xE0002600),  elen: 512,  vl: 512,  len (byte):  512
+
+VRF Status:
+V00: mask
+V01: Free
+V02: Free
+V03: Free
+V04: Free
+V05: Free
+V06: Free
+V07: Free
+V08: Free
+V09: Free
+V10: Free
+V11: Free
+V12: Free
+V13: Free
+V14: Free
+V15: Free
+V16: Free
+V17: Free
+V18: Free
+V19: Free
+V20: Free
+V21: Free
+V22: Free
+V23: Free
+V24: Free
+V25: Free
+V26: Free
+V27: Free
+V28: Free
+V29: Free
+V30: Free
+V31: Free
 VSET(512, e8, m1);
-asm volatile("vnsrl.wx v2, v0, %[A]" :: [A] "r"(scalar));
-VSET(512, e8, m1);
-asm volatile("vse8.v v2, (%0)" :: "r"((uint8_t*)3758097920));
-VSET(512, e8, m1);
-scalar = 8;
-asm volatile("vnsrl.wx v3, v0, %[A]" :: [A] "r"(scalar));
-scalar = 128;
-asm volatile("vand.vx v3, v3, %[A]" :: [A] "r"(scalar));
-scalar = 64;
-asm volatile("vor.vx v3, v3, %[A]" :: [A] "r"(scalar));
-scalar = 1;
-asm volatile("vnsrl.wx v4, v0, %[A]" :: [A] "r"(scalar));
-scalar = 63;
-asm volatile("vand.vx v4, v4, %[A]" :: [A] "r"(scalar));
-asm volatile("vor.vv v3, v4, v3");
-VSET(512, e8, m1);
-asm volatile("vse8.v v3, (%0)" :: "r"((uint8_t*)3758098944));
-VLOAD_8(v4, 0x00);
+VLOAD_8(v1, 0x00);
 uint8_t EXPMax = 0;
-scalar = 64;
-VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-asm volatile("vredmaxu.vs v5, v2, v4, v0.t");
-asm volatile("vmv.x.s %0, v5" : "=r"(EXPMax));
-asm volatile("vrsub.vx v1, v2, %[A], v0.t" :: [A] "r"(EXPMax));
-asm volatile("vsra.vv v0, v3, v1");
+uint8_t Max_temp = 0;
 VSET(512, e8, m1);
-asm volatile("vse8.v v0, (%0)" :: "r"((uint8_t*)3758099968));
+asm volatile("vle8.v v2, (%0)" :: "r"((uint8_t*)3758096384));
+VSET(512, e8, m1);
+asm volatile("vle8.v v3, (%0)" :: "r"((uint8_t*)3758096896));
+VSET(512, e8, m1);
+asm volatile("vle8.v v4, (%0)" :: "r"((uint8_t*)3758097408));
+VSET(512, e8, m1);
+asm volatile("vle8.v v5, (%0)" :: "r"((uint8_t*)3758097920));
+VSET(512, e8, m1);
+asm volatile("vle8.v v6, (%0)" :: "r"((uint8_t*)3758098432));
+VSET(512, e8, m1);
+asm volatile("vle8.v v7, (%0)" :: "r"((uint8_t*)3758098944));
+VSET(512, e8, m1);
+asm volatile("vle8.v v8, (%0)" :: "r"((uint8_t*)3758099456));
+VSET(512, e8, m1);
+asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758099968));
+VSET(512, e8, m1);
+asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758100480));
+VSET(512, e8, m1);
+asm volatile("vle8.v v11, (%0)" :: "r"((uint8_t*)3758100992));
+VSET(512, e8, m1);
+asm volatile("vle8.v v12, (%0)" :: "r"((uint8_t*)3758101504));
+VSET(512, e8, m1);
+asm volatile("vle8.v v13, (%0)" :: "r"((uint8_t*)3758102016));
+VSET(512, e8, m1);
+asm volatile("vle8.v v14, (%0)" :: "r"((uint8_t*)3758102528));
+VSET(512, e8, m1);
+asm volatile("vle8.v v15, (%0)" :: "r"((uint8_t*)3758103040));
+VSET(512, e8, m1);
+asm volatile("vle8.v v16, (%0)" :: "r"((uint8_t*)3758103552));
+VSET(512, e8, m1);
+asm volatile("vle8.v v17, (%0)" :: "r"((uint8_t*)3758104064));
+VSET(512, e8, m1);
+asm volatile("vle8.v v18, (%0)" :: "r"((uint8_t*)3758104576));
+VSET(512, e8, m1);
+asm volatile("vle8.v v19, (%0)" :: "r"((uint8_t*)3758105088));
+VSET(512, e8, m1);
+asm volatile("vle8.v v20, (%0)" :: "r"((uint8_t*)3758105600));
+VSET(512, e8, m1);
+asm volatile("vle8.v v21, (%0)" :: "r"((uint8_t*)3758106112));
+VSET(512, e8, m1);
+asm volatile("vle8.v v22, (%0)" :: "r"((uint8_t*)3758106624));
+VSET(512, e8, m1);
+asm volatile("vle8.v v23, (%0)" :: "r"((uint8_t*)3758107136));
+uint8_t par_Max_0 = 0;
+VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_0 < Max_temp) par_Max_0 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_1 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_1 < Max_temp) par_Max_1 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_2 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_2 < Max_temp) par_Max_2 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_3 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_3 < Max_temp) par_Max_3 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_4 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_4 < Max_temp) par_Max_4 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_5 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_5 < Max_temp) par_Max_5 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_6 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_6 < Max_temp) par_Max_6 = Max_temp;
+Max_temp = 0;
+uint8_t par_Max_7 = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_7 < Max_temp) par_Max_7 = Max_temp;
+Max_temp = 0;
+VSET(512, e8, m1);
+asm volatile("vle8.v v2, (%0)" :: "r"((uint8_t*)3758096384));
+VSET(512, e8, m1);
+asm volatile("vle8.v v3, (%0)" :: "r"((uint8_t*)3758096896));
+VSET(512, e8, m1);
+asm volatile("vle8.v v4, (%0)" :: "r"((uint8_t*)3758097408));
+VSET(512, e8, m1);
+asm volatile("vle8.v v5, (%0)" :: "r"((uint8_t*)3758097920));
+VSET(512, e8, m1);
+asm volatile("vle8.v v6, (%0)" :: "r"((uint8_t*)3758098432));
+VSET(512, e8, m1);
+asm volatile("vle8.v v7, (%0)" :: "r"((uint8_t*)3758098944));
+VSET(512, e8, m1);
+asm volatile("vle8.v v8, (%0)" :: "r"((uint8_t*)3758099456));
+VSET(512, e8, m1);
+asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758099968));
+VSET(512, e8, m1);
+asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758100480));
+VSET(512, e8, m1);
+asm volatile("vle8.v v11, (%0)" :: "r"((uint8_t*)3758100992));
+VSET(512, e8, m1);
+asm volatile("vle8.v v12, (%0)" :: "r"((uint8_t*)3758101504));
+VSET(512, e8, m1);
+asm volatile("vle8.v v13, (%0)" :: "r"((uint8_t*)3758102016));
+VSET(512, e8, m1);
+asm volatile("vle8.v v14, (%0)" :: "r"((uint8_t*)3758102528));
+VSET(512, e8, m1);
+asm volatile("vle8.v v15, (%0)" :: "r"((uint8_t*)3758103040));
+VSET(512, e8, m1);
+asm volatile("vle8.v v16, (%0)" :: "r"((uint8_t*)3758103552));
+VSET(512, e8, m1);
+asm volatile("vle8.v v17, (%0)" :: "r"((uint8_t*)3758104064));
+VSET(512, e8, m1);
+asm volatile("vle8.v v18, (%0)" :: "r"((uint8_t*)3758104576));
+VSET(512, e8, m1);
+asm volatile("vle8.v v19, (%0)" :: "r"((uint8_t*)3758105088));
+VSET(512, e8, m1);
+asm volatile("vle8.v v20, (%0)" :: "r"((uint8_t*)3758105600));
+VSET(512, e8, m1);
+asm volatile("vle8.v v21, (%0)" :: "r"((uint8_t*)3758106112));
+VSET(512, e8, m1);
+asm volatile("vle8.v v22, (%0)" :: "r"((uint8_t*)3758106624));
+VSET(512, e8, m1);
+asm volatile("vle8.v v23, (%0)" :: "r"((uint8_t*)3758107136));
+VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_0 < Max_temp) par_Max_0 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_1 < Max_temp) par_Max_1 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_2 < Max_temp) par_Max_2 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_3 < Max_temp) par_Max_3 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_4 < Max_temp) par_Max_4 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_5 < Max_temp) par_Max_5 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_6 < Max_temp) par_Max_6 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+asm volatile("vredmaxu.vs v24, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v22, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v24, v23, v1, v0.t");
+asm volatile("vmv.x.s %0, v24" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_7 < Max_temp) par_Max_7 = Max_temp;
+Max_temp = 0;
+VSET(512, e8, m1);
+asm volatile("vle8.v v2, (%0)" :: "r"((uint8_t*)3758096384));
+VSET(512, e8, m1);
+asm volatile("vle8.v v3, (%0)" :: "r"((uint8_t*)3758096896));
+VSET(512, e8, m1);
+asm volatile("vle8.v v4, (%0)" :: "r"((uint8_t*)3758097408));
+VSET(512, e8, m1);
+asm volatile("vle8.v v5, (%0)" :: "r"((uint8_t*)3758097920));
+VSET(512, e8, m1);
+asm volatile("vle8.v v6, (%0)" :: "r"((uint8_t*)3758098432));
+VSET(512, e8, m1);
+asm volatile("vle8.v v7, (%0)" :: "r"((uint8_t*)3758098944));
+VSET(512, e8, m1);
+asm volatile("vle8.v v8, (%0)" :: "r"((uint8_t*)3758099456));
+VSET(512, e8, m1);
+asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758099968));
+VSET(512, e8, m1);
+asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758100480));
+VSET(512, e8, m1);
+asm volatile("vle8.v v11, (%0)" :: "r"((uint8_t*)3758100992));
+VSET(512, e8, m1);
+asm volatile("vle8.v v12, (%0)" :: "r"((uint8_t*)3758101504));
+VSET(512, e8, m1);
+asm volatile("vle8.v v13, (%0)" :: "r"((uint8_t*)3758102016));
+VSET(512, e8, m1);
+asm volatile("vle8.v v14, (%0)" :: "r"((uint8_t*)3758102528));
+VSET(512, e8, m1);
+asm volatile("vle8.v v15, (%0)" :: "r"((uint8_t*)3758103040));
+VSET(512, e8, m1);
+asm volatile("vle8.v v16, (%0)" :: "r"((uint8_t*)3758103552));
+VSET(512, e8, m1);
+asm volatile("vle8.v v17, (%0)" :: "r"((uint8_t*)3758104064));
+VSET(512, e8, m1);
+asm volatile("vle8.v v18, (%0)" :: "r"((uint8_t*)3758104576));
+VSET(512, e8, m1);
+asm volatile("vle8.v v19, (%0)" :: "r"((uint8_t*)3758105088));
+VSET(512, e8, m1);
+asm volatile("vle8.v v20, (%0)" :: "r"((uint8_t*)3758105600));
+VSET(512, e8, m1);
+asm volatile("vle8.v v21, (%0)" :: "r"((uint8_t*)3758106112));
+VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_0 < Max_temp) par_Max_0 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_1 < Max_temp) par_Max_1 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_2 < Max_temp) par_Max_2 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_3 < Max_temp) par_Max_3 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_4 < Max_temp) par_Max_4 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_5 < Max_temp) par_Max_5 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_6 < Max_temp) par_Max_6 = Max_temp;
+Max_temp = 0;
+VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
+asm volatile("vredmaxu.vs v22, v2, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v3, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v4, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v5, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v6, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v7, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v8, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v9, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v10, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v11, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v12, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v13, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v14, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v15, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v16, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v17, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v18, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v19, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v20, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+asm volatile("vredmaxu.vs v22, v21, v1, v0.t");
+asm volatile("vmv.x.s %0, v22" : "=r"(EXPMax));
+if ( Max_temp < EXPMax) Max_temp = EXPMax;
+if ( par_Max_7 < Max_temp) par_Max_7 = Max_temp;
+Max_temp = 0;
