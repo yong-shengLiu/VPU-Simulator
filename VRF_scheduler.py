@@ -62,7 +62,7 @@ if __name__ == "__main__":
     sched.free("MaxExp")
 
 
-    row_exe = 13
+    row_exe = 10
 
 
     # Calculate the Exp different and shift Mant
@@ -82,11 +82,13 @@ if __name__ == "__main__":
             sched.free(f"Exp{i}")
             # load Mant. & shift
             sched.allocate(f"Mant{i}", 1)
+            sched.allocate(f"Shift{i}", 1)
 
         sched.status()
         for i in range(start_row, end_row):
             sched.free(f"diff{i}")
             sched.free(f"Mant{i}")
+            sched.free(f"Shift{i}")
         
     
     sched.free("mask")

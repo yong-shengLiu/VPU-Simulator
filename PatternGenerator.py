@@ -95,67 +95,86 @@ def Gen_golden(element_array, kernal_size, debug=False):
             aligned_mantissas_list.append(aligned_mantissas)
 
 
-        print(hex(mantissa_array[0, 0]))
-        print(hex(aligned_mantissas[0, 0]))
+    exp_array_temp = np.array(exp_array_temp)
+    # print(f'exp_array_temp size: {exp_array_temp.shape}')
 
-    exp_array_temp_flat = np.concatenate([tile.flatten() for tile in exp_array_temp])
-    mantissa_array_temp_flat = np.concatenate([tile.flatten() for tile in mantissa_array_temp])
-    diff_array_temp_flat = np.concatenate([tile.flatten() for tile in diff_array_temp])
+    mantissa_array_temp = np.array(mantissa_array_temp)
+    # print(f'mantissa_array_temp size: {mantissa_array_temp.shape}')
 
-    return aligned_mantissas_list, Block_Max_exp, mantissa_array_temp_flat, exp_array_temp_flat, diff_array_temp_flat
+    aligned_mantissas_list = np.array(aligned_mantissas_list)
+    # print(f'aligned_mantissas_list size: {aligned_mantissas_list.shape}')
+
+
+
+    # exp_array_temp_flat = np.concatenate([tile.flatten() for tile in exp_array_temp])
+    # mantissa_array_temp_flat = np.concatenate([tile.flatten() for tile in mantissa_array_temp])
+    # diff_array_temp_flat = np.concatenate([tile.flatten() for tile in diff_array_temp])
+    print(Block_Max_exp)
+
+    return exp_array_temp, mantissa_array_temp, aligned_mantissas_list
 
 
 if __name__ == "__main__":
     print("=== Pattern Generator testbench ===")
-    print("version: 2025.05.29")
+    print("version: 2025.06.04")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Matrix.txt")
-    pattern_path = os.path.join(current_dir, "pattern", "bf16_Mat64_512.npy")
+    pattern_path = os.path.join(current_dir, "pattern", "ExpMant_Mat64_512.npy")
     temp_golden = os.path.join(current_dir, "log", "temp_golden.txt")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
     os.makedirs("pattern", exist_ok=True)
 
 
     # bf16_mat = Gen_Matrix(64, 512, "BF16")
-    bf16_mat = Gen_Matrix(1, 512, "BF16")
-    kernal_size = (1, 64)
-    al_mant_golden, Max_exp_golden, mant_golden, exp_golden, diff_golden = Gen_golden(bf16_mat, kernal_size)
+    bf16_mat = Gen_Matrix(64, 512, "BF16")
+    kernal_size = (64, 64)
+    exp, mant, aligned_mant = Gen_golden(bf16_mat, kernal_size)
 
+    # First, transpose to (64, 8, 64), then reshape to (64, 512)
+    exp_reshaped = exp.transpose(1, 0, 2).reshape(64, 512).flatten()
+    mant_reshaped = mant.transpose(1, 0, 2).reshape(64, 512).flatten()
+    aligned_mant_reshaped = aligned_mant.transpose(1, 0, 2).reshape(64, 512).flatten()
+
+    print(f'exp size: {exp_reshaped.shape}')
+    print(f'mant size: {mant_reshaped.shape}')
+    print(f'aligned_mant size: {aligned_mant_reshaped.shape}')
+
+
+    
     with open(temp_golden, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            for idx, element in enumerate(exp_golden):
+            print("Expont")
+            for idx, element in enumerate(exp_reshaped):
                 print(f'{element:02x}', end=" ")
-                
+
                 if (idx + 1) % 8 == 0:
                     print()
 
-            for idx, element in enumerate(mant_golden):
+            print("Mant")
+            for idx, element in enumerate(mant_reshaped):
                 print(f'{element:02x}', end=" ")
                 
                 if (idx + 1) % 8 == 0:
                     print()
             
-            for al_mant in al_mant_golden:
-                for idx, element in enumerate(al_mant.flatten()):
-                    print(f'{element:02x}', end=" ")
-                    
-                    if (idx + 1) % 8 == 0:
-                        print()
+            print("Shift Mant")
+            for idx, element in enumerate(aligned_mant_reshaped):
+                print(f'{element:02x}', end=" ")
+                
+                if (idx + 1) % 8 == 0:
+                    print()
 
-    # Flatten in row-major order
-    bf16_flat = bf16_mat.flatten(order='C')  # 'C' = row-major
-    print(type(bf16_flat))
-    print(bf16_mat.shape)
 
+    combined = np.concatenate((exp_reshaped, mant_reshaped), axis=0)
     # Save as .npy file
-    np.save(pattern_path, bf16_flat)
+    np.save(pattern_path, combined)
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        with redirect_stdout(f):
-            np.set_printoptions(threshold=np.inf)  # Prevent truncation
-            hex_formatter = np.vectorize(lambda x: hex(x))
-            print(f"Generated BF16 Matrix:\n{hex_formatter(bf16_flat)}")
+    # with open(output_path, "w", encoding="utf-8") as f:
+    #     with redirect_stdout(f):
+    #         np.set_printoptions(threshold=np.inf)  # Prevent truncation
+    #         hex_formatter = np.vectorize(lambda x: hex(x))
+    #         print(f"Generated BF16 Matrix:\n{hex_formatter(bf16_flat)}")
     
 
     

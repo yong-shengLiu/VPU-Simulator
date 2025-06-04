@@ -305,6 +305,7 @@ class HLGenerator:
 
         
         # === find Exp. Maximum ===
+        append_inst_arg(inst, arg, self.PurePrint, '// find Exp. Maximum')
         mask = self.sched.allocate('mask', 1) # NOTE allocate mask, must be v0
         MaxExp = self.sched.allocate('MaxExp', 1) # allocate MaxExp
 
@@ -359,10 +360,11 @@ class HLGenerator:
         
         
         self.sched.free('MaxExp')
+        append_inst_arg(inst, arg, self.PurePrint, f'printf("Max0:%d, Max1:%d, Max2:%d, Max3:%d, Max4:%d, Max5:%d, Max6:%d, Max7:%d\\n", par_Max_0, par_Max_1, par_Max_2, par_Max_3, par_Max_4, par_Max_5, par_Max_6, par_Max_7);')
 
-
-        # === Find Exp. maxCalculate the Exp different and shift Mant ===
-        row_exe = 13  # NOTE a magic number
+        # === Calculate the Exp different and shift Mant ===
+        append_inst_arg(inst, arg, self.PurePrint, '// Calculate the Exp different and shift Mant')
+        row_exe = 10  # NOTE a magic number
 
         for start_row in range(0, total_row, row_exe):
             end_row = min(start_row + row_exe, total_row)
@@ -389,8 +391,8 @@ class HLGenerator:
                 append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
 
                 # Difference
+                append_inst_arg(inst, arg, self.PurePrint, f'Max_temp = par_Max_{iter};')
                 for exe in range(allocate_row):
-                    append_inst_arg(inst, arg, self.PurePrint, f'Max_temp = par_Max_{iter};')
                     append_inst_arg(inst, arg, self.VXOperation, 'vrsub', v2byte(diff[exe]), v2byte(Exp[exe]), 'Max_temp', mask='yes')  # calculate the difference
 
             self.sched.free("Exp")
@@ -399,18 +401,21 @@ class HLGenerator:
             
             # Load Mant and shift
             Mant = self.sched.allocate("Mant", allocate_row)
+            ShiftMant = self.sched.allocate("ShiftMant", allocate_row)
             append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base+0x8000+(start_row*512), v2byte(Mant[0]), sew=8, lmul=1)
 
             for exe in range(allocate_row):
-                append_inst_arg(inst, arg, self.VVOperation, 'vsra', v2byte(Mant[exe]), v2byte(Mant[exe]), v2byte(diff[exe]))
-                append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+0x10000+(start_row*512)+(exe*512), v2byte(Mant[exe]), sew=8, lmul=1)
+                append_inst_arg(inst, arg, self.VVOperation, 'vsra', v2byte(ShiftMant[exe]), v2byte(Mant[exe]), v2byte(diff[exe]))
+                append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+0x10000+(start_row*512)+(exe*512), v2byte(ShiftMant[exe]), sew=8, lmul=1)
 
+
+            append_inst_arg(inst, arg, self.PurePrint, f'printf("Block{start_row} Store finish\\n");')
             self.sched.free("diff")
             self.sched.free("Mant")
+            self.sched.free("ShiftMant")
         
         self.sched.free("mask")
         return inst, arg
-
 
     def VVOperation(self, mode, vd_addr, vs1_addr, vs2_addr):
         """
@@ -624,7 +629,7 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.05.29")
+    print("version: 2025.06.04")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Codeflow.txt")

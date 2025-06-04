@@ -61,7 +61,7 @@ class MEMORY:
             for idx, value in enumerate(self.memory):
                 for byte in range(8):
                     byte_mask  = 0b11111111 << (byte * 8)
-                    byte_value = (value & byte_mask) >> (byte * 8)
+                    byte_value = (int(value) & byte_mask) >> (byte * 8)
                     print(f"{byte_value:02X}")
         elif mode == 'golden':
             print("----- Memory data (little-endian) -----")
@@ -202,15 +202,17 @@ if __name__ == "__main__":
     # load the DRAM pattern (float 32b)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     # dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
-    dir_np = os.path.join(current_dir, "pattern", "bf16_Mat64_512.npy")
+    dir_np = os.path.join(current_dir, "pattern", "ExpMant_Mat64_512.npy")
     dram_pattern = np.load(dir_np)
 
     # FP32b to uint8b
     # dram_pattern = dram_pattern.flatten().astype(np.uint8)
 
+    print(f"Dram dtype: {dram_pattern.dtype}")
+    print(f"Dram shape: {dram_pattern.shape}")
     # the preload pattern is represent in byte
     # dram.init_byte_to_mem(dram_pattern, 1) # (pattern, byte_num)
-    dram.init_byte_to_mem(dram_pattern, 2) # (pattern, byte_num)
+    dram.init_byte_to_mem(dram_pattern, 1) # (pattern, byte_num)
 
     # 8 bit testbench
     # print("8bit : ", [f"0x{val:02X}"  for val in dram.take_data(0, 8,  15).astype(np.uint8 )]) # align & start from 0
