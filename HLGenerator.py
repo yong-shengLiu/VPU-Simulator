@@ -323,7 +323,7 @@ class HLGenerator:
 
             # load exponent
             Exp = self.sched.allocate("Exp", allocate_row)
-            append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base, v2byte(Exp[0]), sew=8, lmul=1)
+            append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base+(start_row*512), v2byte(Exp[0]), sew=8, lmul=1)
 
             # find reduction max, store to scalar
             for iter in range(0, 512 // width):
@@ -360,66 +360,55 @@ class HLGenerator:
         
         self.sched.free('MaxExp')
 
+
         # === Find Exp. maxCalculate the Exp different and shift Mant ===
         row_exe = 13  # NOTE a magic number
+
         for start_row in range(0, total_row, row_exe):
             end_row = min(start_row + row_exe, total_row)
-            
+
             allocate_row = end_row - start_row
 
             # load exponent
             Exp = self.sched.allocate("Exp", allocate_row)
-            append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base, v2byte(Exp[0]), sew=8, lmul=1)
+            append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base+(start_row*512), v2byte(Exp[0]), sew=8, lmul=1)
+            
+            # Mask sliding to find the Differenct between Maximum
+            diff = self.sched.allocate('diff', allocate_row)
+            
+            append_inst_arg(inst, arg, self.PurePrint, 'Max_temp = 0;')
 
+            for iter in range(0, 512 // width):
+                # generate the mask
+                Emask = ["0x00"] * (512 // 8)
+                widthB = width // 8
+                for i in range(widthB):
+                    Emask[iter * widthB + i] = "0xff"
+                bytes_str = ", ".join(Emask)
 
-            for i in range(start_row, end_row):
-                # load exponent
-                self.sched.allocate(f"Exp{i}", 1)
-                
-                # different
-                self.sched.allocate(f"diff{i}", 1)
-                self.sched.free(f"Exp{i}")
+                append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
 
-                # load Mant. & shift
-                self.sched.allocate(f"Mant{i}", 1)
+                # Difference
+                for exe in range(allocate_row):
+                    append_inst_arg(inst, arg, self.PurePrint, f'Max_temp = par_Max_{iter};')
+                    append_inst_arg(inst, arg, self.VXOperation, 'vrsub', v2byte(diff[exe]), v2byte(Exp[exe]), 'Max_temp', mask='yes')  # calculate the difference
 
+            self.sched.free("Exp")
+            
+            
+            
+            # Load Mant and shift
+            Mant = self.sched.allocate("Mant", allocate_row)
+            append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base+0x8000+(start_row*512), v2byte(Mant[0]), sew=8, lmul=1)
 
-            for i in range(start_row, end_row):
-                self.sched.free(f"diff{i}")
-                self.sched.free(f"Mant{i}")
+            for exe in range(allocate_row):
+                append_inst_arg(inst, arg, self.VVOperation, 'vsra', v2byte(Mant[exe]), v2byte(Mant[exe]), v2byte(diff[exe]))
+                append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+0x10000+(start_row*512)+(exe*512), v2byte(Mant[exe]), sew=8, lmul=1)
 
-
-
-        self.sched.status()
-        # for iter in range(0, 512 // width):
-        #     Emask = ["0x00"] * 64
-        #     for i in range(8):
-        #         Emask[iter * 8 + i] = "0xff"
-        #     bytes_str = ", ".join(Emask)
-
-        #     append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
-
-        #     temp = self.sched.allocate('temp', 1) # allocate temp
-        #     append_inst_arg(inst, arg, self.VSOperation, 'vredmaxu', v2byte(temp[0]), v2byte(Exp[0]), v2byte(MaxExp[0]), mask='yes')  # find the block maximum
-        #     append_inst_arg(inst, arg, self.XSOperation, 'vmv', v2byte(temp[0]), 'EXPMax')          # Store the block maximum to scalar
-        #     self.sched.free('temp')
-        #     append_inst_arg(inst, arg, self.VXOperation, 'vrsub', v2byte(diff[0]), v2byte(Exp[0]), 'EXPMax', mask='yes')  # calculate the difference
-
-
-        # self.sched.free('mask')
-        # self.sched.free('MaxExp')
-        # self.sched.free('Exp')
+            self.sched.free("diff")
+            self.sched.free("Mant")
         
-        # # === signed shift mantissa ===
-        # ShiftMant = self.sched.allocate('ShiftMant', 1) # allocate ShiftMant
-        # append_inst_arg(inst, arg, self.VVOperation, 'vsra', v2byte(ShiftMant[0]), v2byte(Mant[0]), v2byte(diff[0]))
-
-        # self.sched.free('Mant')
-        # self.sched.free('diff')
-
-        # # Store the result to DRAM　(TODO need to remove)
-        # append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+3584, v2byte(ShiftMant[0]))
-
+        self.sched.free("mask")
         return inst, arg
 
 

@@ -69,14 +69,17 @@ if __name__ == "__main__":
     for start_row in range(0, total_row, row_exe):
         end_row = min(start_row + row_exe, total_row)
         
+        # mask sliding
         for i in range(start_row, end_row):
             # load exponent
             sched.allocate(f"Exp{i}", 1)
             
             # different
             sched.allocate(f"diff{i}", 1)
-            sched.free(f"Exp{i}")
 
+        
+        for i in range(start_row, end_row):
+            sched.free(f"Exp{i}")
             # load Mant. & shift
             sched.allocate(f"Mant{i}", 1)
 
