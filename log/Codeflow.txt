@@ -268,6 +268,66 @@ VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758133760 (0
 SEW:  8
 LMUL: 1
 ========
+store [Seg0]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758161920 (0xE0010000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758162432 (0xE0010200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758162944 (0xE0010400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12288,  vreg: 24,  vstart:   0,  Target Byte Addr: 3758163456 (0xE0010600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12800,  vreg: 25,  vstart:   0,  Target Byte Addr: 3758163968 (0xE0010800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13312,  vreg: 26,  vstart:   0,  Target Byte Addr: 3758164480 (0xE0010A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13824,  vreg: 27,  vstart:   0,  Target Byte Addr: 3758164992 (0xE0010C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14336,  vreg: 28,  vstart:   0,  Target Byte Addr: 3758165504 (0xE0010E00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14848,  vreg: 29,  vstart:   0,  Target Byte Addr: 3758166016 (0xE0011000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  15360,  vreg: 30,  vstart:   0,  Target Byte Addr: 3758166528 (0xE0011200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
 load [Seg0]
 VRF Byte Addr:    512,  vreg:  1,  vstart:   0,  Target Byte Addr: 3758101504 (0xE0001400),  elen: 512,  vl: 512,  len (byte):  512
 
@@ -330,6 +390,66 @@ VRF Byte Addr:   4608,  vreg:  9,  vstart:   0,  Target Byte Addr: 3758138368 (0
 
 load [Seg9]
 VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758138880 (0xE000A600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758167040 (0xE0011400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758167552 (0xE0011600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758168064 (0xE0011800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12288,  vreg: 24,  vstart:   0,  Target Byte Addr: 3758168576 (0xE0011A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12800,  vreg: 25,  vstart:   0,  Target Byte Addr: 3758169088 (0xE0011C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13312,  vreg: 26,  vstart:   0,  Target Byte Addr: 3758169600 (0xE0011E00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13824,  vreg: 27,  vstart:   0,  Target Byte Addr: 3758170112 (0xE0012000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14336,  vreg: 28,  vstart:   0,  Target Byte Addr: 3758170624 (0xE0012200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14848,  vreg: 29,  vstart:   0,  Target Byte Addr: 3758171136 (0xE0012400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  15360,  vreg: 30,  vstart:   0,  Target Byte Addr: 3758171648 (0xE0012600),  elen: 512,  vl: 512,  len (byte):  512
 
 SEW:  8
 LMUL: 1
@@ -400,6 +520,66 @@ VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758144000 (0
 SEW:  8
 LMUL: 1
 ========
+store [Seg0]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758172160 (0xE0012800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758172672 (0xE0012A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758173184 (0xE0012C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12288,  vreg: 24,  vstart:   0,  Target Byte Addr: 3758173696 (0xE0012E00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12800,  vreg: 25,  vstart:   0,  Target Byte Addr: 3758174208 (0xE0013000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13312,  vreg: 26,  vstart:   0,  Target Byte Addr: 3758174720 (0xE0013200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13824,  vreg: 27,  vstart:   0,  Target Byte Addr: 3758175232 (0xE0013400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14336,  vreg: 28,  vstart:   0,  Target Byte Addr: 3758175744 (0xE0013600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14848,  vreg: 29,  vstart:   0,  Target Byte Addr: 3758176256 (0xE0013800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  15360,  vreg: 30,  vstart:   0,  Target Byte Addr: 3758176768 (0xE0013A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
 load [Seg0]
 VRF Byte Addr:    512,  vreg:  1,  vstart:   0,  Target Byte Addr: 3758111744 (0xE0003C00),  elen: 512,  vl: 512,  len (byte):  512
 
@@ -462,6 +642,66 @@ VRF Byte Addr:   4608,  vreg:  9,  vstart:   0,  Target Byte Addr: 3758148608 (0
 
 load [Seg9]
 VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758149120 (0xE000CE00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758177280 (0xE0013C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758177792 (0xE0013E00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758178304 (0xE0014000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12288,  vreg: 24,  vstart:   0,  Target Byte Addr: 3758178816 (0xE0014200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12800,  vreg: 25,  vstart:   0,  Target Byte Addr: 3758179328 (0xE0014400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13312,  vreg: 26,  vstart:   0,  Target Byte Addr: 3758179840 (0xE0014600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13824,  vreg: 27,  vstart:   0,  Target Byte Addr: 3758180352 (0xE0014800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14336,  vreg: 28,  vstart:   0,  Target Byte Addr: 3758180864 (0xE0014A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14848,  vreg: 29,  vstart:   0,  Target Byte Addr: 3758181376 (0xE0014C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  15360,  vreg: 30,  vstart:   0,  Target Byte Addr: 3758181888 (0xE0014E00),  elen: 512,  vl: 512,  len (byte):  512
 
 SEW:  8
 LMUL: 1
@@ -532,6 +772,66 @@ VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758154240 (0
 SEW:  8
 LMUL: 1
 ========
+store [Seg0]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758182400 (0xE0015000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758182912 (0xE0015200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758183424 (0xE0015400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12288,  vreg: 24,  vstart:   0,  Target Byte Addr: 3758183936 (0xE0015600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12800,  vreg: 25,  vstart:   0,  Target Byte Addr: 3758184448 (0xE0015800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13312,  vreg: 26,  vstart:   0,  Target Byte Addr: 3758184960 (0xE0015A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13824,  vreg: 27,  vstart:   0,  Target Byte Addr: 3758185472 (0xE0015C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14336,  vreg: 28,  vstart:   0,  Target Byte Addr: 3758185984 (0xE0015E00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14848,  vreg: 29,  vstart:   0,  Target Byte Addr: 3758186496 (0xE0016000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  15360,  vreg: 30,  vstart:   0,  Target Byte Addr: 3758187008 (0xE0016200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
 load [Seg0]
 VRF Byte Addr:    512,  vreg:  1,  vstart:   0,  Target Byte Addr: 3758121984 (0xE0006400),  elen: 512,  vl: 512,  len (byte):  512
 
@@ -598,6 +898,66 @@ VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758159360 (0
 SEW:  8
 LMUL: 1
 ========
+store [Seg0]
+VRF Byte Addr:  10752,  vreg: 21,  vstart:   0,  Target Byte Addr: 3758187520 (0xE0016400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11264,  vreg: 22,  vstart:   0,  Target Byte Addr: 3758188032 (0xE0016600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  11776,  vreg: 23,  vstart:   0,  Target Byte Addr: 3758188544 (0xE0016800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12288,  vreg: 24,  vstart:   0,  Target Byte Addr: 3758189056 (0xE0016A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  12800,  vreg: 25,  vstart:   0,  Target Byte Addr: 3758189568 (0xE0016C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13312,  vreg: 26,  vstart:   0,  Target Byte Addr: 3758190080 (0xE0016E00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  13824,  vreg: 27,  vstart:   0,  Target Byte Addr: 3758190592 (0xE0017000),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14336,  vreg: 28,  vstart:   0,  Target Byte Addr: 3758191104 (0xE0017200),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  14848,  vreg: 29,  vstart:   0,  Target Byte Addr: 3758191616 (0xE0017400),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:  15360,  vreg: 30,  vstart:   0,  Target Byte Addr: 3758192128 (0xE0017600),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
 load [Seg0]
 VRF Byte Addr:    512,  vreg:  1,  vstart:   0,  Target Byte Addr: 3758127104 (0xE0007800),  elen: 512,  vl: 512,  len (byte):  512
 
@@ -624,6 +984,30 @@ VRF Byte Addr:   1536,  vreg:  3,  vstart:   0,  Target Byte Addr: 3758160896 (0
 
 load [Seg3]
 VRF Byte Addr:   2048,  vreg:  4,  vstart:   0,  Target Byte Addr: 3758161408 (0xE000FE00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:   4608,  vreg:  9,  vstart:   0,  Target Byte Addr: 3758192640 (0xE0017800),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:   5120,  vreg: 10,  vstart:   0,  Target Byte Addr: 3758193152 (0xE0017A00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:   5632,  vreg: 11,  vstart:   0,  Target Byte Addr: 3758193664 (0xE0017C00),  elen: 512,  vl: 512,  len (byte):  512
+
+SEW:  8
+LMUL: 1
+========
+store [Seg0]
+VRF Byte Addr:   6144,  vreg: 12,  vstart:   0,  Target Byte Addr: 3758194176 (0xE0017E00),  elen: 512,  vl: 512,  len (byte):  512
 
 // find Exp. Maximum
 VSET(512, e8, m1);
@@ -2398,101 +2782,93 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758100992));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758129152));
 VSET(512, e8, m1);
@@ -2514,15 +2890,35 @@ asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758133248));
 VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758133760));
 asm volatile("vsra.vv v21, v1, v11");
+VSET(512, e8, m1);
+asm volatile("vse8.v v21, (%0)" :: "r"((uint8_t*)3758161920));
 asm volatile("vsra.vv v22, v2, v12");
+VSET(512, e8, m1);
+asm volatile("vse8.v v22, (%0)" :: "r"((uint8_t*)3758162432));
 asm volatile("vsra.vv v23, v3, v13");
+VSET(512, e8, m1);
+asm volatile("vse8.v v23, (%0)" :: "r"((uint8_t*)3758162944));
 asm volatile("vsra.vv v24, v4, v14");
+VSET(512, e8, m1);
+asm volatile("vse8.v v24, (%0)" :: "r"((uint8_t*)3758163456));
 asm volatile("vsra.vv v25, v5, v15");
+VSET(512, e8, m1);
+asm volatile("vse8.v v25, (%0)" :: "r"((uint8_t*)3758163968));
 asm volatile("vsra.vv v26, v6, v16");
+VSET(512, e8, m1);
+asm volatile("vse8.v v26, (%0)" :: "r"((uint8_t*)3758164480));
 asm volatile("vsra.vv v27, v7, v17");
+VSET(512, e8, m1);
+asm volatile("vse8.v v27, (%0)" :: "r"((uint8_t*)3758164992));
 asm volatile("vsra.vv v28, v8, v18");
+VSET(512, e8, m1);
+asm volatile("vse8.v v28, (%0)" :: "r"((uint8_t*)3758165504));
 asm volatile("vsra.vv v29, v9, v19");
+VSET(512, e8, m1);
+asm volatile("vse8.v v29, (%0)" :: "r"((uint8_t*)3758166016));
 asm volatile("vsra.vv v30, v10, v20");
+VSET(512, e8, m1);
+asm volatile("vse8.v v30, (%0)" :: "r"((uint8_t*)3758166528));
 printf("Block0 Store finish\n");
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758101504));
@@ -2546,101 +2942,93 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758106112));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758134272));
 VSET(512, e8, m1);
@@ -2662,15 +3050,35 @@ asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758138368));
 VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758138880));
 asm volatile("vsra.vv v21, v1, v11");
+VSET(512, e8, m1);
+asm volatile("vse8.v v21, (%0)" :: "r"((uint8_t*)3758167040));
 asm volatile("vsra.vv v22, v2, v12");
+VSET(512, e8, m1);
+asm volatile("vse8.v v22, (%0)" :: "r"((uint8_t*)3758167552));
 asm volatile("vsra.vv v23, v3, v13");
+VSET(512, e8, m1);
+asm volatile("vse8.v v23, (%0)" :: "r"((uint8_t*)3758168064));
 asm volatile("vsra.vv v24, v4, v14");
+VSET(512, e8, m1);
+asm volatile("vse8.v v24, (%0)" :: "r"((uint8_t*)3758168576));
 asm volatile("vsra.vv v25, v5, v15");
+VSET(512, e8, m1);
+asm volatile("vse8.v v25, (%0)" :: "r"((uint8_t*)3758169088));
 asm volatile("vsra.vv v26, v6, v16");
+VSET(512, e8, m1);
+asm volatile("vse8.v v26, (%0)" :: "r"((uint8_t*)3758169600));
 asm volatile("vsra.vv v27, v7, v17");
+VSET(512, e8, m1);
+asm volatile("vse8.v v27, (%0)" :: "r"((uint8_t*)3758170112));
 asm volatile("vsra.vv v28, v8, v18");
+VSET(512, e8, m1);
+asm volatile("vse8.v v28, (%0)" :: "r"((uint8_t*)3758170624));
 asm volatile("vsra.vv v29, v9, v19");
+VSET(512, e8, m1);
+asm volatile("vse8.v v29, (%0)" :: "r"((uint8_t*)3758171136));
 asm volatile("vsra.vv v30, v10, v20");
+VSET(512, e8, m1);
+asm volatile("vse8.v v30, (%0)" :: "r"((uint8_t*)3758171648));
 printf("Block10 Store finish\n");
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758106624));
@@ -2694,101 +3102,93 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758111232));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758139392));
 VSET(512, e8, m1);
@@ -2810,15 +3210,35 @@ asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758143488));
 VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758144000));
 asm volatile("vsra.vv v21, v1, v11");
+VSET(512, e8, m1);
+asm volatile("vse8.v v21, (%0)" :: "r"((uint8_t*)3758172160));
 asm volatile("vsra.vv v22, v2, v12");
+VSET(512, e8, m1);
+asm volatile("vse8.v v22, (%0)" :: "r"((uint8_t*)3758172672));
 asm volatile("vsra.vv v23, v3, v13");
+VSET(512, e8, m1);
+asm volatile("vse8.v v23, (%0)" :: "r"((uint8_t*)3758173184));
 asm volatile("vsra.vv v24, v4, v14");
+VSET(512, e8, m1);
+asm volatile("vse8.v v24, (%0)" :: "r"((uint8_t*)3758173696));
 asm volatile("vsra.vv v25, v5, v15");
+VSET(512, e8, m1);
+asm volatile("vse8.v v25, (%0)" :: "r"((uint8_t*)3758174208));
 asm volatile("vsra.vv v26, v6, v16");
+VSET(512, e8, m1);
+asm volatile("vse8.v v26, (%0)" :: "r"((uint8_t*)3758174720));
 asm volatile("vsra.vv v27, v7, v17");
+VSET(512, e8, m1);
+asm volatile("vse8.v v27, (%0)" :: "r"((uint8_t*)3758175232));
 asm volatile("vsra.vv v28, v8, v18");
+VSET(512, e8, m1);
+asm volatile("vse8.v v28, (%0)" :: "r"((uint8_t*)3758175744));
 asm volatile("vsra.vv v29, v9, v19");
+VSET(512, e8, m1);
+asm volatile("vse8.v v29, (%0)" :: "r"((uint8_t*)3758176256));
 asm volatile("vsra.vv v30, v10, v20");
+VSET(512, e8, m1);
+asm volatile("vse8.v v30, (%0)" :: "r"((uint8_t*)3758176768));
 printf("Block20 Store finish\n");
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758111744));
@@ -2842,101 +3262,93 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758116352));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758144512));
 VSET(512, e8, m1);
@@ -2958,15 +3370,35 @@ asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758148608));
 VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758149120));
 asm volatile("vsra.vv v21, v1, v11");
+VSET(512, e8, m1);
+asm volatile("vse8.v v21, (%0)" :: "r"((uint8_t*)3758177280));
 asm volatile("vsra.vv v22, v2, v12");
+VSET(512, e8, m1);
+asm volatile("vse8.v v22, (%0)" :: "r"((uint8_t*)3758177792));
 asm volatile("vsra.vv v23, v3, v13");
+VSET(512, e8, m1);
+asm volatile("vse8.v v23, (%0)" :: "r"((uint8_t*)3758178304));
 asm volatile("vsra.vv v24, v4, v14");
+VSET(512, e8, m1);
+asm volatile("vse8.v v24, (%0)" :: "r"((uint8_t*)3758178816));
 asm volatile("vsra.vv v25, v5, v15");
+VSET(512, e8, m1);
+asm volatile("vse8.v v25, (%0)" :: "r"((uint8_t*)3758179328));
 asm volatile("vsra.vv v26, v6, v16");
+VSET(512, e8, m1);
+asm volatile("vse8.v v26, (%0)" :: "r"((uint8_t*)3758179840));
 asm volatile("vsra.vv v27, v7, v17");
+VSET(512, e8, m1);
+asm volatile("vse8.v v27, (%0)" :: "r"((uint8_t*)3758180352));
 asm volatile("vsra.vv v28, v8, v18");
+VSET(512, e8, m1);
+asm volatile("vse8.v v28, (%0)" :: "r"((uint8_t*)3758180864));
 asm volatile("vsra.vv v29, v9, v19");
+VSET(512, e8, m1);
+asm volatile("vse8.v v29, (%0)" :: "r"((uint8_t*)3758181376));
 asm volatile("vsra.vv v30, v10, v20");
+VSET(512, e8, m1);
+asm volatile("vse8.v v30, (%0)" :: "r"((uint8_t*)3758181888));
 printf("Block30 Store finish\n");
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758116864));
@@ -2990,101 +3422,93 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758121472));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758149632));
 VSET(512, e8, m1);
@@ -3106,15 +3530,35 @@ asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758153728));
 VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758154240));
 asm volatile("vsra.vv v21, v1, v11");
+VSET(512, e8, m1);
+asm volatile("vse8.v v21, (%0)" :: "r"((uint8_t*)3758182400));
 asm volatile("vsra.vv v22, v2, v12");
+VSET(512, e8, m1);
+asm volatile("vse8.v v22, (%0)" :: "r"((uint8_t*)3758182912));
 asm volatile("vsra.vv v23, v3, v13");
+VSET(512, e8, m1);
+asm volatile("vse8.v v23, (%0)" :: "r"((uint8_t*)3758183424));
 asm volatile("vsra.vv v24, v4, v14");
+VSET(512, e8, m1);
+asm volatile("vse8.v v24, (%0)" :: "r"((uint8_t*)3758183936));
 asm volatile("vsra.vv v25, v5, v15");
+VSET(512, e8, m1);
+asm volatile("vse8.v v25, (%0)" :: "r"((uint8_t*)3758184448));
 asm volatile("vsra.vv v26, v6, v16");
+VSET(512, e8, m1);
+asm volatile("vse8.v v26, (%0)" :: "r"((uint8_t*)3758184960));
 asm volatile("vsra.vv v27, v7, v17");
+VSET(512, e8, m1);
+asm volatile("vse8.v v27, (%0)" :: "r"((uint8_t*)3758185472));
 asm volatile("vsra.vv v28, v8, v18");
+VSET(512, e8, m1);
+asm volatile("vse8.v v28, (%0)" :: "r"((uint8_t*)3758185984));
 asm volatile("vsra.vv v29, v9, v19");
+VSET(512, e8, m1);
+asm volatile("vse8.v v29, (%0)" :: "r"((uint8_t*)3758186496));
 asm volatile("vsra.vv v30, v10, v20");
+VSET(512, e8, m1);
+asm volatile("vse8.v v30, (%0)" :: "r"((uint8_t*)3758187008));
 printf("Block40 Store finish\n");
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758121984));
@@ -3138,101 +3582,93 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758126592));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v11, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v12, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v13, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v14, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v15, v5, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v16, v6, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v17, v7, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v18, v8, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v19, v9, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v20, v10, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758154752));
 VSET(512, e8, m1);
@@ -3254,15 +3690,35 @@ asm volatile("vle8.v v9, (%0)" :: "r"((uint8_t*)3758158848));
 VSET(512, e8, m1);
 asm volatile("vle8.v v10, (%0)" :: "r"((uint8_t*)3758159360));
 asm volatile("vsra.vv v21, v1, v11");
+VSET(512, e8, m1);
+asm volatile("vse8.v v21, (%0)" :: "r"((uint8_t*)3758187520));
 asm volatile("vsra.vv v22, v2, v12");
+VSET(512, e8, m1);
+asm volatile("vse8.v v22, (%0)" :: "r"((uint8_t*)3758188032));
 asm volatile("vsra.vv v23, v3, v13");
+VSET(512, e8, m1);
+asm volatile("vse8.v v23, (%0)" :: "r"((uint8_t*)3758188544));
 asm volatile("vsra.vv v24, v4, v14");
+VSET(512, e8, m1);
+asm volatile("vse8.v v24, (%0)" :: "r"((uint8_t*)3758189056));
 asm volatile("vsra.vv v25, v5, v15");
+VSET(512, e8, m1);
+asm volatile("vse8.v v25, (%0)" :: "r"((uint8_t*)3758189568));
 asm volatile("vsra.vv v26, v6, v16");
+VSET(512, e8, m1);
+asm volatile("vse8.v v26, (%0)" :: "r"((uint8_t*)3758190080));
 asm volatile("vsra.vv v27, v7, v17");
+VSET(512, e8, m1);
+asm volatile("vse8.v v27, (%0)" :: "r"((uint8_t*)3758190592));
 asm volatile("vsra.vv v28, v8, v18");
+VSET(512, e8, m1);
+asm volatile("vse8.v v28, (%0)" :: "r"((uint8_t*)3758191104));
 asm volatile("vsra.vv v29, v9, v19");
+VSET(512, e8, m1);
+asm volatile("vse8.v v29, (%0)" :: "r"((uint8_t*)3758191616));
 asm volatile("vsra.vv v30, v10, v20");
+VSET(512, e8, m1);
+asm volatile("vse8.v v30, (%0)" :: "r"((uint8_t*)3758192128));
 printf("Block50 Store finish\n");
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758127104));
@@ -3274,53 +3730,45 @@ VSET(512, e8, m1);
 asm volatile("vle8.v v4, (%0)" :: "r"((uint8_t*)3758128640));
 Max_temp = 0;
 VLOAD_8(v0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_0;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_0));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_0));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_1;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_1));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_1));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_2;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_2));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_2));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_3;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_3));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_3));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_4;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_4));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_4));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_5;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_5));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_5));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-Max_temp = par_Max_6;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_6));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_6));
 VLOAD_8(v0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-Max_temp = par_Max_7;
-asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(Max_temp));
-asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(Max_temp));
+asm volatile("vrsub.vx v5, v1, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v6, v2, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v7, v3, %[A], v0.t" :: [A] "r"(par_Max_7));
+asm volatile("vrsub.vx v8, v4, %[A], v0.t" :: [A] "r"(par_Max_7));
 VSET(512, e8, m1);
 asm volatile("vle8.v v1, (%0)" :: "r"((uint8_t*)3758159872));
 VSET(512, e8, m1);
@@ -3330,7 +3778,15 @@ asm volatile("vle8.v v3, (%0)" :: "r"((uint8_t*)3758160896));
 VSET(512, e8, m1);
 asm volatile("vle8.v v4, (%0)" :: "r"((uint8_t*)3758161408));
 asm volatile("vsra.vv v9, v1, v5");
+VSET(512, e8, m1);
+asm volatile("vse8.v v9, (%0)" :: "r"((uint8_t*)3758192640));
 asm volatile("vsra.vv v10, v2, v6");
+VSET(512, e8, m1);
+asm volatile("vse8.v v10, (%0)" :: "r"((uint8_t*)3758193152));
 asm volatile("vsra.vv v11, v3, v7");
+VSET(512, e8, m1);
+asm volatile("vse8.v v11, (%0)" :: "r"((uint8_t*)3758193664));
 asm volatile("vsra.vv v12, v4, v8");
+VSET(512, e8, m1);
+asm volatile("vse8.v v12, (%0)" :: "r"((uint8_t*)3758194176));
 printf("Block60 Store finish\n");

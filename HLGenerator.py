@@ -391,9 +391,9 @@ class HLGenerator:
                 append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
 
                 # Difference
-                append_inst_arg(inst, arg, self.PurePrint, f'Max_temp = par_Max_{iter};')
+                # append_inst_arg(inst, arg, self.PurePrint, f'Max_temp = par_Max_{iter};')
                 for exe in range(allocate_row):
-                    append_inst_arg(inst, arg, self.VXOperation, 'vrsub', v2byte(diff[exe]), v2byte(Exp[exe]), 'Max_temp', mask='yes')  # calculate the difference
+                    append_inst_arg(inst, arg, self.VXOperation, 'vrsub', v2byte(diff[exe]), v2byte(Exp[exe]), f'par_Max_{iter}', mask='yes')  # calculate the difference
 
             self.sched.free("Exp")
             
