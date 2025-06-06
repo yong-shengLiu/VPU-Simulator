@@ -263,7 +263,7 @@ if __name__ == "__main__":
     dram.store64bData(16, 0b10000000, 0x1111111111111111) #(addr, byte_strb, data)
     '''
     # === Print out the current DRAM ===
-    output_path = os.path.join(current_dir, "log", "dram_rtl.hex")
+    output_path = os.path.join(current_dir, "log", "dram_rtl.txt")
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             dram.dumpMem_data(mode = 'rtl')

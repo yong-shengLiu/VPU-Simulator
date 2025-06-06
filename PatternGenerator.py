@@ -98,20 +98,18 @@ def Gen_golden(element_array, kernal_size, debug=False):
     exp_array_temp = np.array(exp_array_temp)
     # print(f'exp_array_temp size: {exp_array_temp.shape}')
 
+    diff_array_temp = np.array(diff_array_temp)
+    # print(f'diff_array_temp size: {diff_array_temp.shape}')
+
     mantissa_array_temp = np.array(mantissa_array_temp)
     # print(f'mantissa_array_temp size: {mantissa_array_temp.shape}')
 
     aligned_mantissas_list = np.array(aligned_mantissas_list)
     # print(f'aligned_mantissas_list size: {aligned_mantissas_list.shape}')
 
-
-
-    # exp_array_temp_flat = np.concatenate([tile.flatten() for tile in exp_array_temp])
-    # mantissa_array_temp_flat = np.concatenate([tile.flatten() for tile in mantissa_array_temp])
-    # diff_array_temp_flat = np.concatenate([tile.flatten() for tile in diff_array_temp])
     print(Block_Max_exp)
 
-    return exp_array_temp, mantissa_array_temp, aligned_mantissas_list
+    return exp_array_temp, diff_array_temp, mantissa_array_temp, aligned_mantissas_list
 
 
 if __name__ == "__main__":
@@ -129,14 +127,16 @@ if __name__ == "__main__":
     # bf16_mat = Gen_Matrix(64, 512, "BF16")
     bf16_mat = Gen_Matrix(64, 512, "BF16")
     kernal_size = (64, 64)
-    exp, mant, aligned_mant = Gen_golden(bf16_mat, kernal_size)
+    exp, diff, mant, aligned_mant = Gen_golden(bf16_mat, kernal_size)
 
     # First, transpose to (64, 8, 64), then reshape to (64, 512)
     exp_reshaped = exp.transpose(1, 0, 2).reshape(64, 512).flatten()
+    diff_reshaped = diff.transpose(1, 0, 2).reshape(64, 512).flatten()
     mant_reshaped = mant.transpose(1, 0, 2).reshape(64, 512).flatten()
     aligned_mant_reshaped = aligned_mant.transpose(1, 0, 2).reshape(64, 512).flatten()
 
     print(f'exp size: {exp_reshaped.shape}')
+    print(f'exp type: {exp_reshaped.dtype}')
     print(f'mant size: {mant_reshaped.shape}')
     print(f'aligned_mant size: {aligned_mant_reshaped.shape}')
 
@@ -158,15 +158,43 @@ if __name__ == "__main__":
                 if (idx + 1) % 8 == 0:
                     print()
             
-            print("Shift Mant")
-            for idx, element in enumerate(aligned_mant_reshaped):
+            print("diff Exp")
+            for idx, element in enumerate(diff_reshaped):
                 print(f'{element:02x}', end=" ")
                 
                 if (idx + 1) % 8 == 0:
                     print()
 
 
-    combined = np.concatenate((exp_reshaped, mant_reshaped), axis=0)
+            # print("Shift Mant")
+            # for idx, element in enumerate(aligned_mant_reshaped):
+            #     print(f'{element:02x}', end=" ")
+                
+            #     if (idx + 1) % 8 == 0:
+            #         print()
+
+    zero = np.zeros((65, 512), dtype=np.uint8)
+    zero_flatten = zero.flatten()
+
+    # mask sliding
+    width = 64  # bit width of the sliding mask
+    widthB = width // 8  # convert bit width to byte width
+    num_masks = 512 // width  # number of masks to slide through 512 bytes
+
+    # Create a list to hold all the masks
+    mask_array = []
+
+    for i in range(num_masks):
+        mask = np.zeros(512, dtype=np.uint8)
+        mask[i * widthB : (i + 1) * widthB] = 0xFF
+        mask_array.append(mask)
+
+    # Stack into a 2D array if needed
+    mask_array = np.stack(mask_array)
+    mask_flat_array = mask_array.flatten()
+
+
+    combined = np.concatenate((exp_reshaped, mant_reshaped, zero_flatten, mask_flat_array), axis=0)
     # Save as .npy file
     np.save(pattern_path, combined)
 
@@ -175,6 +203,6 @@ if __name__ == "__main__":
     #         np.set_printoptions(threshold=np.inf)  # Prevent truncation
     #         hex_formatter = np.vectorize(lambda x: hex(x))
     #         print(f"Generated BF16 Matrix:\n{hex_formatter(bf16_flat)}")
-    
 
-    
+    np.set_printoptions(threshold=np.inf, linewidth=200)
+    print(mask_array)

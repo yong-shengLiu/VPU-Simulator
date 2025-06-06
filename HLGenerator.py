@@ -309,12 +309,12 @@ class HLGenerator:
         mask = self.sched.allocate('mask', 1) # NOTE allocate mask, must be v0
         MaxExp = self.sched.allocate('MaxExp', 1) # allocate MaxExp
 
-        append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
-        append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{MaxExp[0]}, 0x00);')
+        # append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
+        # append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{MaxExp[0]}, 0x00);')
+        append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base+0x18000, v2byte(MaxExp[0]), sew=8, lmul=1)
         append_inst_arg(inst, arg, self.PurePrint, 'uint8_t EXPMax = 0;')
         append_inst_arg(inst, arg, self.PurePrint, 'uint8_t Max_temp = 0;')
         
-
         row_exe = 22  # NOTE a magic number
 
         for start_row in range(0, total_row, row_exe):
@@ -332,13 +332,14 @@ class HLGenerator:
                     append_inst_arg(inst, arg, self.PurePrint, f'uint8_t par_Max_{iter} = 0;')
                 
                 # generate the mask
-                Emask = ["0x00"] * (512 // 8)
-                widthB = width // 8
-                for i in range(widthB):
-                    Emask[iter * widthB + i] = "0xff"
-                bytes_str = ", ".join(Emask)
+                # Emask = ["0x00"] * (512 // 8)
+                # widthB = width // 8
+                # for i in range(widthB):
+                #     Emask[iter * widthB + i] = "0xff"
+                # bytes_str = ", ".join(Emask)
 
-                append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
+                # append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
+                append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base+(0x18000+512)+512*iter, v2byte(mask[0]), sew=8, lmul=1)
                 
                 # find reduction maximum
                 for exe in range(allocate_row):
@@ -377,18 +378,20 @@ class HLGenerator:
             
             # Mask sliding to find the Differenct between Maximum
             diff = self.sched.allocate('diff', allocate_row)
-            
+            self.sched.status()
             append_inst_arg(inst, arg, self.PurePrint, 'Max_temp = 0;')
 
             for iter in range(0, 512 // width):
-                # generate the mask
-                Emask = ["0x00"] * (512 // 8)
-                widthB = width // 8
-                for i in range(widthB):
-                    Emask[iter * widthB + i] = "0xff"
-                bytes_str = ", ".join(Emask)
+                # # generate the mask
+                # Emask = ["0x00"] * (512 // 8)
+                # widthB = width // 8
+                # for i in range(widthB):
+                #     Emask[iter * widthB + i] = "0xff"
+                # bytes_str = ", ".join(Emask)
 
-                append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
+                # append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{mask[0]}, {bytes_str});')  # load mask
+
+                append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base+(0x18000+512)+512*iter, v2byte(mask[0]), sew=8, lmul=1)
 
                 # Difference
                 # append_inst_arg(inst, arg, self.PurePrint, f'Max_temp = par_Max_{iter};')
@@ -397,7 +400,7 @@ class HLGenerator:
 
             self.sched.free("Exp")
             
-            
+            append_inst_arg(inst, arg, self.Scatter_LS, 'store', allocate_row, 512, 512, Main_Base+0x10000+(start_row*512), v2byte(diff[0]), sew=8, lmul=1) # TODO this line need to delete
             
             # Load Mant and shift
             Mant = self.sched.allocate("Mant", allocate_row)
@@ -406,7 +409,7 @@ class HLGenerator:
 
             for exe in range(allocate_row):
                 append_inst_arg(inst, arg, self.VVOperation, 'vsra', v2byte(ShiftMant[exe]), v2byte(Mant[exe]), v2byte(diff[exe]))
-                append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+0x10000+(start_row*512)+(exe*512), v2byte(ShiftMant[exe]), sew=8, lmul=1)
+                # append_inst_arg(inst, arg, self.Scatter_LS, 'store', 1, 512, 512, Main_Base+0x10000+(start_row*512)+(exe*512), v2byte(ShiftMant[exe]), sew=8, lmul=1)
 
 
             append_inst_arg(inst, arg, self.PurePrint, f'printf("Block{start_row} Store finish\\n");')

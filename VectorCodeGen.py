@@ -69,11 +69,11 @@ class VectorCodeGenerator:
 
     def _handle_vload_a(self, args):
         sew, vd, base_addr = args
-        return f'asm volatile("vle{sew}.v v{vd}, (%0)" :: "r"((uint{sew}_t*){base_addr}));'
+        return f'asm volatile("vle{sew}.v v{vd}, (%0)" :: "r"((uint{sew}_t*)(uintptr_t){base_addr}));'
 
     def _handle_vstore_a(self, args):
         sew, vs, base_addr = args
-        return f'asm volatile("vse{sew}.v v{vs}, (%0)" :: "r"((uint{sew}_t*){base_addr}));'
+        return f'asm volatile("vse{sew}.v v{vs}, (%0)" :: "r"((uint{sew}_t*)(uintptr_t){base_addr}));'
 
 if __name__ == "__main__":
     print("=== VectorCodeGen testbench ===")
