@@ -644,18 +644,18 @@ if __name__ == "__main__":
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             # === Testbench for CIM Load/Store ===
-            # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            # for line in inst:
-            #     print(f"{line}")
-            
-            # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            # for line in inst:
-            #     print(f"{line}")
-
-            # # === Testbench for Block-scale quantize ===
-            inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
+            inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
             for line in inst:
                 print(f"{line}")
+            
+            inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            for line in inst:
+                print(f"{line}")
+
+            # # === Testbench for Block-scale quantize ===
+            # inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
+            # for line in inst:
+            #     print(f"{line}")
 
             
     

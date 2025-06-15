@@ -23,7 +23,6 @@ def float32_to_bf16(float32_val, debug=False):
 
     return bf16_bits
 
-
 def Gen_Matrix(row, column, datatype):
     """
     Generate a matrix with given row and column size.
@@ -111,11 +110,7 @@ def Gen_golden(element_array, kernal_size, debug=False):
 
     return exp_array_temp, diff_array_temp, mantissa_array_temp, aligned_mantissas_list
 
-
-if __name__ == "__main__":
-    print("=== Pattern Generator testbench ===")
-    print("version: 2025.06.04")
-
+def BlockScale():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Matrix.txt")
     pattern_path = os.path.join(current_dir, "pattern", "ExpMant_Mat64_512.npy")
@@ -206,3 +201,28 @@ if __name__ == "__main__":
 
     np.set_printoptions(threshold=np.inf, linewidth=200)
     print(mask_array)
+
+def softmax(vec, mode):
+    """
+    mode
+    (1) soft: software without accuracy loss
+    (2) hard: hardware implement some accuracy loss
+    """
+    diff = vec - np.max(vec)
+    
+    if mode == 'soft': 
+        exp_x = np.exp(diff)
+
+    elif mode == 'hard':
+        exp_x = 2 ** (diff * np.log2(np.e))
+
+    softmax_x = exp_x / np.sum(exp_x)
+    return softmax_x
+
+if __name__ == "__main__":
+    print("=== Pattern Generator testbench ===")
+    print("version: 2025.06.15")
+
+    print(softmax([1, 2, 3], 'soft'))
+    print(softmax([1, 2, 3], 'hard'))
+    
