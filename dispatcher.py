@@ -20,7 +20,10 @@ class DISPATCHER:
         self.LMUL       = 1
         self.SEW        = 8
         self.vd         = 0
-        self.scalar_imm = 0   # TODO a scalar regfile with 32 index
+        self.vs1        = 0
+        self.vs2        = 0
+        self.scalar_imm = 0   # immediate value, TODO: maybe vector instruction only scalar registerfile, no immediate??
+        self.scalar_rs  = 0   # a scalar regfile with 32 index
 
         #  === CSRs ===
         self.vstart  = 0
@@ -84,8 +87,16 @@ class DISPATCHER:
             self.vd         = arg[1]   # TODO need to pass to lane
             self.scalar_imm = arg[2]
             type = 'vstore_a'
+        elif "vnsrl.wx" in CAPI:  # [vs1, scalar, vd]
+            self.vs1        = arg[0]
+            self.scalar_rs  = arg[1]
+            self.vd         = arg[2]
+            type = 'vnsrl.wx'
+        elif '//' in CAPI:  # comment line, not do anything
+            type = '//'
         else:
-            print("-> Unknown instrtuction (in dispatcher.decodeCAPI)")
+            print(f"-> Unknown instrtuction (in dispatcher.decodeCAPI)")
+            print(CAPI)
         
         return type
 
@@ -345,7 +356,7 @@ class DISPATCHER:
 
 if __name__ == "__main__":
     print("===== dispatcher testbench =====")
-    print("version: 2025.05.15")
+    print("version: 2025.06.17")
 
     avl = 120
     

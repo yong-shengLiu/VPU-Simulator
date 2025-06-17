@@ -3,12 +3,14 @@ import numpy as np
 from contextlib import redirect_stdout
 from VectorCodeGen import VectorCodeGenerator  # Import the VectorCodeGen class from the appropriate module
 from VRF_scheduler import VRFScheduler
+from Scalar_rf import Scalar_rf
 
 
 class HLGenerator:
     def __init__(self, VLEN=4096, DataWidth=64, debug=False):
         self.codegen = VectorCodeGenerator()  # Initialize the VectorCodeGen class
         self.sched   = VRFScheduler()  # Initialize VRF Scheduler
+        self.xrf     = Scalar_rf()  # Initialize VRF Scheduler
 
         # === parameters ===
         self.VLEN      = VLEN
@@ -57,9 +59,9 @@ class HLGenerator:
         
         inst_list = []
         arg_list  = []
-        print(f"SEW:  {self._SEW}")
-        print(f"LMUL: {self._LMUL}")
-        print("========")
+        # print(f"SEW:  {self._SEW}")
+        # print(f"LMUL: {self._LMUL}")
+        # print("========")
 
         # === The parameter checks whether a new C code instruction needs to be generated ====
         static_vstart      = 0
@@ -75,7 +77,7 @@ class HLGenerator:
         
         # === strip-mining the AVL ===
         for seg in range(segment):
-            print(f"{mode} [Seg{seg}]")
+            # print(f"{mode} [Seg{seg}]")
 
             # === Pre-calculate start position of segment which in VRF and MMmemory===
             vrfaddr     = vrf_addr + seg * seg_len
@@ -93,20 +95,20 @@ class HLGenerator:
                 vreg_change           = False
                 target_addr_change    = False
 
-                print(f"VRF Byte Addr: {vrfaddr:6}", end=",  ")
+                # print(f"VRF Byte Addr: {vrfaddr:6}", end=",  ")
 
-                print(f"vreg: {vreg:2}", end=",  ")
+                # print(f"vreg: {vreg:2}", end=",  ")
                 if vreg != static_vreg:
                     static_vreg = vreg
                     vreg_change   = True
 
-                print(f"vstart: {vstart:3}", end=",  ")
+                # print(f"vstart: {vstart:3}", end=",  ")
                 if vstart != static_vstart:
                     static_vstart = vstart
                     vstart_change = True
 
                 
-                print(f"Target Byte Addr: {target_addr:6} (0x{target_addr:X})", end=",  ")
+                # print(f"Target Byte Addr: {target_addr:6} (0x{target_addr:X})", end=",  ")
                 if target_addr != static_target_addr:
                     static_target_addr     = target_addr
                     target_addr_change     = True
@@ -153,15 +155,15 @@ class HLGenerator:
                     vstart = 0
                     self.debug and print("case4", end=",  ")
 
-                print(f"elen: {elen:3}", end=",  ")
+                # print(f"elen: {elen:3}", end=",  ")
                 
                 
 
                 vl = static_vstart + elen
-                print(f"vl: {vl:3}", end=",  ")
+                # print(f"vl: {vl:3}", end=",  ")
                    
                 
-                print(f"len (byte): {len:4}")
+                # print(f"len (byte): {len:4}")
 
                 
                 # === to check if there has new instruction needed ===
@@ -180,7 +182,7 @@ class HLGenerator:
                 vrfaddr     = vrfaddr + len
                 AVL         = AVL - elen
                 
-            print()
+            # print()
 
         return inst_list, arg_list
 
@@ -282,7 +284,15 @@ class HLGenerator:
         return inst, arg
 
     def Block_Scale(self, Main_Base, width):
-        
+        """
+        (1) Main_Base: NOTE (assume the data is loaded in a continue region)
+        the base address of external memory, relate to axi bus address mapping.
+
+        (2) width:
+        the number of element will be masked to find the block maximum, support: 32, 64, 128
+
+        TODO: Revise all scalar to riscv asm
+        """
         def append_inst_arg(inst, arg, generator_func, *args, **kwargs):
             temp_inst, temp_arg = generator_func(*args, **kwargs)
             
@@ -378,7 +388,7 @@ class HLGenerator:
             
             # Mask sliding to find the Differenct between Maximum
             diff = self.sched.allocate('diff', allocate_row)
-            self.sched.status()
+            # self.sched.status()
             append_inst_arg(inst, arg, self.PurePrint, 'Max_temp = 0;')
 
             for iter in range(0, 512 // width):
@@ -644,18 +654,18 @@ if __name__ == "__main__":
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             # === Testbench for CIM Load/Store ===
-            inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            for line in inst:
-                print(f"{line}")
-            
-            inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            for line in inst:
-                print(f"{line}")
-
-            # # === Testbench for Block-scale quantize ===
-            # inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
+            # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
             # for line in inst:
             #     print(f"{line}")
+            
+            # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
+
+            # === Testbench for Block-scale quantize ===
+            inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
+            for line in inst:
+                print(f"{line}")
 
             
     
@@ -678,6 +688,8 @@ if __name__ == "__main__":
         print(hex(((int(0x3EED) >> 7) & 0xFF)))
         print(hex(((int(0x3E4A) >> 7) & 0xFF)))
     
+    arithinst, aritharg = instGenerator.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+    print(arithinst, aritharg)
     
     # instGenerator.sched.status()
     

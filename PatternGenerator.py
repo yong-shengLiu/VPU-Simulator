@@ -19,7 +19,7 @@ def float32_to_bf16(float32_val, debug=False):
     sign     = (bf16_bits >> 15) & 0x1
     exponent = (bf16_bits >> 7)  & 0xFF
     mantissa = bf16_bits         & 0x7F
-    debug and print(f"BF16: {bf16_bits}, Packed-> Sign: {sign}, Exp: {exponent}, Mant: {mantissa:023b}, Converted->{(-1)**sign * 2**(exponent - 127) * (1 + mantissa / 2**7)}")
+    print(f"BF16: {bf16_bits}, Packed-> Sign: {sign}, Exp: {exponent}, Mant: {mantissa:023b}, Converted->{(-1)**sign * 2**(exponent - 127) * (1 + mantissa / 2**7)}")
 
     return bf16_bits
 
@@ -202,27 +202,91 @@ def BlockScale():
     np.set_printoptions(threshold=np.inf, linewidth=200)
     print(mask_array)
 
-def softmax(vec, mode):
+
+def FastInverse_rsqrt(number, iteration):
+    threehalfs = 1.5
+    x2 = number * 0.5
+    y = number
+
+
+    # evil floating point bit level hacking
+    i = struct.unpack('I', struct.pack('f', y))[0]
+    i = 0x5f3759df - (i >> 1)
+    y = struct.unpack('f', struct.pack('I', i))[0]
+
+
+    for _ in range(iteration):
+        y = y * (threehalfs - (x2 * y * y))
+
+    result_bits = struct.unpack('I', struct.pack('f', y))[0]
+    size = struct.calcsize('I')
+
+
+    if result_bits < 0 or result_bits >= (1 << (size * 8)):
+        raise ValueError('result_bits out of range')
+
+    return struct.unpack('f', struct.pack('I', result_bits))[0]
+
+
+
+def SoftMax(vec, mode):
     """
     mode
     (1) soft: software without accuracy loss
     (2) hard: hardware implement some accuracy loss
+        a. Cordic
+        b. log
+        c. fast inverse rsqrt
+        d. LUT
     """
     diff = vec - np.max(vec)
+    print(f"diff: {diff}")
     
     if mode == 'soft': 
         exp_x = np.exp(diff)
+        softmax_x = exp_x / np.sum(exp_x)
 
     elif mode == 'hard':
-        exp_x = 2 ** (diff * np.log2(np.e))
+        # log2e = np.float32(np.log2(np.e))
+        log2e = 1.5
+        print(f"Int + frac: {diff*log2e}")
+        exp_x = 2 ** (diff * log2e)  # TODO: need to seperate with int and fract
+        softmax_x = exp_x * FastInverse_rsqrt((np.sum(exp_x) ** 2), 1)
 
-    softmax_x = exp_x / np.sum(exp_x)
     return softmax_x
+
+
+def LayerNorm():
+    """"""
+
+def GELU():
+    """"""
 
 if __name__ == "__main__":
     print("=== Pattern Generator testbench ===")
     print("version: 2025.06.15")
 
-    print(softmax([1, 2, 3], 'soft'))
-    print(softmax([1, 2, 3], 'hard'))
+    print(SoftMax([1, 2, 3], 'soft'))
+    print(SoftMax([1, 2, 3], 'hard'))
+
+    n = 256
+    f = FastInverse_rsqrt(n, 1)
+    print(f"inverse_rsqrt: {f}")
+    print(f"inverse_rsqrt: {1/np.sqrt(n)}")
+
+    print(np.log2(np.e).dtype)
+
+
+    fp32 = -3.8
+
+    integer = 3
+    fract   = 0.8
+
+    bf16 = float32_to_bf16(fp32)
+    print(bf16)
+
+    fixed_point = int((1 - fract) * 256) >> 1
+    result = fixed_point >> abs(integer)
+
+    print(result)
     

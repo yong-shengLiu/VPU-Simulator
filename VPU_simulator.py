@@ -28,16 +28,23 @@ class VPU_simulator:
 
     def run(self, inst_list, arg_list):
         for inst_number, (inst, arg) in enumerate( zip(inst_list, arg_list)):
+            
 
             # === Decoder instruction ===
-            type = self.dispatcher.decodeCAPI(inst, arg)
+            decodeType = self.dispatcher.decodeCAPI(inst, arg)
+            try:
+                operation, suffix = decodeType.split('.')
+            except ValueError:
+                operation = decodeType
+                suffix = None  # 或預設為空字串
 
             # === Dataflow for different type of instruction ===
             print(f"Inst number[{inst_number}] -> type: {type}", arg)
             
-            # if type == 'vset':  sew, lmul is stored in dispatcher
-            # if type == 'vstart': csr is stored in dispatcher
-            if type == 'vload_a':  # [sew, vd, base_addr]
+            if   operation == 'vset':  """sew, lmul is stored in dispatcher"""
+            elif operation == 'vstart': """csr is stored in dispatcher"""
+            
+            elif operation == 'vload_a':  # [sew, vd, base_addr]
                 # === load from main memory ===
                 self.lsu.AxiAddrSet(self.dispatcher.vl, self.dispatcher.vstart, self.dispatcher.SEW)
                 temp_vector = self.lsu.LoadMemory(arg[2], 1) # set unit stride
@@ -49,7 +56,7 @@ class VPU_simulator:
                 self.vrf.vset(self.dispatcher.SEW, self.dispatcher.LMUL)
                 self.vrf.load(arg[1], self.dispatcher.vstart, element_length, temp_vector)
             
-            if type == 'vstore_a':  # [sew, vs, base_addr]
+            elif operation == 'vstore_a':  # [sew, vs, base_addr]
                 # TODO VRF element length need be calculate in lane
                 # === load from VRF ===
                 element_length = self.dispatcher.vl - self.dispatcher.vstart
@@ -62,8 +69,19 @@ class VPU_simulator:
                 self.lsu.AxiAddrSet(self.dispatcher.vl, self.dispatcher.vstart, self.dispatcher.SEW)
                 self.lsu.StoreMemory(arg[2], 1, temp_vector) # set unit stride
             
+            elif suffix == 'vv':
+                print(f'Current not finish: {suffix}, instruction {decodeType}')
+
+            elif suffix == 'vx':
+                print(f'Current not finish: {suffix}, instruction {decodeType}')
+            
+            elif suffix == 'wx':
+                print(f'Current not finish: {suffix}, instruction {decodeType}')
+
+            elif operation == '//':
+                print(f'Comment {inst}')
             else:
-                print("Error: VPU-Simulatro not support")
+                print("Error: VPU-Simulator not support")
             # === set instruction break point ===
             # if inst_number == 5: break
 
@@ -88,19 +106,26 @@ if __name__ == "__main__":
     dir_np = os.path.join(current_dir, "pattern", "layer0.npy")
     sim.preload_memory(dir_np)
 
+
+    # === run time ====
     with open(terminal_output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            # === Load Matrix Insturction ===
-            loadMatricInsst, loadMatricArg = instGen.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0)
-            sim.run(loadMatricInsst, loadMatricArg)
+            # # === Load Matrix Insturction ===
+            # loadMatricInsst, loadMatricArg = instGen.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0)
+            # sim.run(loadMatricInsst, loadMatricArg)
 
             # # === Store Matrix Insturction ===
             # storeMatricInsst, storeMatricArg = instGen.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0)
             # sim.run(storeMatricInsst, storeMatricArg)
 
-            # === Arithmetic Insturction ===
-            arithinst, aritharg = instGen.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
-            sim.run(arithinst, aritharg)
+            # # === Arithmetic Insturction ===
+            # arithinst, aritharg = instGen.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+            # sim.run([arithinst], [aritharg])
+
+
+            # === BlockScale Insturction ===
+            storeMatricInsst, storeMatricArg = instGen.Block_Scale(DRAM_BASEADDR, 64)
+            sim.run(storeMatricInsst, storeMatricArg)
 
 
     # === Print out the current VRF memory mapping ===

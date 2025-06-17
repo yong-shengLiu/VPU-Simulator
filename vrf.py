@@ -272,7 +272,7 @@ class VRF:
 
 if __name__ == "__main__":
     print("=== VRF testbench ===")
-    print("version: 2025.05.23")
+    print("version: 2025.06.17")
     
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "vrf_idx.txt")
@@ -316,7 +316,7 @@ if __name__ == "__main__":
                         0xBB, 0xCC, 0xDD, 0xEE, 0xFF])   # (vd, vstart, elen, data)
     
     # === Print out the current VRF memory mapping ===
-    with open(r"C:\Users\david\Desktop\IwantGraduate\abstract\VPU_simulator\vrf_data.txt", "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
             vrf.dumpVRF_data()
     
