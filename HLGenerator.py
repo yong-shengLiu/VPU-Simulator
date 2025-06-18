@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from contextlib import redirect_stdout
+from contextlib import contextmanager
 from VectorCodeGen import VectorCodeGenerator  # Import the VectorCodeGen class from the appropriate module
 from VRF_scheduler import VRFScheduler
 from Scalar_rf import Scalar_rf

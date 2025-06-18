@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+
+
 class Scalar_rf:
     def __init__(self, num_registers=32, reg_length=32):
         self.num_registers = num_registers
@@ -42,6 +45,14 @@ class Scalar_rf:
             print(f"V{i:02d}: {'Free' if val is None else val}")
 
 
+    @contextmanager
+    def scalar_register(self, name, num=1):
+        reg = self.allocate(name, num)
+        try:
+            yield reg
+        finally:
+            self.free(name)
+
     """ Scalar ALU function """
     def write(self, reg_idx, value):
         
@@ -83,6 +94,17 @@ if __name__ == "__main__":
     print(f'Add Operation: {XRF.read(1)} + {XRF.read(2)} = {XRF.read(3)}')
 
     print(f'x0: {XRF.read(0)}')
-    
 
+
+
+    # === Allocate and free memory wrapping by using "with" ===
+    with XRF.scalar_register("a", 1) as a, XRF.scalar_register("b", 1) as b:
+        XRF.status()
+
+        with XRF.scalar_register("c", 2) as a, XRF.scalar_register("d", 4) as b:
+            XRF.status()
+
+        XRF.status()
+    
+    XRF.status()
     
