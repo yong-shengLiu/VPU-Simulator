@@ -6,6 +6,9 @@ class Scalar_rf:
         self.values = ['x'] * num_registers  # None = free, used for store value in runtime
         self.allocations = {}  # op_id -> list of reg indices
 
+        self.xrf[0]    = 'x0'  # x0 always be zero
+        self.values[0] = 0     # x0 always be zero
+
     """ Scalar regfile schedualing """
     def allocate(self, op_id, required_regs=1):
         free_regs = [i for i, val in enumerate(self.xrf) if val is None]
@@ -41,13 +44,17 @@ class Scalar_rf:
 
     """ Scalar ALU function """
     def write(self, reg_idx, value):
+        
+        if reg_idx == 0:
+            raise RuntimeError(f'[XRF ERROR] Cannot write the value to x0')
+
         self.values[reg_idx] = value
 
     def read(self, reg_idx):
         rtn = self.values[reg_idx]
 
         if rtn == 'x':
-            print(f'Error: The scalar regfile got an unknown value [reg_idx]: {rtn}')
+            raise RuntimeError(f'[XRF ERROR] The scalar regfile got an unknown value [reg_idx]: {rtn}')
         return rtn
 
     def add(self, dst, src1, src2):
@@ -68,12 +75,14 @@ if __name__ == "__main__":
 
     print(XRF.peek('test'))
 
-    XRF.write(0, 2)
-    XRF.write(1, 3)
+    XRF.write(1, 2)
+    XRF.write(2, 3)
     
-    XRF.add(3, 0, 1)
+    XRF.add(3, 1, 2)
     
-    print(f'Add Operation: {XRF.read(0)} + {XRF.read(1)} = {XRF.read(3)}')
+    print(f'Add Operation: {XRF.read(1)} + {XRF.read(2)} = {XRF.read(3)}')
+
+    print(f'x0: {XRF.read(0)}')
     
 
     

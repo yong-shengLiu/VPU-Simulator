@@ -291,7 +291,8 @@ class HLGenerator:
         (2) width:
         the number of element will be masked to find the block maximum, support: 32, 64, 128
 
-        TODO: Revise all scalar to riscv asm
+        TODO: (1) Revise all scalar to riscv asm
+              (2) Use "with" to hidden the allocate and free
         """
         def append_inst_arg(inst, arg, generator_func, *args, **kwargs):
             temp_inst, temp_arg = generator_func(*args, **kwargs)
@@ -322,8 +323,14 @@ class HLGenerator:
         # append_inst_arg(inst, arg, self.VSET, 512, 8, 1)
         # append_inst_arg(inst, arg, self.PurePrint, f'VLOAD_8(v{MaxExp[0]}, 0x00);')
         append_inst_arg(inst, arg, self.Scatter_LS, 'load', 1, 512, 512, Main_Base+0x18000, v2byte(MaxExp[0]), sew=8, lmul=1)
-        append_inst_arg(inst, arg, self.PurePrint, 'uint8_t EXPMax = 0;')
-        append_inst_arg(inst, arg, self.PurePrint, 'uint8_t Max_temp = 0;')
+
+        append_inst_arg(inst, arg, self.PurePrint, '// uint8_t EXPMax = 0;')
+        EXPMax = self.xrf.allocate("EXPMax", 1)
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', EXPMax[0], 0)
+        
+        append_inst_arg(inst, arg, self.PurePrint, '// uint8_t Max_temp = 0;')
+        Max_temp = self.xrf.allocate("Max_temp", 1)
+        append_inst_arg(inst, arg, self.ScalarOperation, 'equal', Max_temp[0], 0)
         
         row_exe = 22  # NOTE a magic number
 
@@ -337,9 +344,11 @@ class HLGenerator:
             append_inst_arg(inst, arg, self.Scatter_LS, 'load', allocate_row, 512, 512, Main_Base+(start_row*512), v2byte(Exp[0]), sew=8, lmul=1)
 
             # find reduction max, store to scalar
+            par_Max = self.xrf.allocate("par_Max", 512 // width)
             for iter in range(0, 512 // width):
                 if start_row == 0:
-                    append_inst_arg(inst, arg, self.PurePrint, f'uint8_t par_Max_{iter} = 0;')
+                    append_inst_arg(inst, arg, self.PurePrint, f'// uint8_t par_Max_{iter} = 0;')
+                    append_inst_arg(inst, arg, self.ScalarOperation, 'equal', par_Max[iter], 0)
                 
                 # generate the mask
                 # Emask = ["0x00"] * (512 // 8)
@@ -359,19 +368,20 @@ class HLGenerator:
                     self.sched.free('temp')
 
                     # Compare the maximum
-                    append_inst_arg(inst, arg, self.PurePrint, 'if ( Max_temp < EXPMax) Max_temp = EXPMax;')
+                    append_inst_arg(inst, arg, self.PurePrint, 'if ( Max_temp < EXPMax) Max_temp = EXPMax;') # TODO: revise to assembly
 
 
                 # Store the partial Maximum
-                append_inst_arg(inst, arg, self.PurePrint, f'if ( par_Max_{iter} < Max_temp) par_Max_{iter} = Max_temp;')
-                append_inst_arg(inst, arg, self.PurePrint, 'Max_temp = 0;')
+                append_inst_arg(inst, arg, self.PurePrint, f'if ( par_Max_{iter} < Max_temp) par_Max_{iter} = Max_temp;') # TODO: revise to assembly
+                append_inst_arg(inst, arg, self.PurePrint, '// Max_temp = 0;')
+                append_inst_arg(inst, arg, self.ScalarOperation, 'equal', Max_temp[0], 0)
 
             # free exponent
             self.sched.free("Exp")
         
         
         self.sched.free('MaxExp')
-        append_inst_arg(inst, arg, self.PurePrint, f'printf("Max0:%d, Max1:%d, Max2:%d, Max3:%d, Max4:%d, Max5:%d, Max6:%d, Max7:%d\\n", par_Max_0, par_Max_1, par_Max_2, par_Max_3, par_Max_4, par_Max_5, par_Max_6, par_Max_7);')
+        append_inst_arg(inst, arg, self.PurePrint, f'printf("Max0:%d, Max1:%d, Max2:%d, Max3:%d, Max4:%d, Max5:%d, Max6:%d, Max7:%d\\n", {par_Max[0]}, {par_Max[1]}, {par_Max[2]}, {par_Max[3]}, {par_Max[4]}, {par_Max[5]}, {par_Max[6]}, {par_Max[7]});')
 
         # === Calculate the Exp different and shift Mant ===
         append_inst_arg(inst, arg, self.PurePrint, '// Calculate the Exp different and shift Mant')
@@ -389,7 +399,8 @@ class HLGenerator:
             # Mask sliding to find the Differenct between Maximum
             diff = self.sched.allocate('diff', allocate_row)
             # self.sched.status()
-            append_inst_arg(inst, arg, self.PurePrint, 'Max_temp = 0;')
+            append_inst_arg(inst, arg, self.PurePrint, '// Max_temp = 0;')
+            append_inst_arg(inst, arg, self.ScalarOperation, 'equal', Max_temp[0], 0)
 
             for iter in range(0, 512 // width):
                 # # generate the mask
@@ -622,11 +633,22 @@ class HLGenerator:
         """
         TODO: Support Arithmetic operation
         """
+        inst = []
+        arg  = []
 
         if mode == 'equal':
-            inst = f'{reg} = {value};'
-            arg = [reg, value]
-
+            if value > 0xfff:  # Needs LUI + ADDI
+                upper = value >> 12
+                lower = value & 0xfff
+                inst.append(f'asm volatile ("lui x{reg}, {upper}");')
+                inst.append(f'asm volatile ("addi x{reg}, x{reg}, {lower}");')
+                arg.append([reg, upper])
+                arg.append([reg, lower])
+            else:
+                inst.append(f'asm volatile ("addi x{reg}, x0, {value}");')
+                arg = [reg, value]
+            
+            # inst = f'{reg} = {value};'
         return inst, arg
     
     def PurePrint(self, string):
@@ -692,4 +714,11 @@ if __name__ == "__main__":
     print(arithinst, aritharg)
     
     # instGenerator.sched.status()
+
+    arithinst, aritharg = instGenerator.ScalarOperation('equal', 1, 20) #(self, mode, reg, value)
+    print(arithinst, aritharg)
+
+
+    arithinst, aritharg = instGenerator.ScalarOperation('equal', 2, 2**12) #(self, mode, reg, value)
+    print(arithinst, aritharg)
     
