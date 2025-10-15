@@ -442,6 +442,108 @@ class HLGenerator:
         self.sched.free("mask")
         return inst, arg
 
+    def pack_bits_to_uint64(self, bits: np.ndarray) -> np.ndarray:
+        """bits: 1D uint8 array of 0/1，長度必須是64的倍數"""
+        bits = bits.reshape(-1, 64)          # 每64個bit一組
+        packed = np.packbits(bits, axis=1, bitorder='little')  # 每組變成8個byte
+        return packed.view(np.uint64).reshape(-1)
+    
+    def VectorMatrixMul(self):
+        print("Vector-Matrix Mul is under development ...")
+
+        # Parameters
+        vec_len_bits = 128       # 128 bits
+        matrix_bytes = 8 * 1024  # 8KB
+        column_count = matrix_bytes * 8 // vec_len_bits  # Number of columns in the matrix
+        print(f"Vector Length (bits): {vec_len_bits}, Matrix Size (bytes): {matrix_bytes}, Columns: {column_count}")
+
+        # Generate random binary input vector and matrix
+        np.random.seed(42)
+        input_vector = np.random.randint(0, 2, size=vec_len_bits, dtype=np.uint8)
+        input_matrix = np.random.randint(0, 2, size=(vec_len_bits, column_count), dtype=np.uint8)
+        print(f"Input Vector: {input_vector.shape}")
+        print(f"Input Matrix: {input_matrix.shape}")
+
+        # reshape input_vector and input_matrix
+        vector_64 = self.pack_bits_to_uint64(input_vector)
+        print("Packed vector (uint64) shape:", vector_64.shape)
+        print("Packed vector (uint64): ", [hex(x) for x in vector_64])
+
+        matrix_t = input_matrix.T.reshape(column_count, -1)  # (512,128)
+        matrix_packed = []
+        for col_bits in matrix_t:
+            matrix_packed.append(self.pack_bits_to_uint64(col_bits))
+        matrix_64 = np.stack(matrix_packed, axis=1)  # shape (2, column_count)
+        print("Packed matrix (uint64) shape:", matrix_64.shape)   # (2,512)
+        
+        for i in range(0, column_count, 32):
+            group = []
+            for j in range(i, min(i+32, column_count)):
+                group.append(", ".join(f"0x{x:016x}" for x in matrix_64[:, j]))
+            
+            print(f"Cols {i}-{min(i+31, column_count-1)}: ", ", ".join(group))
+        
+
+        # Perform vector-matrix multiplication using bitwise AND and sum
+        output_vector = np.sum(input_matrix & input_vector[:, None], axis=0).astype(np.uint8)
+        print(f"Output Vector: {output_vector}")
+        print(f"{output_vector.shape}")
+
+
+    def Softmax(self):
+        print("Softmax is under development ...")
+
+        # Parameters
+        vec_len  = 128       # 128 elements
+        ele_bit  = 16         # Q88
+
+
+        # Generate random input vector
+        np.random.seed(0)
+        vec = np.random.uniform(0, 2**ele_bit, vec_len).astype(np.uint16)
+        vec_hex = [hex(v & 0xFFFF) for v in vec]
+
+        # Print 8 elements per line
+        print("Input Random Pattern:")
+        for i in range(0, vec_len, 8):
+            print(vec_hex[i:i+8])
+        
+        # reduction maximum
+        vec_signed = vec.view(np.int16)
+        max_val = np.max(vec_signed)
+        print(f"Max Value: {max_val} (0x{max_val:04x})")
+
+
+        # element-wise subtraction
+        diff = vec_signed - max_val
+        diff_hex = [f"0x{v & 0xFFFF:04x}" for v in diff]
+        print("After Subtraction:")
+        for i in range(0, vec_len, 8):
+            print(diff_hex[i:i+8])
+        # print("After Subtraction:", diff_hex)
+
+        # element-wise exponentiation
+        int_frac = diff + (diff >> 1)
+        int_frac_hex = [f"0x{v & 0xFFFF:04x}" for v in int_frac]
+        print("After Multipli log2e:")
+        for i in range(0, vec_len, 8):
+            print(int_frac_hex[i:i+8])
+
+        integer_part = int_frac.astype(np.uint16) >> 8
+        print("Integer Part:")
+        integer_part_hex = [f"0x{v & 0xFFFF:04x}" for v in integer_part]
+        for i in range(0, vec_len, 8):
+            print(integer_part_hex[i:i+8])
+
+        decimal_part = int_frac - (integer_part << 8)
+        print("Decimal Part:")
+        decimal_part_hex = [f"0x{v & 0xFFFF:04x}" for v in decimal_part]
+        for i in range(0, vec_len, 8):
+            print(decimal_part_hex[i:i+8])
+
+
+        
+
     def VVOperation(self, mode, vd_addr, vs1_addr, vs2_addr):
         """
         Generates a VV (vector-vector) instruction string and its argument list.
@@ -665,61 +767,68 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.06.04")
+    print("version: 2025.10.15")
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    output_path = os.path.join(current_dir, "log", "Codeflow.txt")
-    golden_path = os.path.join(current_dir, "log", "golden.txt")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
+    # instGenerator.VectorMatrixMul()
+    instGenerator.Softmax()
+    # current_dir = os.path.dirname(os.path.abspath(__file__))
+    # output_path = os.path.join(current_dir, "log", "Codeflow.txt")
+    # golden_path = os.path.join(current_dir, "log", "golden.txt")
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
 
     # === Print out the operation flow ===
-    DRAM_BASEADDR = 0xE0000000
-    with open(output_path, "w", encoding="utf-8") as f:
-        with redirect_stdout(f):
-            # === Testbench for CIM Load/Store ===
-            # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            # for line in inst:
-            #     print(f"{line}")
+    # DRAM_BASEADDR = 0xE0000000
+    # with open(output_path, "w", encoding="utf-8") as f:
+    #     with redirect_stdout(f):
+    #         # === Testbench for CIM Load/Store ===
+    #         # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+    #         # for line in inst:
+    #         #     print(f"{line}")
             
-            # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            # for line in inst:
-            #     print(f"{line}")
+    #         # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+    #         # for line in inst:
+    #         #     print(f"{line}")
 
-            # === Testbench for Block-scale quantize ===
-            inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
-            for line in inst:
-                print(f"{line}")
+    #         # === Testbench for Block-scale quantize ===
+    #         # inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
+    #         # for line in inst:
+    #         #     print(f"{line}")
+
+
+    #         inst, arg = instGenerator.Scatter_LS('load', 324, 8, 8, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+    #         for line in inst:
+    #             print(f"{line}")
 
             
     
     # === Load the Golden Pattern ===
-    dir_np = os.path.join(current_dir, "pattern", "conv0.npy")
-    row_pattern = np.load(dir_np)
-    byte_pattern = row_pattern.flatten().astype(np.uint8)
+    # dir_np = os.path.join(current_dir, "pattern", "conv0.npy")
+    # row_pattern = np.load(dir_np)
+    # byte_pattern = row_pattern.flatten().astype(np.uint8)
 
-    with open(golden_path, "w", encoding="utf-8") as f:
-        with redirect_stdout(f):
-            for i in range(0, len(byte_pattern), 8):
-                row = byte_pattern[i:i+8]
-                print(" ".join(f"{b:02x}" for b in row), end=" \n")  # hex format, padded to 2 digits
+    # with open(golden_path, "w", encoding="utf-8") as f:
+    #     with redirect_stdout(f):
+    #         for i in range(0, len(byte_pattern), 8):
+    #             row = byte_pattern[i:i+8]
+    #             print(" ".join(f"{b:02x}" for b in row), end=" \n")  # hex format, padded to 2 digits
 
 
     
     
-        print(hex(((int(0xBE80) >> 7) & 0xFF)))
-        print(hex(((int(0x3F66) >> 7) & 0xFF)))
-        print(hex(((int(0x3EED) >> 7) & 0xFF)))
-        print(hex(((int(0x3E4A) >> 7) & 0xFF)))
+    #     print(hex(((int(0xBE80) >> 7) & 0xFF)))
+    #     print(hex(((int(0x3F66) >> 7) & 0xFF)))
+    #     print(hex(((int(0x3EED) >> 7) & 0xFF)))
+    #     print(hex(((int(0x3E4A) >> 7) & 0xFF)))
     
-    arithinst, aritharg = instGenerator.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
-    print(arithinst, aritharg)
+    # arithinst, aritharg = instGenerator.WXOperation('vnsrl', 1024, 0, 'scalar') #(mode, vd_addr, vs_addr, scalar)
+    # print(arithinst, aritharg)
     
-    # instGenerator.sched.status()
+    # # instGenerator.sched.status()
 
-    arithinst, aritharg = instGenerator.ScalarOperation('equal', 1, 20) #(self, mode, reg, value)
-    print(arithinst, aritharg)
+    # arithinst, aritharg = instGenerator.ScalarOperation('equal', 1, 20) #(self, mode, reg, value)
+    # print(arithinst, aritharg)
 
 
-    arithinst, aritharg = instGenerator.ScalarOperation('equal', 2, 2**12) #(self, mode, reg, value)
-    print(arithinst, aritharg)
+    # arithinst, aritharg = instGenerator.ScalarOperation('equal', 2, 2**12) #(self, mode, reg, value)
+    # print(arithinst, aritharg)
     
