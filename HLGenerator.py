@@ -6,7 +6,51 @@ from VectorCodeGen import VectorCodeGenerator  # Import the VectorCodeGen class 
 from VRF_scheduler import VRFScheduler
 from Scalar_rf import Scalar_rf
 
+def fixQ8_to_float(hex_list):
+    """
+    將十六進位字串列表 (Q8.8 兩補數) 轉為 float
+    例如: ['0xfd42', '0x0000'] → [-2.742, 0.0]
+    """
+    int_list = []
+    for v in hex_list:
+        val = int(v, 16)
+        if val >= 0x8000:  # 處理 two's complement
+            val -= 0x10000
+        int_list.append(val)
 
+    x = np.array(int_list, dtype=np.int16)
+    return x.astype(np.float32) / 256.0  # Q8.8 → float
+
+def exp_quantized(x_q8):
+    """
+    Quantized exponential approximation for one Q8.8 input.
+    Input:  x_q8 (int or numpy int16) -- fixed-point Q8.8
+    Output: exp(x) approximated in Q0.8 format (0~1 range)
+    """
+
+    # 1. log2(e) ≈ 1.5 → x * log2(e) ≈ x + x/2
+    int_frac = x_q8 + (x_q8 >> 1)   # still in Q8.8
+
+    # 2. split into integer and fractional parts
+    integer_part = int_frac >> 8
+    frac_part = int_frac - (integer_part << 8)  # still Q8.8, range [0..255]
+
+    # 3. compute 2^integer_part
+    #    (1 << 8) represents "1.0 in Q0.8"
+    if integer_part < 0:
+        exp_int = (1 << 8) >> (-integer_part)
+        print("<0")
+    else:
+        exp_int = (1 << 8) << integer_part
+        print(">=0")
+
+    # 4. approximate 2^fractional ≈ 1 + frac/2
+    exp_frac = (1 << 8) + (frac_part >> 1)  # Q0.8 + Q0.8
+
+    # 5. combine integer and fractional
+    exp_out = (exp_int * exp_frac) >> 8  # back to Q0.8
+
+    return exp_out
 class HLGenerator:
     def __init__(self, VLEN=4096, DataWidth=64, debug=False):
         self.codegen = VectorCodeGenerator()  # Initialize the VectorCodeGen class
@@ -489,58 +533,64 @@ class HLGenerator:
         print(f"Output Vector: {output_vector}")
         print(f"{output_vector.shape}")
 
-
+    
     def Softmax(self):
         print("Softmax is under development ...")
 
         # Parameters
-        vec_len  = 128       # 128 elements
+        vec_len  = 8       # 128 elements
         ele_bit  = 16         # Q88
 
 
         # Generate random input vector
         np.random.seed(0)
-        vec = np.random.uniform(0, 2**ele_bit, vec_len).astype(np.uint16)
-        vec_hex = [hex(v & 0xFFFF) for v in vec]
-
+        vec_float = np.random.uniform(-4, 4, vec_len)
+        vec_q8 = np.round(vec_float * 256).astype(np.int16)  # float to Q8.8
+        print(f"Input Vector (float): {vec_float}")
+        
         # Print 8 elements per line
         print("Input Random Pattern:")
+        vec_hex = [f"0x{v & 0xFFFF:04x}" for v in vec_q8]
         for i in range(0, vec_len, 8):
             print(vec_hex[i:i+8])
         
         # reduction maximum
-        vec_signed = vec.view(np.int16)
-        max_val = np.max(vec_signed)
+        max_val = np.max(vec_q8)
         print(f"Max Value: {max_val} (0x{max_val:04x})")
 
 
         # element-wise subtraction
-        diff = vec_signed - max_val
+        diff = (vec_q8 - max_val).astype(np.int16)
+
         diff_hex = [f"0x{v & 0xFFFF:04x}" for v in diff]
         print("After Subtraction:")
         for i in range(0, vec_len, 8):
             print(diff_hex[i:i+8])
-        # print("After Subtraction:", diff_hex)
+            print(fixQ8_to_float(diff_hex))
 
         # element-wise exponentiation
-        int_frac = diff + (diff >> 1)
-        int_frac_hex = [f"0x{v & 0xFFFF:04x}" for v in int_frac]
-        print("After Multipli log2e:")
-        for i in range(0, vec_len, 8):
-            print(int_frac_hex[i:i+8])
+        exp_result = np.array([exp_quantized(v) for v in diff], dtype=np.uint16)
 
-        integer_part = int_frac.astype(np.uint16) >> 8
-        print("Integer Part:")
-        integer_part_hex = [f"0x{v & 0xFFFF:04x}" for v in integer_part]
+        exp_hex = [f"0x{v & 0xFFFF:04x}" for v in exp_result]
+        print("After Exponentiation:")
+        exp_hex = [f"0x{v & 0xFFFF:04x}" for v in exp_result]
         for i in range(0, vec_len, 8):
-            print(integer_part_hex[i:i+8])
+            print(exp_hex[i:i+8])
+            print(fixQ8_to_float(exp_hex))
 
-        decimal_part = int_frac - (integer_part << 8)
-        print("Decimal Part:")
-        decimal_part_hex = [f"0x{v & 0xFFFF:04x}" for v in decimal_part]
+
+        # normalization (softmax)
+        sum_exp = np.sum(exp_result, dtype=np.int32)
+        reciprocal_q8 = np.round((1 << 16) / sum_exp).astype(np.int32)  # approximate reciprocal in Q8.8
+        softmax_q8 = (exp_result * reciprocal_q8) >> 8
+
+        print("Final Softmax (Q0.8):")
+        softmax_hex = [f"0x{v & 0xFFFF:04x}" for v in softmax_q8]
         for i in range(0, vec_len, 8):
-            print(decimal_part_hex[i:i+8])
+            print(softmax_hex[i:i+8])
+            print(fixQ8_to_float(softmax_hex))
 
+        print(f"Sum check: {np.sum(softmax_q8)/256:.4f} (should ≈ 1.0)")
 
         
 
