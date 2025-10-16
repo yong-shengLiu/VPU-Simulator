@@ -552,7 +552,8 @@ class HLGenerator:
         print("Input Random Pattern:")
         vec_hex = [f"0x{v & 0xFFFF:04x}" for v in vec_q8]
         for i in range(0, vec_len, 8):
-            print(vec_hex[i:i+8])
+            line = ", ".join(vec_hex[i:i+8])
+            print(f"  {line},")
         
         # reduction maximum
         max_val = np.max(vec_q8)
