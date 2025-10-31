@@ -35,7 +35,7 @@ def exp_quantized(x_q8):
     # 2. split into integer and fractional parts
     integer_part = int_frac >> 8
     frac_part = int_frac - (integer_part << 8)  # still Q8.8, range [0..255]
-    # print(f"int: {integer_part}, frac: {frac_part}")
+    print(f"int: {integer_part}, frac: {frac_part}")
 
     # 3. compute 2^integer_part
     #    (1 << 8) represents "1.0 in Q0.8"
@@ -48,7 +48,7 @@ def exp_quantized(x_q8):
 
     # 4. approximate 2^fractional ≈ 1 + frac/2
     exp_frac = (1 << 8) + (frac_part >> 1)  # Q0.8 + Q0.8
-    # print(f"exp_int: {exp_int}, exp_frac: {exp_frac}")
+    print(f"exp_int: {exp_int}, exp_frac: {exp_frac}")
 
     # 5. combine integer and fractional
     exp_out = (exp_int * exp_frac) >> 8  # back to Q0.8
@@ -542,7 +542,7 @@ class HLGenerator:
         print("Softmax is under development ...")
 
         # Parameters
-        vec_len  = 8       # 128 elements
+        vec_len  = 512       # 128 elements
         ele_bit  = 16         # Q88
 
 
@@ -591,6 +591,7 @@ class HLGenerator:
         
         # element-wise reciprocal
         reciprocal_q8 = np.round((1 << 16) / sum_exp).astype(np.int32)  # approximate reciprocal in Q8.8
+        print(f"Reciprocal (Q8.8): {reciprocal_q8} (0x{reciprocal_q8:08x})")
         softmax_q8 = (exp_result * reciprocal_q8) >> 8
 
         print("\nFinal Softmax (Q0.8):")
@@ -827,37 +828,46 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.10.15")
+    print("version: 2025.10.31")
 
-    # instGenerator.VectorMatrixMul()
-    instGenerator.Softmax()
+    # # === Print out the Pattern ===
     # current_dir = os.path.dirname(os.path.abspath(__file__))
-    # output_path = os.path.join(current_dir, "log", "Codeflow.txt")
-    # golden_path = os.path.join(current_dir, "log", "golden.txt")
-    # os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
+    # output_path = os.path.join(current_dir, "log", "Pattern.txt")
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # === Print out the operation flow ===
-    # DRAM_BASEADDR = 0xE0000000
+    # # instGenerator.VectorMatrixMul()
     # with open(output_path, "w", encoding="utf-8") as f:
     #     with redirect_stdout(f):
-    #         # === Testbench for CIM Load/Store ===
-    #         # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-    #         # for line in inst:
-    #         #     print(f"{line}")
+    #         instGenerator.Softmax()
+    
+    
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(current_dir, "log", "Codeflow.txt")
+    golden_path = os.path.join(current_dir, "log", "golden.txt")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)   # create the output path
+
+    # === Print out the operation flow ===
+    DRAM_BASEADDR = 0xE0000000
+    with open(output_path, "w", encoding="utf-8") as f:
+        with redirect_stdout(f):
+            # === Testbench for CIM Load/Store ===
+            # inst, arg = instGenerator.Scatter_LS('load', 20, 5120, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
             
-    #         # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-    #         # for line in inst:
-    #         #     print(f"{line}")
+            # inst, arg = instGenerator.Scatter_LS('store', 20, 160, 160, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
 
-    #         # === Testbench for Block-scale quantize ===
-    #         # inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
-    #         # for line in inst:
-    #         #     print(f"{line}")
+            # === Testbench for Block-scale quantize ===
+            # inst, arg = instGenerator.Block_Scale(DRAM_BASEADDR, 64) #(Main_Base)
+            # for line in inst:
+            #     print(f"{line}")
 
 
-    #         inst, arg = instGenerator.Scatter_LS('load', 324, 8, 8, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-    #         for line in inst:
-    #             print(f"{line}")
+            inst, arg = instGenerator.Scatter_LS('load', 324, 8, 8, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            for line in inst:
+                print(f"{line}")
 
             
     
