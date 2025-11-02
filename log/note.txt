@@ -1,0 +1,216 @@
+80004dfc: 014080e7     	jalr	0x14(ra) <timer+0xffffb27c>
+80004e00: 20000513     	li	a0, 0x200
+80004e04: 0c0572d7     	vsetvli	t0, a0, e8, m1, ta, ma        // check
+80004e08: 00700593     	li	a1, 0x7
+80004e0c: 01d59593     	slli	a1, a1, 0x1d
+80004e10: 02058007     	vle8.v	v0, (a1)                      // check
+80004e14: 0c9572d7     	vsetvli	t0, a0, e16, m2, ta, ma
+80004e18: 0205d007     	vle16.v	v0, (a1)
+
+32b.      64b               64b
+0c0572d7  0000000000000200  0000000000000000
+02058007  00000000e0000000  0000000000000000    // load to v0
+02058087  00000000e0000000  0000000000000000    // load to v1
+02058107  00000000e0000000  0000000000000000    // load to v2
+02058187  00000000e0000000  0000000000000000    // load to v3
+02058207  00000000e0000000  0000000000000000    // load to v4
+02058287  00000000e0000000  0000000000000000    // load to v5
+02058307  00000000e0000000  0000000000000000    // load to v6
+02058387  00000000e0000000  0000000000000000    // load to v7
+02058407  00000000e0000000  0000000000000000    // load to v8
+02058487  00000000e0000000  0000000000000000    // load to v9
+02058507  00000000e0000000  0000000000000000    // load to v10
+02058587  00000000e0000000  0000000000000000    // load to v11
+02058607  00000000e0000000  0000000000000000    // load to v12
+02058687  00000000e0000000  0000000000000000    // load to v13
+02058707  00000000e0000000  0000000000000000    // load to v14
+02058787  00000000e0000000  0000000000000000    // load to v15
+02058807  00000000e0000000  0000000000000000    // load to v16
+02058887  00000000e0000000  0000000000000000    // load to v17
+02058907  00000000e0000000  0000000000000000    // load to v18
+02058987  00000000e0000000  0000000000000000    // load to v19
+02058a07  00000000e0000000  0000000000000000    // load to v20
+02058a87  00000000e0000000  0000000000000000    // load to v21
+02058b07  00000000e0000000  0000000000000000    // load to v22
+02058b87  00000000e0000000  0000000000000000    // load to v23
+02058c07  00000000e0000000  0000000000000000    // load to v24
+02058c87  00000000e0000000  0000000000000000    // load to v25
+02058d07  00000000e0000000  0000000000000000    // load to v26
+02058d87  00000000e0000000  0000000000000000    // load to v27
+02058e07  00000000e0000000  0000000000000000    // load to v28
+02058e87  00000000e0000000  0000000000000000    // load to v29
+02058f07  00000000e0000000  0000000000000000    // load to v30
+02058f87  00000000e0000000  0000000000000000    // load to v31
+
+
+// softmax q8.8 implementation
+// reduction maximum
+vset vl e16
+vle16 v1 addr
+vredmax v2 v1
+vmv scalar v2
+
+// element-wise subtraction
+vle16 v2 scalar
+vsub v1 v1 v2
+
+// exponential and sum
+vexp v1 v1
+vredsum v2 v1
+vmv scalar v2
+
+// mul with reciprocal
+div scalar scalar
+vmul v1 v1 scalar
+vsra v1 v1 8
+
+vint16m1_t vpu_exp_quantized_q88(vint16m1_t x_q8, size_t vl) {
+  /*
+   * Quantized exponential approximation for one Q8.8 input vector.
+   * Input:  x_q8  — Q8.8 format (vint16m1_t)
+   * Output: exp(x) approximated in Q0.8 format (vint16m1_t, range 0~255)
+   */
+
+    // 1. log2(e) ≈ 1.5 → x * log2(e) ≈ x + x/2
+    vint16m1_t int_frac = __riscv_vadd_vv_i16m1(x_q8, __riscv_vsra_vx_i16m1(x_q8, 1, vl), vl); // Q8.8
+    // print result
+    // int16_t int_frac_arr[vl];
+    // __riscv_vse16_v_i16m1(int_frac_arr, int_frac, vl);
+    // for (int i = 0; i < vl; i++) {
+    //     printf("int_frac_arr[%d]: %d\n", i, int_frac_arr[i]);
+    // }
+
+    // 2. split into integer and fractional parts
+    vint16m1_t integer_part = __riscv_vsra_vx_i16m1(int_frac, 8, vl);             // signed integer part
+    vint16m1_t frac_part    = __riscv_vand_vx_i16m1(int_frac, 0x00FF, vl); // fractional part (0~255)
+    // print result
+    // int16_t integer_part_arr[vl];
+    // int16_t frac_part_arr[vl];
+    // __riscv_vse16_v_i16m1(integer_part_arr, integer_part, vl);
+    // __riscv_vse16_v_i16m1(frac_part_arr, frac_part, vl);
+
+    // for (int i = 0; i < vl; i++) {
+    //     printf("part_arr[%d]: %d, %d\n", i, integer_part_arr[i], frac_part_arr[i]);
+    // }
+
+    // 3. compute 2^integer_part
+    // (1 << 8) means 1.0 in Q0.8 format
+    vuint16m1_t shift_amt = __riscv_vreinterpret_v_i16m1_u16m1(__riscv_vneg_v_i16m1(integer_part, vl)); // abs(negative)
+    vint16m1_t exp_int = __riscv_vsra_vv_i16m1(__riscv_vmv_v_x_i16m1(1 << 8, vl), shift_amt, vl);
+
+    // 4. approximate 2^fractional ≈ 1 + frac/2
+    vint16m1_t exp_frac = __riscv_vadd_vv_i16m1(__riscv_vmv_v_x_i16m1(1 << 8, vl), __riscv_vsra_vx_i16m1(frac_part, 1, vl), vl); // still Q0.8
+    // print result
+    // int16_t exp_int_arr[vl];
+    // int16_t exp_frac_arr[vl];
+    // __riscv_vse16_v_i16m1(exp_int_arr, exp_int, vl);
+    // __riscv_vse16_v_i16m1(exp_frac_arr, exp_frac, vl);
+
+    // for (int i = 0; i < vl; i++) {
+    //     printf("exp_part_arr[%d]: %d, %d\n", i, exp_int_arr[i], exp_frac_arr[i]);
+    // }
+
+    // 5. combine integer and fractional parts → Q0.8 output
+    vint16m1_t exp_out_w = __riscv_vmul_vv_i16m1(exp_int, exp_frac, vl);
+    // vint32m2_t exp_out_w = __riscv_vwmul_vv_i32m2(exp_int, exp_frac, vl);
+    // print result
+    // int16_t exp_out_w_arr[vl];
+    // __riscv_vse16_v_i16m1(exp_out_w_arr, exp_out_w, vl);
+    // for (int i = 0; i < vl; i++) {
+    //     printf("exp_out_w_arr[%d]: %04x\n", i, exp_out_w_arr[i]);
+    // }
+
+    vint16m1_t exp_out = __riscv_vsra_vx_i16m1(exp_out_w, 8, vl);
+
+
+    return exp_out;
+}
+
+void vpu_softmax_q88(int vl, int16_t* INPUT_VECTOR, int16_t* SM_RESULT) {
+  // 初始化最大值為最小可能的16位整數
+  int16_t maximum = INT16_MIN;
+
+  size_t vlmax;
+  vint16m1_t v_data, v_max, v_res;
+  vint16m1_t v_zero = __riscv_vmv_v_x_i16m1(0, 1); // 初始值(可省略)
+  
+
+  // reduction maximum
+  for (int i = 0; i < vl; i += vlmax) {
+      vlmax = __riscv_vsetvl_e16m1(vl - i);
+      // 載入資料
+      v_data = __riscv_vle16_v_i16m1(&INPUT_VECTOR[i], vlmax);
+
+      // 歸約取最大值 (若只有vredsum，可替換成sum示範)
+      v_max = __riscv_vredmax_vs_i16m1_i16m1(v_data, v_zero, vlmax);
+
+      // 取出 scalar 結果
+      int16_t temp = __riscv_vmv_x_s_i16m1_i16(v_max);
+
+      if (temp > maximum) {
+          maximum = temp;
+      }
+  }
+
+  // printf("Maximum value: 0x%04x\n", maximum);
+
+
+  // vint16m1_t __riscv_vmv_v_x_i16m1 (int16_t src, size_t vl);
+  // vint16m1_t __riscv_vredmax_vs_i16m1_i16m1 (vint16m1_t vector, vint16m1_t scalar, size_t vl);
+  // printf("Maximum value: 0x%04x\n", (uint16_t)max_val);
+
+
+  // element-wise subtraction
+  int16_t sub_max[vl];
+  for (int i = 0; i < vl; i += vlmax) {
+      vlmax = __riscv_vsetvl_e16m1(vl - i);
+      v_data = __riscv_vle16_v_i16m1(&INPUT_VECTOR[i], vlmax);
+
+      // result = maximum - v_data
+      v_res = __riscv_vsub_vx_i16m1(v_data, maximum, vlmax);
+
+      // store back to sub_max[]
+      __riscv_vse16_v_i16m1(&sub_max[i], v_res, vlmax);
+  }
+
+  // print result
+  // for (int i = 0; i < vl; i++) {
+  //     printf("sub_max[%d]: 0x%04x\n", i, sub_max[i]);
+  // }
+  // vint16m1_t __riscv_vsub_vx_i16m1 (vint16m1_t op1, int16_t op2, size_t vl);
+
+
+  // element-wise exponentiation
+  int16_t v_exp[vl];
+
+  v_data = vpu_exp_quantized_q88(v_res, vl);
+  
+  __riscv_vse16_v_i16m1(&v_exp, v_data, vl);
+
+  // print result
+  // for (int i = 0; i < vl; i++) {
+  //     printf("v_exp[%d]: 0x%04x\n", i, v_exp[i]);
+  // }
+
+  // reduction summation
+  vint16m1_t summation =  __riscv_vredsum_vs_i16m1_i16m1 (v_data, v_zero, vl);
+
+  int16_t temp = __riscv_vmv_x_s_i16m1_i16(summation);
+  temp = temp + 0x00100; // this is because vpu exp cannot support 16b*16b = 32b operation !!
+  // printf("Exponential sum: 0x%04x\n", (uint16_t)temp);
+
+  // element-wise reciprocal
+  int16_t reciprocal = (1 << 16) / temp;
+  // printf("Reciprocal: 0x%04x\n", (int16_t)reciprocal);
+
+  vint16m1_t sm_result_temp = __riscv_vmul_vx_i16m1(v_data, reciprocal, vl);
+  vint16m1_t sm_result = __riscv_vsra_vx_i16m1(sm_result_temp, 8, vl);
+
+  int16_t v_sm[vl];
+  __riscv_vse16_v_i16m1(&v_sm, sm_result, vl);
+
+  // // print result
+  // for (int i = 0; i < vl; i++) {
+  //     printf("v_sm[%d]: 0x%04x\n", i, v_sm[i]);
+  // }
+}
