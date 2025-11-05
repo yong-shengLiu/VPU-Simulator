@@ -7,7 +7,8 @@
 80004e14: 0c9572d7     	vsetvli	t0, a0, e16, m2, ta, ma
 80004e18: 0205d007     	vle16.v	v0, (a1)
 
-32b.      64b               64b
+//   (total 33 instructions)
+32b       64b               64b
 0c0572d7  0000000000000200  0000000000000000
 02058007  00000000e0000000  0000000000000000    // load to v0
 02058087  00000000e0000000  0000000000000000    // load to v1
@@ -43,174 +44,124 @@
 02058f87  00000000e0000000  0000000000000000    // load to v31
 
 
-// softmax q8.8 implementation
-// reduction maximum
-vset vl e16
-vle16 v1 addr
-vredmax v2 v1
-vmv scalar v2
+
+// Softmax produce by rtl
+Payload: 0c8572d7, 0000000000000008, 0000000000000000
+Payload: 5e044057, 0000000000000000, 0000000000000000
+Payload: 02095087, 0000000080004f80, 0000000000000000
+Payload: 1e102157, 0000000000000000, 0000000000000000
+Payload: 422025d7, 0000000000000000, 0000000000000000
+
+Payload: 0a15c157, 0000000000000322, 0000000000000000
+
+Payload: a62ac0d7, 0000000000000001, 0000000000000000
+Payload: 021100d7, 0000000000000000, 0000000000000000
+Payload: a6154157, 0000000000000008, 0000000000000000
+Payload: 2615c0d7, 00000000000000ff, 0000000000000000
+Payload: 0e203157, 0000000000000000, 0000000000000000
+Payload: 5e0bc1d7, 0000000000000100, 0000000000000000
+Payload: a6310157, 0000000000000000, 0000000000000000
+Payload: a61ac0d7, 0000000000000001, 0000000000000000
+Payload: 023080d7, 0000000000000000, 0000000000000000
+Payload: ee20a257, 0000000000000000, 0000000000000000
+Payload: b6454157, 0000000000000008, 0000000000000000
+
+Payload: 0c8572d7, 0000000000000008, 0000000000000000
+Payload: 022020d7, 0000000000000000, 0000000000000000
+Payload: 421025d7, 0000000000000000, 0000000000000000
+
+Payload: 9625e0d7, 00000000000000aa, 0000000000000000
+Payload: a2154157, 0000000000000008, 0000000000000000
+Payload: 02055127, 0000000080041f88, 0000000000000000
+
+
+
+
+
+// softmax q8.8 implementation  (total 23 instructions)
+// maximum reduction
+800048b8: 0c8572d7     	vsetvli	t0, a0, e16, m1, ta, ma      // e16  vl=8      0c8572d7  0000000000000008  0000000000000000
+800048a8: 0c84f2d7     	vsetvli	t0, s1, e16, m1, ta, ma      // e16  vl=256    0c84f2d7  0000000000000100  0000000000000000
+800048bc: 5e044057     	vmv.v.x	v0, s0
+800048c8: 02095087     	vle16.v	v1, (s2)
+800048cc: 1e102157     	vredmax.vs	v2, v1, v0
+800048d0: 422025d7     	vmv.x.s	a1, v2
+
+32b       64b               64b
+0c84f2d7  0000000000000100  0000000000000000    // vsetvli	t0, a0, e16, m1, ta, ma
+5e044057  0000000000000000  0000000000000000    // vmv.v.x	v0, s0
+02095087  00000000e0000000  0000000000000000    // vle16.v	v1, (s2)                    TODO: need to revise!!!
+1e102157  0000000000000000  0000000000000000    // vredmax.vs	v2, v1, v0
+422025d7  0000000000000000  0000000000000000    // vmv.x.s	a1, v2
 
 // element-wise subtraction
-vle16 v2 scalar
-vsub v1 v1 v2
+800048d4: 0a15c157     	vsub.vx	v2, v1, a1
 
-// exponential and sum
-vexp v1 v1
-vredsum v2 v1
-vmv scalar v2
+32b       64b               64b
+0a15c157  00000000000003fe  0000000000000000    // vsub.vx	v2, v1, a1                  TODO: need to revise!!!
 
-// mul with reciprocal
-div scalar scalar
-vmul v1 v1 scalar
-vsra v1 v1 8
+// element-wise exponentiation
+800048dc: a62ac0d7     	vsra.vx	v1, v2, s5
+800048e0: 021100d7     	vadd.vv	v1, v1, v2
+800048e4: a6154157     	vsra.vx	v2, v1, a0
+800048ec: 2615c0d7     	vand.vx	v1, v1, a1
+800048f0: 0e203157     	vrsub.vi	v2, v2, 0x0
+800048f8: 5e0bc1d7     	vmv.v.x	v3, s7
+800048fc: a6310157     	vsra.vv	v2, v3, v2
+80004900: a61ac0d7     	vsra.vx	v1, v1, s5
+80004904: 023080d7     	vadd.vv	v1, v3, v1
+80004908: ee20a257     	vwmul.vv	v4, v2, v1
+8000490c: b6454157     	vnsra.wx	v2, v4, a0
 
-vint16m1_t vpu_exp_quantized_q88(vint16m1_t x_q8, size_t vl) {
-  /*
-   * Quantized exponential approximation for one Q8.8 input vector.
-   * Input:  x_q8  — Q8.8 format (vint16m1_t)
-   * Output: exp(x) approximated in Q0.8 format (vint16m1_t, range 0~255)
-   */
+32b       64b               64b
+a62ac0d7  0000000000000001  0000000000000000     // vsra.vx	v1, v2, s5
+021100d7  0000000000000000  0000000000000000     // vadd.vv	v1, v1, v2
+a6154157  0000000000000008  0000000000000000     // vsra.vx	v2, v1, a0
+2615c0d7  00000000000000ff  0000000000000000     // vand.vx	v1, v1, a1
+0e203157  0000000000000000  0000000000000000     // vrsub.vi	v2, v2, 0x0
+5e0bc1d7  0000000000000100  0000000000000000     // vmv.v.x	v3, s7
+a6310157  0000000000000000  0000000000000000     // vsra.vv	v2, v3, v2
+a61ac0d7  0000000000000001  0000000000000000     // vsra.vx	v1, v1, s5
+023080d7  0000000000000000  0000000000000000     // vadd.vv	v1, v3, v1
+ee20a257  0000000000000000  0000000000000000     // vwmul.vv	v4, v2, v1
+b6454157  0000000000000008  0000000000000000     // vnsra.wx	v2, v4, a0
 
-    // 1. log2(e) ≈ 1.5 → x * log2(e) ≈ x + x/2
-    vint16m1_t int_frac = __riscv_vadd_vv_i16m1(x_q8, __riscv_vsra_vx_i16m1(x_q8, 1, vl), vl); // Q8.8
-    // print result
-    // int16_t int_frac_arr[vl];
-    // __riscv_vse16_v_i16m1(int_frac_arr, int_frac, vl);
-    // for (int i = 0; i < vl; i++) {
-    //     printf("int_frac_arr[%d]: %d\n", i, int_frac_arr[i]);
-    // }
+// reduction summation
+80004914: 0c8572d7     	vsetvli	t0, a0, e16, m1, ta, ma      // e16  vl=8
+80004918: 0c84f2d7     	vsetvli	t0, s1, e16, m1, ta, ma      // e16  vl=256
+80004918: 022020d7     	vredsum.vs	v1, v2, v0
+8000491c: 421025d7     	vmv.x.s	a1, v1
 
-    // 2. split into integer and fractional parts
-    vint16m1_t integer_part = __riscv_vsra_vx_i16m1(int_frac, 8, vl);             // signed integer part
-    vint16m1_t frac_part    = __riscv_vand_vx_i16m1(int_frac, 0x00FF, vl); // fractional part (0~255)
-    // print result
-    // int16_t integer_part_arr[vl];
-    // int16_t frac_part_arr[vl];
-    // __riscv_vse16_v_i16m1(integer_part_arr, integer_part, vl);
-    // __riscv_vse16_v_i16m1(frac_part_arr, frac_part, vl);
+32b       64b               64b
+0c84f2d7  0000000000000100  0000000000000000     // vsetvli	t0, a0, e16, m1, ta, ma
+022020d7  0000000000000000  0000000000000000     // vredsum.vs	v1, v2, v0
+421025d7  0000000000000000  0000000000000000     // vmv.x.s	a1, v1
 
-    // for (int i = 0; i < vl; i++) {
-    //     printf("part_arr[%d]: %d, %d\n", i, integer_part_arr[i], frac_part_arr[i]);
-    // }
+// element-wise reciprocal
+80004930: 9625e0d7     	vmul.vx	v1, v2, a1
+80004934: a2154157     	vsrl.vx	v2, v1, a0
+8000493c: 02055127     	vse16.v	v2, (a0)
 
-    // 3. compute 2^integer_part
-    // (1 << 8) means 1.0 in Q0.8 format
-    vuint16m1_t shift_amt = __riscv_vreinterpret_v_i16m1_u16m1(__riscv_vneg_v_i16m1(integer_part, vl)); // abs(negative)
-    vint16m1_t exp_int = __riscv_vsra_vv_i16m1(__riscv_vmv_v_x_i16m1(1 << 8, vl), shift_amt, vl);
-
-    // 4. approximate 2^fractional ≈ 1 + frac/2
-    vint16m1_t exp_frac = __riscv_vadd_vv_i16m1(__riscv_vmv_v_x_i16m1(1 << 8, vl), __riscv_vsra_vx_i16m1(frac_part, 1, vl), vl); // still Q0.8
-    // print result
-    // int16_t exp_int_arr[vl];
-    // int16_t exp_frac_arr[vl];
-    // __riscv_vse16_v_i16m1(exp_int_arr, exp_int, vl);
-    // __riscv_vse16_v_i16m1(exp_frac_arr, exp_frac, vl);
-
-    // for (int i = 0; i < vl; i++) {
-    //     printf("exp_part_arr[%d]: %d, %d\n", i, exp_int_arr[i], exp_frac_arr[i]);
-    // }
-
-    // 5. combine integer and fractional parts → Q0.8 output
-    vint16m1_t exp_out_w = __riscv_vmul_vv_i16m1(exp_int, exp_frac, vl);
-    // vint32m2_t exp_out_w = __riscv_vwmul_vv_i32m2(exp_int, exp_frac, vl);
-    // print result
-    // int16_t exp_out_w_arr[vl];
-    // __riscv_vse16_v_i16m1(exp_out_w_arr, exp_out_w, vl);
-    // for (int i = 0; i < vl; i++) {
-    //     printf("exp_out_w_arr[%d]: %04x\n", i, exp_out_w_arr[i]);
-    // }
-
-    vint16m1_t exp_out = __riscv_vsra_vx_i16m1(exp_out_w, 8, vl);
+32b       64b               64b
+9625e0d7  00000000000000aa  0000000000000000      // vmul.vx	v1, v2, a1
+a2154157  0000000000000008  0000000000000000      // vsrl.vx	v2, v1, a0
+02055127  00000000e0010000  0000000000000000      // vse16.v	v2, (a0)                 TODO: need to revise!!!
 
 
-    return exp_out;
-}
 
-void vpu_softmax_q88(int vl, int16_t* INPUT_VECTOR, int16_t* SM_RESULT) {
-  // 初始化最大值為最小可能的16位整數
-  int16_t maximum = INT16_MIN;
+800046f8: 0c8572d7     	vsetvli	t0, a0, e16, m1, ta, ma
+800046fc: 5e044057     	vmv.v.x	v0, s0
+80004708: 02055087     	vle16.v	v1, (a0)
+8000470c: 1e102157     	vredmax.vs	v2, v1, v0
+80004710: 42202557     	vmv.x.s	a0, v2
 
-  size_t vlmax;
-  vint16m1_t v_data, v_max, v_res;
-  vint16m1_t v_zero = __riscv_vmv_v_x_i16m1(0, 1); // 初始值(可省略)
-  
+80004714: 0a154157     	vsub.vx	v2, v1, a0
 
-  // reduction maximum
-  for (int i = 0; i < vl; i += vlmax) {
-      vlmax = __riscv_vsetvl_e16m1(vl - i);
-      // 載入資料
-      v_data = __riscv_vle16_v_i16m1(&INPUT_VECTOR[i], vlmax);
+80004718: 042100d7     	vexp.vv v1, v2, v2
 
-      // 歸約取最大值 (若只有vredsum，可替換成sum示範)
-      v_max = __riscv_vredmax_vs_i16m1_i16m1(v_data, v_zero, vlmax);
+8000471c: 02102157     	vredsum.vs	v2, v1, v0
+80004720: 42202557     	vmv.x.s	a0, v2
 
-      // 取出 scalar 結果
-      int16_t temp = __riscv_vmv_x_s_i16m1_i16(v_max);
-
-      if (temp > maximum) {
-          maximum = temp;
-      }
-  }
-
-  // printf("Maximum value: 0x%04x\n", maximum);
-
-
-  // vint16m1_t __riscv_vmv_v_x_i16m1 (int16_t src, size_t vl);
-  // vint16m1_t __riscv_vredmax_vs_i16m1_i16m1 (vint16m1_t vector, vint16m1_t scalar, size_t vl);
-  // printf("Maximum value: 0x%04x\n", (uint16_t)max_val);
-
-
-  // element-wise subtraction
-  int16_t sub_max[vl];
-  for (int i = 0; i < vl; i += vlmax) {
-      vlmax = __riscv_vsetvl_e16m1(vl - i);
-      v_data = __riscv_vle16_v_i16m1(&INPUT_VECTOR[i], vlmax);
-
-      // result = maximum - v_data
-      v_res = __riscv_vsub_vx_i16m1(v_data, maximum, vlmax);
-
-      // store back to sub_max[]
-      __riscv_vse16_v_i16m1(&sub_max[i], v_res, vlmax);
-  }
-
-  // print result
-  // for (int i = 0; i < vl; i++) {
-  //     printf("sub_max[%d]: 0x%04x\n", i, sub_max[i]);
-  // }
-  // vint16m1_t __riscv_vsub_vx_i16m1 (vint16m1_t op1, int16_t op2, size_t vl);
-
-
-  // element-wise exponentiation
-  int16_t v_exp[vl];
-
-  v_data = vpu_exp_quantized_q88(v_res, vl);
-  
-  __riscv_vse16_v_i16m1(&v_exp, v_data, vl);
-
-  // print result
-  // for (int i = 0; i < vl; i++) {
-  //     printf("v_exp[%d]: 0x%04x\n", i, v_exp[i]);
-  // }
-
-  // reduction summation
-  vint16m1_t summation =  __riscv_vredsum_vs_i16m1_i16m1 (v_data, v_zero, vl);
-
-  int16_t temp = __riscv_vmv_x_s_i16m1_i16(summation);
-  temp = temp + 0x00100; // this is because vpu exp cannot support 16b*16b = 32b operation !!
-  // printf("Exponential sum: 0x%04x\n", (uint16_t)temp);
-
-  // element-wise reciprocal
-  int16_t reciprocal = (1 << 16) / temp;
-  // printf("Reciprocal: 0x%04x\n", (int16_t)reciprocal);
-
-  vint16m1_t sm_result_temp = __riscv_vmul_vx_i16m1(v_data, reciprocal, vl);
-  vint16m1_t sm_result = __riscv_vsra_vx_i16m1(sm_result_temp, 8, vl);
-
-  int16_t v_sm[vl];
-  __riscv_vse16_v_i16m1(&v_sm, sm_result, vl);
-
-  // // print result
-  // for (int i = 0; i < vl; i++) {
-  //     printf("v_sm[%d]: 0x%04x\n", i, v_sm[i]);
-  // }
-}
+80004734: 96156057     	vmul.vx	v0, v1, a0
+8000473c: a2054157     	vsrl.vx	v2, v0, a0
+80004748: 02055127     	vse16.v	v2, (a0)

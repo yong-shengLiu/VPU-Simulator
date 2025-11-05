@@ -537,10 +537,63 @@ class HLGenerator:
         print(f"Output Vector: {output_vector}")
         print(f"{output_vector.shape}")
 
-    
-    def Softmax(self):
-        print("Softmax is under development ...")
+    def Softmax_flow(self, load_addr, store_addr, vl, sew, vrf_addr):
+        print("Softmax C code flow")
+        inst_list = []
 
+        # load vector and maximum reduction
+        zero          = self.sched.allocate('zero', 1)
+        input_pattern = self.sched.allocate('input_pattern', 1)
+        redmax_res    = self.sched.allocate('redmax_res', 1)
+
+        inst_list.append(self.codegen.VectorCodeGen('vset',       [vl, sew, 1]))                                # vl, sew, lmul
+        inst_list.append(self.codegen.VectorCodeGen('vmv_v.x',    [0, zero[0]]))                                # scalar v
+        inst_list.append(self.codegen.VectorCodeGen('vload_a',    [16, input_pattern[0], load_addr]))           # sew, vd, base_addr
+        inst_list.append(self.codegen.VectorCodeGen('vredmax_vs', [input_pattern[0], zero[0], redmax_res[0]]))  # vs1, vs2, vd
+        inst_list.append(self.codegen.VectorCodeGen('vmv_x.s',    [redmax_res[0], "maximum"]))                  # v  scalar
+        
+        self.sched.free('redmax_res')
+
+        # element-wise subtraction
+        sub_res    = self.sched.allocate('sub_res', 1)
+
+        inst_list.append(self.codegen.VectorCodeGen('vsub_vx', [input_pattern[0], "maximum", sub_res[0]]))      # vs1, scalar, vd
+
+        self.sched.free('input_pattern')
+        
+        # element-wise exponentiation
+        exp_res = self.sched.allocate('exp_res', 1)
+
+        inst_list.append(self.codegen.VectorCodeGen('vexp_vv', [sub_res[0], sub_res[0], exp_res[0]]))           # vs1, vs2, vd
+
+        self.sched.free('sub_res')
+        
+        # reduction summation
+        redsum_res    = self.sched.allocate('redsum_res', 1)
+
+        inst_list.append(self.codegen.VectorCodeGen('vredsum_vs', [exp_res[0], zero[0], redsum_res[0]]))        # vs1, vs2, vd
+        inst_list.append(self.codegen.VectorCodeGen('vmv_x.s', [redsum_res[0], "summation"]))                   # v  scalar
+        
+        self.sched.free('redsum_res')
+        self.sched.free('zero')
+
+        # element-wise reciprocal
+        mul_res     = self.sched.allocate('mul_res', 1)
+        softmax_res = self.sched.allocate('softmax_res', 1)
+
+        inst_list.append(self.codegen.VectorCodeGen('vmul_vx', [exp_res[0], "reciprocal", mul_res[0]]))  # vs1, scalar, vd
+        inst_list.append(self.codegen.VectorCodeGen('vsrl_vx', [mul_res[0], 8, softmax_res[0]]))   # vs1, scalar, vd
+        inst_list.append(self.codegen.VectorCodeGen('vstore_a', [16, softmax_res[0], store_addr]))  # sew, vs, base_addr
+        
+        self.sched.free('exp_res')
+        self.sched.free('mul_res')
+        self.sched.free('softmax_res')
+        # self.sched.status()
+        return inst_list
+    
+    def Softmax(self, elen=512):
+        print("Softmax is under development ...")
+        
         # Parameters
         vec_len  = 512       # 128 elements
         ele_bit  = 16         # Q88
@@ -828,7 +881,8 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.10.31")
+    print("version: 2025.11.05")
+    # instGenerator.Softmax_flow(0xe0000000, 0xe0010000, 256, 16, 0) # load_addr, store_addr, vl, sew, vrf_addr
 
     # # === Print out the Pattern ===
     # current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -865,7 +919,11 @@ if __name__ == "__main__":
             #     print(f"{line}")
 
 
-            inst, arg = instGenerator.Scatter_LS('load', 324, 8, 8, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # inst, arg = instGenerator.Scatter_LS('load', 324, 8, 8, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
+            
+            inst = instGenerator.Softmax_flow(0xe0000000, 0xe0010000, 256, 16, 0) # (load_addr, store_addr, vl, sew, vrf_addr)
             for line in inst:
                 print(f"{line}")
 
