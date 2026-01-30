@@ -1,0 +1,5 @@
+// Softmax Benchmark Pattern
+// Format: INT16 (Q15 output)
+// Dims: Heads=32, SeqLen=4096
+// Hardware: VLEN=4096, LMUL=1 (VL_MAX=256)
+

@@ -165,3 +165,23 @@ a2154157  0000000000000008  0000000000000000      // vsrl.vx	v2, v1, a0
 80004734: 96156057     	vmul.vx	v0, v1, a0
 8000473c: a2054157     	vsrl.vx	v2, v0, a0
 80004748: 02055127     	vse16.v	v2, (a0)
+
+
+
+CPU Performance Engineer, Entry Level up to Staff
+CPU Competitive Analysis Engineer, Entry Level up to Staff
+CPU Architecture Performance Engineer, Entry Level up to Staff
+CPU RTL Design Engineer
+
+
+
+VMERGE
+VLE
+VREDMAX
+VMVXS
+VSUB
+VEXP
+VREDSUM
+VMUL
+VSRL
+VSE

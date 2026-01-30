@@ -537,9 +537,20 @@ class HLGenerator:
         print(f"Output Vector: {output_vector}")
         print(f"{output_vector.shape}")
 
-    def Softmax_flow(self, load_addr, store_addr, vl, sew, vrf_addr):
+    def Softmax_flow(self, load_addr, store_addr, vl, sew, vrf_base_idx):
+        """
+        (1) load_addr: the byte address of input vector in main memory
+        (2) store_addr: the byte address of output vector in main memory
+        (3) vl: vector length
+        (4) sew: standard element width
+        (5) vrf_base_idx: the offset index of VRF, 
+            the VRF usage is calculated directly starting from the offset downward
+        """
         print("Softmax C code flow")
         inst_list = []
+
+        # vrf offset
+        offset = self.sched.allocate('offset', vrf_base_idx)
 
         # load vector and maximum reduction
         zero          = self.sched.allocate('zero', 1)
@@ -548,7 +559,7 @@ class HLGenerator:
 
         inst_list.append(self.codegen.VectorCodeGen('vset',       [vl, sew, 1]))                                # vl, sew, lmul
         inst_list.append(self.codegen.VectorCodeGen('vmv_v.x',    [0, zero[0]]))                                # scalar v
-        inst_list.append(self.codegen.VectorCodeGen('vload_a',    [16, input_pattern[0], load_addr]))           # sew, vd, base_addr
+        inst_list.append(self.codegen.VectorCodeGen('vload_a',    [sew, input_pattern[0], load_addr]))          # sew, vd, base_addr
         inst_list.append(self.codegen.VectorCodeGen('vredmax_vs', [input_pattern[0], zero[0], redmax_res[0]]))  # vs1, vs2, vd
         inst_list.append(self.codegen.VectorCodeGen('vmv_x.s',    [redmax_res[0], "maximum"]))                  # v  scalar
         
@@ -581,13 +592,14 @@ class HLGenerator:
         mul_res     = self.sched.allocate('mul_res', 1)
         softmax_res = self.sched.allocate('softmax_res', 1)
 
-        inst_list.append(self.codegen.VectorCodeGen('vmul_vx', [exp_res[0], "reciprocal", mul_res[0]]))  # vs1, scalar, vd
-        inst_list.append(self.codegen.VectorCodeGen('vsrl_vx', [mul_res[0], 8, softmax_res[0]]))   # vs1, scalar, vd
-        inst_list.append(self.codegen.VectorCodeGen('vstore_a', [16, softmax_res[0], store_addr]))  # sew, vs, base_addr
+        inst_list.append(self.codegen.VectorCodeGen('vmul_vx', [exp_res[0], "reciprocal", mul_res[0]]))         # vs1, scalar, vd
+        inst_list.append(self.codegen.VectorCodeGen('vsrl_vx', [mul_res[0], 8, softmax_res[0]]))                # vs1, scalar, vd
+        inst_list.append(self.codegen.VectorCodeGen('vstore_a', [sew, softmax_res[0], store_addr]))             # sew, vs, base_addr
         
         self.sched.free('exp_res')
         self.sched.free('mul_res')
         self.sched.free('softmax_res')
+        self.sched.free('offset')
         # self.sched.status()
         return inst_list
     
@@ -881,7 +893,7 @@ if __name__ == "__main__":
     
     instGenerator = HLGenerator(VLEN=4096, DataWidth=64, debug=False)
     print("=== HLGenerator testbench ===")
-    print("version: 2025.11.05")
+    print("version: 2025.11.13")
     # instGenerator.Softmax_flow(0xe0000000, 0xe0010000, 256, 16, 0) # load_addr, store_addr, vl, sew, vrf_addr
 
     # # === Print out the Pattern ===
@@ -919,13 +931,13 @@ if __name__ == "__main__":
             #     print(f"{line}")
 
 
-            # inst, arg = instGenerator.Scatter_LS('load', 324, 8, 8, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
-            # for line in inst:
-            #     print(f"{line}")
-            
-            inst = instGenerator.Softmax_flow(0xe0000000, 0xe0010000, 256, 16, 0) # (load_addr, store_addr, vl, sew, vrf_addr)
+            inst, arg = instGenerator.Scatter_LS('load', 1, 0, 512, DRAM_BASEADDR, 0) #(mode, segment, seg_stride, seg_len, MMemeory_addr, vrf_addr)
             for line in inst:
                 print(f"{line}")
+            
+            # inst = instGenerator.Softmax_flow(0xe0000000, 0xe0010000, 256, 16, 1) # (load_addr, store_addr, avl, sew, vrf_addr)
+            # for line in inst:
+            #     print(f"{line}")
 
             
     

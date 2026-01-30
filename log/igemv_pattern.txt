@@ -1,0 +1,3 @@
+// Dimensions: M=1, N=128, P=4096
+// Hardware: VLEN=4096, LMUL=1 (VL_MAX=512)
+

@@ -22,6 +22,11 @@ class VectorCodeGenerator:
 
         self._register_value_format_instructions(self._format_instruction_list )
 
+        self.encoding = {
+            'vadd.vv': {'opcode': 0x57, 'funct3': 0x0, 'funct6': 0x00},
+            # 其他指令...
+        }
+
 
     def _register_value_format_instructions(self, format_instr_list):
         for fmt, names in format_instr_list:
@@ -76,10 +81,39 @@ class VectorCodeGenerator:
     def _handle_vstore_a(self, args):
         sew, vs, base_addr = args
         return f'__asm__ volatile("vse{sew}.v v{vs}, (%0)" :: "r"((uint{sew}_t*)(uintptr_t){base_addr}));'
+    
+
+
+    # === Binary Code Gen ===
+    def encode_r_type(self, rd, rs1, rs2, funct3, funct6, opcode, vm=1):
+        instruction = 0
+        instruction |= (opcode & 0x7f)         # [6:0]
+        instruction |= (rd & 0x1f) << 7        # [11:7]
+        instruction |= (funct3 & 0x7) << 12    # [14:12]
+        instruction |= (rs1 & 0x1f) << 15      # [19:15]
+        instruction |= (rs2 & 0x1f) << 20      # [24:20]
+        instruction |= (funct6 & 0x3f) << 25   # [30:25]
+        instruction |= (vm & 0x1) << 31        # [31]
+        return instruction
+    
+    def encode_vadd_vv(self, rd, rs1, rs2, vm=1):
+        e = self.encoding['vadd.vv']
+        return self.encode_r_type(rd, rs1, rs2, e['funct3'], e['funct6'], e['opcode'], vm)
+
+    def VectorBinaryGen(self, inst_type, args):
+        if inst_type == 'vadd.vv':
+            return self.encode_vadd_vv(*args)
+        else:
+            raise ValueError(f"Unsupported instruction: {inst_type}")
 
 if __name__ == "__main__":
     print("=== VectorCodeGen testbench ===")
-    print("version: 2025.11.05")
+    print("version: 2025.11.12")
+
+    gen = VectorCodeGenerator()
+    binary = gen.VectorBinaryGen('vadd.vv', [3, 1, 2])  # rd=3, rs1=1, rs2=2
+    print(f"Binary encoding: 0x{binary:08x}")
+
 
     codegen = VectorCodeGenerator()  # Initialize the VectorCodeGen class
     

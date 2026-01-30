@@ -3,6 +3,8 @@ from contextlib import redirect_stdout
 import numpy as np
 import struct
 
+pattern_seed = np.random.default_rng(seed=0)   # Fixed seed for pattern generation
+
 def fixQ8_to_float(hex_list):
     """
     將十六進位字串列表 (Q8.8 兩補數) 轉為 float
@@ -216,7 +218,6 @@ def BlockScale():
     np.set_printoptions(threshold=np.inf, linewidth=200)
     print(mask_array)
 
-
 def FastInverse_rsqrt(number, iteration):
     threehalfs = 1.5
     x2 = number * 0.5
@@ -240,7 +241,6 @@ def FastInverse_rsqrt(number, iteration):
         raise ValueError('result_bits out of range')
 
     return struct.unpack('f', struct.pack('I', result_bits))[0]
-
 
 def exp_quantized(x_q8):
     """
@@ -285,8 +285,8 @@ def Softmax():
 
 
         # Generate random input vector
-        np.random.seed(0)
-        vec_float = np.random.uniform(-4, 4, vec_len)
+        # np.random.seed(0)
+        vec_float = pattern_seed.uniform(-4, 4, vec_len)
         vec_q8 = np.round(vec_float * 256).astype(np.int16)  # float to Q8.8
         print(f"Input Vector (float):\n {vec_float}")
         
@@ -342,7 +342,6 @@ def Softmax():
 
         print(f"\nSum check: {np.sum(softmax_q8)/256:.4f} (should ≈ 1.0)")
 
-
 def LayerNorm():
     """"""
 
@@ -352,9 +351,30 @@ def GELU():
 def to_signed16(x):
     return x - 0x10000 if x & 0x8000 else x
 
+def imatmul(M, N, P):
+    """
+    C = AB with A=[MxN], B=[NxP], C=[MxP]
+    """
+
+    dtype = np.uint8
+    UPPER_LIMIT = 10000
+    LOWER_LIMIT = -10000
+
+    # Matrices and results
+    A = np.random.randint(LOWER_LIMIT, UPPER_LIMIT, size=(M, N)).astype(dtype)
+    B = np.random.randint(LOWER_LIMIT, UPPER_LIMIT, size=(N, P)).astype(dtype)
+    C = np.zeros([M, P], dtype=dtype)
+    # Golden result matrix
+    G = np.matmul(A, B).astype(dtype)
+
+    print(f"A:\n{A}")
+    print(f"B:\n{B}")
+    print(f"G:\n{G}")
+    
+
 if __name__ == "__main__":
     print("=== Pattern Generator testbench ===")
-    print("version: 2025.11.03")
+    print("version: 2026.01.26")
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(current_dir, "log", "Pattern.txt")
@@ -363,7 +383,9 @@ if __name__ == "__main__":
 
     with open(output_path, "w", encoding="utf-8") as f:
         with redirect_stdout(f):
-            Softmax()
+            imatmul(4, 5, 4)
+            # Softmax()
+            # Softmax()
 
     # n = 256
     # f = FastInverse_rsqrt(n, 1)
@@ -386,8 +408,8 @@ if __name__ == "__main__":
 
     # print(result)
 
-    print(exp_quantized(to_signed16(0xfc66)))
-    print(exp_quantized(to_signed16(0xffb8)))
-    print(exp_quantized(to_signed16(0xfb66)))
-    print(exp_quantized(to_signed16(0xfc8d)))
+    # print(exp_quantized(to_signed16(0xfc66)))
+    # print(exp_quantized(to_signed16(0xffb8)))
+    # print(exp_quantized(to_signed16(0xfb66)))
+    # print(exp_quantized(to_signed16(0xfc8d)))
     
