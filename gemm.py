@@ -94,7 +94,7 @@ def gen_dram_gemm_integrated():
     # --- 關鍵變數設定 ---
     # M_TILE_FACTOR 越大，Memory Bound 越不明顯，但需要更多暫存器
     # 建議設為 4 或 8 (Ara 通常有 32 個 vector registers，用 8 個做 acc 很合理)
-    M_TILE_FACTOR = 4 
+    M_TILE_FACTOR = 16 
 
     # --- 測試案例選單 (Uncomment to use) ---
     
@@ -105,8 +105,9 @@ def gen_dram_gemm_integrated():
     # M, N, P = 64, 768, 3072
     
     # [Case 3: Academic Square] 快速測試用 (為了產生 Hex 比較快先用這個)
-    # M, N, P = 32, 256, 256 
-    M, N, P = 128, 4096, 4096 
+    M, N, P = 32, 256, 256 
+    # M, N, P = 256, 256, 256 
+    # M, N, P = 128, 4096, 4096 
 
     # --- 記憶體映射 (沿用 LLaMA-7B 的安全配置) ---
     DRAM_BASE_ADDR = 0xE0000000

@@ -58,6 +58,7 @@ def estimate_gemm_performance(M, N, P, M_tile_list=[1, 2, 4, 8]):
             "M_tile": m_tile,
             "Total Load Insts": int(total_load_insts),
             "Total MAC Insts": int(total_mac_insts),
+            "Total Insts": int(total_load_insts) + int(total_mac_insts),
             "Comp/Load Ratio": ratio,
             "Blocking Severity": f"{m_tile}x (LSU waits {m_tile} cycles)",
             "Est. Speedup (Ideal)": f"{m_tile / (1 + m_tile / 20):.2f}x" # 粗略估計
@@ -70,4 +71,4 @@ def estimate_gemm_performance(M, N, P, M_tile_list=[1, 2, 4, 8]):
 
 # --- 執行估算 (使用你的 Mini-Monster Case) ---
 # M=128 (Seq), N=1024 (Input), P=1024 (Output)
-estimate_gemm_performance(M=128, N=1024, P=1024, M_tile_list=[1, 2, 4, 8, 16])
+estimate_gemm_performance(M=64, N=768, P=3072, M_tile_list=[1, 2, 4, 8, 16])
