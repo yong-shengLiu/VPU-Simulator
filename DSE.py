@@ -1,241 +1,233 @@
 import numpy as np
 from dataclasses import dataclass
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 # ==========================================
-# 1. Workload Definition (Software Mapping)
+# 1. Hardware Specification Definitions
 # ==========================================
 @dataclass
-class MacroOp:
+class HardwareSpecs:
+    # LSU Specs
+    axi_width_bits: int = 64
+    
+    # VRF Specs (from vrf.py context)
+    vlen_bits: int = 4096
+    nr_lanes: int = 4
+    nr_banks_per_lane: int = 8
+    num_vregs: int = 32 # Standard RISC-V Vector
+    
+    # Vector Engine (VALU/NAF) Specs
+    alu_width_bits: int = 64 
+    
+    # CIM Specs
+    cim_cols: int = 16
+    cim_macs_per_cycle: int = 64
+    cim_throughput_ops: int = 64
+
+    @property
+    def total_vrf_bytes(self):
+        # Total VRF Capacity in Bytes
+        return (self.vlen_bits * self.num_vregs) // 8
+
+    def get_vector_throughput(self, precision_bits=8):
+        ops_per_lane = self.alu_width_bits // precision_bits
+        return self.nr_lanes * ops_per_lane
+
+# ==========================================
+# 2. Workload & Mapping Definition
+# ==========================================
+@dataclass
+class TensorOperand:
     name: str
-    op_type: str        # LOAD, STORE, GEMM, SOFTMAX
-    dims: Tuple[int]    # (M, N, K) or similar
-    data_vol: int       # Bytes
-    compute_ops: int    # MACs or FLOPs
-    dependency: int     # Token ID
+    shape: Tuple[int]
+    precision: int = 8 # bits
+    
+    @property
+    def size_bytes(self):
+        elements = np.prod(self.shape)
+        return (elements * self.precision) // 8
 
-class AttentionWorkload:
-    def __init__(self, B=1, S=128, H=64, dtype_bytes=2):
-        self.B, self.S, self.H = B, S, H
-        self.dtype = dtype_bytes
+class DSEModel:
+    def __init__(self, specs: HardwareSpecs):
+        self.specs = specs
         
-    def generate_ops(self) -> List[MacroOp]:
-        # Q * K^T -> Score (S x S)
-        # Score -> Softmax
-        # Score * V -> Output (S x H)
-        ops = []
+    def check_capacity(self, tensors: List[TensorOperand]):
+        """
+        Checks if the working set fits in VRF.
+        Returns (fits: bool, utilization: float, message: str)
+        """
+        total_size = sum(t.size_bytes for t in tensors)
+        capacity = self.specs.total_vrf_bytes
         
-        # 1. Load Q, K, V (Assume worst case: load all from DRAM)
-        size_qkv = self.B * self.S * self.H * self.dtype
-        ops.append(MacroOp("Load Q", "LOAD", (self.S, self.H), size_qkv, 0, 0))
-        ops.append(MacroOp("Load K", "LOAD", (self.S, self.H), size_qkv, 0, 0))
-        ops.append(MacroOp("Load V", "LOAD", (self.S, self.H), size_qkv, 0, 0))
+        utilization = total_size / capacity
+        fits = total_size <= capacity
         
-        # 2. Q * K^T (MatMul)
-        # (S x H) * (H x S) -> (S x S)
-        macs_att = self.B * self.S * self.S * self.H
-        ops.append(MacroOp("Attention Score", "GEMM", (self.S, self.S, self.H), 0, macs_att, 1))
-        
-        # 3. Softmax (Row-wise on S x S)
-        # Ops approx 3 * Elements (Exp, Sum, Div)
-        flops_smax = self.B * self.S * self.S * 3 
-        ops.append(MacroOp("Softmax", "SOFTMAX", (self.S, self.S), 0, flops_smax, 2))
-        
-        # 4. Score * V (MatMul)
-        # (S x S) * (S x H) -> (S x H)
-        macs_out = self.B * self.S * self.S * self.H
-        ops.append(MacroOp("Weighted Sum", "GEMM", (self.S, self.H, self.S), 0, macs_out, 3))
-        
-        # 5. Store
-        ops.append(MacroOp("Store Output", "STORE", (self.S, self.H), size_qkv, 0, 4))
-        
-        return ops
-
-# ==========================================
-# 2. Architecture Models (Hardware Specs)
-# ==========================================
-class BaseArch:
-    def __init__(self, name, lanes=4, banks_per_lane=8, data_width=64, issue_width=1):
-        self.name = name
-        self.lanes = lanes
-        self.banks = banks_per_lane
-        self.width = data_width # bits
-        self.issue_width = issue_width
-        self.vrf_depth = 4096 # elements per lane (simplified)
-        
-    def map_tensor(self, rows, cols):
-        """Returns effective parallelism (elements processed per cycle)"""
-        raise NotImplementedError
-
-    def estimate_cycles(self, op: MacroOp):
-        raise NotImplementedError
-
-class AraBaseline(BaseArch):
-    def __init__(self):
-        super().__init__("Ara (Baseline)", lanes=4, banks_per_lane=8, issue_width=1)
-        
-    def map_tensor(self, rows, cols):
-        # Ara uses Strip-mining (1D mapping)
-        # It fills all lanes linearly.
-        # But for Softmax (Row-wise), if a row is split across lanes, we need inter-lane reduction.
-        # Or if row_len < num_lanes, utilization drops.
-        
-        # Vector Width in elements (FP16, 16-bit)
-        # 4 Lanes * 64-bit/lane = 256 bits = 16 elements
-        vl_max = self.lanes * (64 // 16) 
-        
-        if cols < vl_max:
-            # Fragmentation! e.g., H=64, but we treat it as 1D stream.
-            # Actually Ara handles 1D streams well, BUT...
-            # For Softmax, we need to reduce along 'cols'.
-            # If mapped linearly 1D, rows are packed.
-            # Row 0 might end in Lane 1, Row 1 starts in Lane 2.
-            # Softmax becomes complex: Inter-lane communication required.
-            return 0.5 # Penalty for misalignment/complexity
-        return 1.0 # Full utilization for pure 1D streams
-
-    def estimate_cycles(self, op: MacroOp):
-        # Single Issue: Strictly Serial
-        if op.op_type == "LOAD" or op.op_type == "STORE":
-            # Bandwidth bound: 64-bit AXI
-            bus_width_bytes = 8
-            return op.data_vol / bus_width_bytes
-        elif op.op_type == "GEMM":
-            # Compute bound: Lanes * MACs/cycle
-            # 4 Lanes, assume 1 MAC/lane/cycle for FP16? No, SIMD width.
-            # 4 Lanes * (64bit/16bit) = 16 MACs/cycle
-            ops_per_cycle = self.lanes * (64 // 16)
-            return op.compute_ops / ops_per_cycle
-        elif op.op_type == "SOFTMAX":
-            # The Killer. 
-            # Ara Softmax is scalar-heavy or uses expensive vector reductions.
-            # Vector reduction takes log2(VL) steps + scalar moves.
-            # Assume 10x penalty vs ideal vector op due to scalar interaction
-            ops_per_cycle = self.lanes * (64 // 16)
-            return (op.compute_ops / ops_per_cycle) * 10 
-        return 0
-
-class ADHDTarget(BaseArch):
-    def __init__(self):
-        super().__init__("ADHD (Target)", lanes=4, banks_per_lane=8, issue_width=3)
-        
-    def map_tensor(self, rows, cols):
-        # Lane-Aware Mapping
-        # We map Rows to Lanes directly if possible.
-        # e.g., S=128. We process 4 rows in parallel (one per lane).
-        # Softmax becomes Intra-Lane only (No cross-bar).
-        return 1.0 # Ideal utilization
-
-    def estimate_cycles(self, op: MacroOp):
-        # Decoupled / Multi-Issue:
-        # We don't just add cycles; we look at the bottleneck.
-        # But for single-op latency estimation:
-        
-        if op.op_type == "LOAD" or op.op_type == "STORE":
-            # Still Bandwidth bound (Physical limit)
-            bus_width_bytes = 8
-            # BUT: Lane-Aware Scatter engine has 0 overhead for transpose
-            return op.data_vol / bus_width_bytes
+        details = []
+        for t in tensors:
+            details.append(f"{t.name}: {t.size_bytes/1024:.1f}KB")
             
-        elif op.op_type == "GEMM":
-            # CIM Engine? Or just optimized Vector?
-            # Assume standard Vector for fairness, but Lane-Aware.
-            ops_per_cycle = self.lanes * (64 // 16)
-            return op.compute_ops / ops_per_cycle
+        msg = (f"VRF Capacity: {capacity/1024:.1f}KB\n"
+               f"Required: {total_size/1024:.1f}KB ({' + '.join(details)})\n"
+               f"Utilization: {utilization*100:.1f}%")
+        
+        if not fits:
+            msg += "\n[!] WARNING: Working set exceeds VRF capacity! Tiling is REQUIRED."
+        else:
+            msg += "\n[OK] Working set fits in VRF."
             
-        elif op.op_type == "SOFTMAX":
-            # Ideal Vectorized Softmax (Intra-lane)
-            # No scalar core involvement!
-            ops_per_cycle = self.lanes * (64 // 16)
-            return op.compute_ops / ops_per_cycle
-        return 0
+        return fits, utilization, msg
 
-# ==========================================
-# 3. Simulation & Analysis
-# ==========================================
-def simulate_timeline(arch: BaseArch, ops: List[MacroOp]):
-    timeline = [] # (Start, End, Unit)
-    # Unit IDs: 0=LSU, 1=Compute(CIM/VALU)
-    
-    curr_lsu = 0
-    curr_compute = 0
-    
-    total_cycles = 0
-    
-    print(f"\n--- Simulation: {arch.name} ---")
-    
-    for op in ops:
-        cycles = int(arch.estimate_cycles(op))
-        utilization = 1.0
-        if op.dims:
-             # Check mapping efficiency
-             utilization = arch.map_tensor(op.dims[0], op.dims[1])
+    def analyze_mapping(self, tensor: TensorOperand, strategy: str):
+        """
+        Analyzes efficiency based on Mapping Strategy.
+        """
+        rows, cols = tensor.shape[-2], tensor.shape[-1]
         
-        real_cycles = int(cycles / utilization)
+        # 1. Bandwidth Analysis (LSU)
+        bytes_total = tensor.size_bytes
+        lsu_cycles_ideal = bytes_total / (self.specs.axi_width_bits / 8)
         
-        start = 0
-        end = 0
-        unit = ""
-        
-        if op.op_type in ["LOAD", "STORE"]:
-            unit = "LSU"
-            # Ara (Single Issue): Must wait for everything to finish (simplified)
-            # ADHD (Decoupled): Only waits for LSU availability (and data dependency)
+        # 2. VRF Distribution & Compute Efficiency
+        if strategy == "Strip-Mining":
+            # Linear mapping efficiency
+            simd_width = self.specs.get_vector_throughput(tensor.precision)
+            utilization = min(1.0, cols / simd_width) if cols < simd_width else 1.0
+            reduction_penalty = 10.0 # High penalty for inter-lane reduction
             
-            if arch.issue_width == 1:
-                start = max(curr_lsu, curr_compute) # Serial execution
-            else:
-                start = curr_lsu # Decoupled
+        elif strategy == "Lane-Aware":
+            # Ideal Lane mapping
+            utilization = 1.0 
+            reduction_penalty = 1.0 # Intra-lane reduction is fast
+            
+        return lsu_cycles_ideal, utilization, reduction_penalty
+
+    def simulate_tiled_schedule(self, M, N, K, strategy: str):
+        """
+        Simulates execution with Automatic Tiling.
+        Workload: Attention Q(MxK) * K^T(KxM) -> Score(MxM) ...
+        For simplicity, we analyze the Q*K^T stage with Tiling on 'M' (Sequence Length).
+        """
+        
+        # 1. Heuristic Tiling Calculation
+        vrf_limit = self.specs.total_vrf_bytes
+        
+        valid_tile = 0
+        # Try different tile sizes for Sequence Length (M)
+        for m_t in [128, 64, 32, 16]:
+            # Estimated Working Set per Tile:
+            # Q_block + K_block + V_block + Output_block + Score_block (approx)
+            # Size = 5 matrices of size (m_t * 64)
+            req_size = 5 * (m_t * 64) 
+            
+            if req_size <= vrf_limit:
+                valid_tile = m_t
+                break
+        
+        if valid_tile == 0:
+            valid_tile = 1 # Fallback for extremely small memory
+            
+        num_tiles = M // valid_tile
+        print(f"\n[Capacity Check & Tiling]")
+        print(f"  Target Workload: Seq={M}, Hidden={K} (Full Q+K+V would be {3*M*K/1024:.1f}KB)")
+        print(f"  VRF Capacity: {vrf_limit/1024:.1f}KB")
+        print(f"  > Selected Tile Size (Seq): {valid_tile}")
+        print(f"  > Number of Tiles: {num_tiles}")
+        
+        # 2. Run Timeline Simulation
+        total_cycles = 0
+        print(f"\n[Timeline Simulation - {strategy} (Tiled)]")
+        
+        # Resource Availability Timestamps
+        lsu_free = 0
+        compute_free = 0
+        
+        for t in range(num_tiles):
+            # --- Analysis for ONE Tile ---
+            # Data Volume per tile
+            bytes_tile = valid_tile * K
+            ops_gemm = valid_tile * valid_tile * K # Q*K
+            ops_smax = valid_tile * valid_tile * 3
+            ops_out  = valid_tile * K * valid_tile # Score*V
+            
+            # Latency Calculations
+            # Load 3 matrices (Q, K, V parts)
+            lsu_lat_tile = (bytes_tile * 3) / (self.specs.axi_width_bits / 8)
+            store_lat_tile = bytes_tile / (self.specs.axi_width_bits / 8)
+            
+            # Compute Latency (with efficiency factors)
+            _, util, red_pen = self.analyze_mapping(TensorOperand("Tile_Calc", (valid_tile, K)), strategy)
+            
+            cim_tpt = self.specs.cim_throughput_ops * util
+            vec_tpt = (self.specs.get_vector_throughput() * util) / red_pen
+            
+            comp_cycles = (ops_gemm + ops_out) / cim_tpt + (ops_smax / vec_tpt)
+            
+            # --- Timeline Update ---
+            
+            if strategy == "Strip-Mining":
+                # Serial Execution: Wait for previous Compute to finish before Loading next
+                # Load -> Compute -> Store
+                start_lsu = max(lsu_free, compute_free)
+                end_lsu = start_lsu + lsu_lat_tile
                 
-            end = start + real_cycles
-            curr_lsu = end
+                start_comp = end_lsu
+                end_comp = start_comp + comp_cycles
+                
+                start_store = end_comp
+                end_store = start_store + store_lat_tile
+                
+                lsu_free = end_store
+                compute_free = end_comp
+                
+            else: # Lane-Aware (Decoupled/Pipelined)
+                # Pipelined Execution: 
+                # LSU can load Tile N+1 while Compute is busy with Tile N
+                
+                # 1. Load (Pre-fetch if possible)
+                start_lsu = lsu_free
+                end_lsu = start_lsu + lsu_lat_tile
+                
+                # 2. Compute (Waits for THIS Load, and Compute Unit free)
+                start_comp = max(end_lsu, compute_free)
+                end_comp = start_comp + comp_cycles
+                
+                # 3. Store (Waits for THIS Compute, and LSU free)
+                start_store = max(end_comp, end_lsu) 
+                end_store = start_store + store_lat_tile
+                
+                lsu_free = end_store
+                compute_free = end_comp
+                
+            print(f"  Tile {t}: Load[{int(lsu_lat_tile)}] -> Comp[{int(comp_cycles)}] -> Store[{int(store_lat_tile)}]")
             
-        else: # Compute
-            unit = "EX"
-            if arch.issue_width == 1:
-                start = max(curr_lsu, curr_compute)
-            else:
-                # Dependency check! Compute must wait for Load
-                # Simplified: Assume Load happens just before. 
-                # Ideally check op.dependency.
-                start = max(curr_compute, curr_lsu) # Wait for data (RAW)
-                # Note: In a real trace, we might prefetch. 
-                # Here we assume naive dependency: Load -> Compute -> Store
-            
-            end = start + real_cycles
-            curr_compute = end
-            
-        print(f"  {op.name:<16} | Type: {op.op_type:<7} | Cycles: {real_cycles:<5} | Range: {start}-{end}")
-        total_cycles = max(total_cycles, end)
-        
-    return total_cycles
+        return lsu_free
 
-# Run
-workload = AttentionWorkload(S=128, H=64)
-ops = workload.generate_ops()
+# ==========================================
+# 3. Execution
+# ==========================================
+if __name__ == "__main__":
+    specs = HardwareSpecs()
+    dse = DSEModel(specs)
 
-ara = AraBaseline()
-cycles_ara = simulate_timeline(ara, ops)
+    # 1. Capacity Check of Full Model (Just to show it fails without tiling)
+    print("=== 1. VRF Capacity Check (Full Layer without Tiling) ===")
+    full_tensors = [
+        TensorOperand("Q", (128, 64), 8),
+        TensorOperand("K", (128, 64), 8),
+        TensorOperand("V", (128, 64), 8)
+    ]
+    dse.check_capacity(full_tensors) 
 
-adhd = ADHDTarget()
-cycles_adhd = simulate_timeline(adhd, ops)
+    # 2. Tiled Simulation
+    print("\n=== 2. Tiled Simulation (Strip-Mining vs Lane-Aware) ===")
+    
+    # Run Baseline (Ara)
+    cyc_base = dse.simulate_tiled_schedule(128, 128, 64, "Strip-Mining")
+    
+    # Run Target (ADHD)
+    cyc_opt = dse.simulate_tiled_schedule(128, 128, 64, "Lane-Aware")
 
-print(f"\n=== Result Summary ===")
-print(f"Ara Baseline Cycles: {cycles_ara}")
-print(f"ADHD Target Cycles : {cycles_adhd}")
-print(f"Speedup            : {cycles_ara / cycles_adhd:.2f}x")
-
-# Spec Gap Analysis
-print("\n=== Hardware Spec Gap Analysis ===")
-print("1. Issue Width:")
-print(f"   - Current: {ara.issue_width} (Causes serial execution of Load & Compute)")
-print(f"   - Target : {adhd.issue_width} (Allows overlapping, see overlapping ranges in timeline)")
-
-print("\n2. Mapping Logic (VRF):")
-print(f"   - Current: Strip-mining (Utilization factor ~{ara.map_tensor(128,64)})")
-print(f"   - Target : Lane-Aware (Utilization factor ~{adhd.map_tensor(128,64)})")
-print(f"   - Requirement: LSU must support 'Tensor Scatter' to pack {workload.H}-dim rows into single lanes.")
-
-print("\n3. Softmax Efficiency:")
-print(f"   - Observation: Ara Softmax is 10x slower due to Scalar interaction.")
-print(f"   - Spec Change: Need 'Vector-Only' Softmax support (VALU Intra-lane reduction).")
+    print(f"\n=== Final Comparison ===")
+    print(f"Baseline (Tiled): {int(cyc_base)} cycles")
+    print(f"ADHD (Tiled)    : {int(cyc_opt)} cycles")
+    print(f"Speedup         : {cyc_base/cyc_opt:.2f}x")
