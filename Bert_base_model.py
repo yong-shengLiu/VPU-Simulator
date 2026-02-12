@@ -1,128 +1,308 @@
 import numpy as np
+import os
+import glob
 
 # ==========================================
-# 1. 模型規格定義 (BERT-Base Config)
+# 1. 配置與常數
 # ==========================================
 CONFIG = {
-    "N": 512,        # Sequence Length
-    "H": 768,        # Hidden Size
-    "A": 12,         # Attention Heads
-    "D_k": 64,       # Head Dimension
-    "H_ff": 3072,    # Feed-Forward Intermediate Size
-    "Layers": 12     # [新增] Encoder Layer 的層數
+    "N_SEQ": 512,
+    "H_DIM": 768,
+    "H_FF": 3072,
+    "LAYERS": 12,
+    "HEADS": 12 
 }
 
-# ==========================================
-# Helper Functions (維持不變)
-# ==========================================
-def softmax(x):
-    e_x = np.exp(x - np.max(x, axis=-1, keepdims=True)) # along the last dimension (along row, Qn for each head)
-    return e_x / np.sum(e_x, axis=-1, keepdims=True)
+# Memory Simulation Constants
+INT8_MIN = -128
+INT8_MAX = 127
 
-def layer_norm(x, gamma, beta, eps=1e-12):
-    mean = np.mean(x, axis=-1, keepdims=True)
-    var = np.var(x, axis=-1, keepdims=True)
-    x_norm = (x - mean) / np.sqrt(var + eps)
-    return gamma * x_norm + beta
-
-def gelu(x):
-    return x * 0.5 * (1.0 + np.tanh(0.7978845608 * (x + 0.044715 * np.power(x, 3))))
-
-def matmul(A, B):
-    return np.matmul(A, B)
+# 路徑設定
+current_dir = os.path.dirname(os.path.abspath(__file__))
+GOLDEN_DIR = os.path.join(current_dir, "golden_log")   # Python 產出的黃金樣本
+RTL_DIR    = os.path.join(current_dir, "rtl_log")      # 預期 RTL 產出的 dump 位置
 
 # ==========================================
-# [修改] 初始化權重 (產生 12 層的參數)
+# 2. 輔助函數
 # ==========================================
-def init_bert_weights():
-    print(f"正在初始化 {CONFIG['Layers']} 層 BERT 權重...")
-    all_layers_weights = []
+def to_int8(x):
+    x = np.array(x, dtype=np.int32)
+    return (x & 0xFF).astype(np.int8)
+
+def to_int16(x):
+    x = np.array(x, dtype=np.int32)
+    return (x & 0xFFFF).astype(np.int16)
+
+# ==========================================
+# 3. 硬體行為模擬 (Kernel Simulation)
+# ==========================================
+def sim_gemm_int8(A, B):
+    res_int32 = np.matmul(A.astype(np.int32), B.astype(np.int32))
+    return to_int8(res_int32)
+
+def sim_softmax_q88(x):
+    rows, cols = x.shape
+    out = np.zeros_like(x, dtype=np.int8)
+    for r in range(rows):
+        row_val = x[r].astype(np.int16)
+        max_val = np.max(row_val)
+        row_val = row_val - max_val
+        probs = np.exp(row_val) / np.sum(np.exp(row_val))
+        out_row = np.round(probs * 127).astype(np.int32)
+        out[r] = np.clip(out_row, -128, 127).astype(np.int8)
+    return out
+
+def sim_layernorm_fake(data):
+    rows, cols = data.shape
+    out = np.zeros_like(data, dtype=np.int8)
+    for r in range(rows):
+        row = data[r].astype(np.int16)
+        mean = np.mean(row).astype(np.int16)
+        row = row - mean
+        res = row # Fake inv_std = 1.0
+        out[r] = np.clip(res, INT8_MIN, INT8_MAX).astype(np.int8)
+    return out
+
+def sim_gelu_fake(data):
+    x_int32 = data.astype(np.int32)
+    sqr = (x_int32 * x_int32)
+    sqr_trun = to_int8(sqr).astype(np.int32)
+    shft = sqr_trun >> 2
+    add = shft + 10
+    return to_int8(add)
+
+def sim_add_residual(dest, src):
+    res = dest.astype(np.int32) + src.astype(np.int32)
+    return to_int8(res)
+
+# ==========================================
+# 4. 初始化權重
+# ==========================================
+def init_weights():
+    np.random.seed(42)
+    W = {}
+    scale = 10 
+    dims = [
+        ('WQ', CONFIG['H_DIM'], CONFIG['H_DIM']),
+        ('WK', CONFIG['H_DIM'], CONFIG['H_DIM']),
+        ('WV', CONFIG['H_DIM'], CONFIG['H_DIM']),
+        ('WO', CONFIG['H_DIM'], CONFIG['H_DIM']),
+        ('W1', CONFIG['H_DIM'], CONFIG['H_FF']),
+        ('W2', CONFIG['H_FF'], CONFIG['H_DIM'])
+    ]
+    for name, r, c in dims:
+        W[name] = np.random.randint(-scale, scale, (r, c)).astype(np.int8)
+    return W
+
+# ==========================================
+# 5. 輸出工具
+# ==========================================
+def dump_memory(data, filename):
+    if not os.path.exists(GOLDEN_DIR):
+        os.makedirs(GOLDEN_DIR)
     
-    for i in range(CONFIG['Layers']):
-        W = {}
-        # Attention Projections
-        W['W_Q'] = np.random.randn(CONFIG['H'], CONFIG['H']) * 0.02
-        W['W_K'] = np.random.randn(CONFIG['H'], CONFIG['H']) * 0.02
-        W['W_V'] = np.random.randn(CONFIG['H'], CONFIG['H']) * 0.02
-        W['W_O'] = np.random.randn(CONFIG['H'], CONFIG['H']) * 0.02
+    filepath = os.path.join(GOLDEN_DIR, filename)
+    flat = data.flatten()
+    
+    with open(filepath, 'w') as f:
+        for val in flat:
+            u8 = val & 0xFF
+            f.write(f"{u8:02X}\n")
+    # print(f"Dumped: {filename}") # 減少 log 雜訊，需要時打開
+
+# ==========================================
+# 6. 單層 Encoder 模擬 (含細粒度 Dump)
+# ==========================================
+def run_layer_sim(in_data, W, layer_idx):
+    """
+    執行單層模擬，並在每個步驟後 Dump 結果
+    """
+    l_prefix = f"L{layer_idx:02d}" # 例如 L00, L01
+    
+    # --- MSA Block ---
+    
+    # 1. Q = X @ WQ
+    Q = sim_gemm_int8(in_data, W['WQ'])
+    dump_memory(Q, f"{l_prefix}_00_Q.hex")
+    
+    # 2. K = X @ WK
+    K = sim_gemm_int8(in_data, W['WK'])
+    dump_memory(K, f"{l_prefix}_01_K.hex")
+    
+    # 3. Scores = Q @ K.T
+    Scores = sim_gemm_int8(Q, K.T)
+    dump_memory(Scores, f"{l_prefix}_02_Scores.hex")
+    
+    # 4. Softmax
+    Attn = sim_softmax_q88(Scores)
+    dump_memory(Attn, f"{l_prefix}_03_Attn.hex")
+    
+    # 5. V = X @ WV
+    V = sim_gemm_int8(in_data, W['WV'])
+    dump_memory(V, f"{l_prefix}_04_V.hex")
+    
+    # 6. Context = Attn @ V
+    Context = sim_gemm_int8(Attn, V)
+    dump_memory(Context, f"{l_prefix}_05_Context.hex")
+    
+    # 7. Output Proj = Context @ WO
+    Out_MSA = sim_gemm_int8(Context, W['WO'])
+    dump_memory(Out_MSA, f"{l_prefix}_06_Out_MSA.hex")
+    
+    # 8. Residual + LayerNorm (Norm1)
+    Res1 = sim_add_residual(Out_MSA, in_data)
+    # dump_memory(Res1, f"{l_prefix}_07_Res1_PreNorm.hex") # Optional
+    Norm1 = sim_layernorm_fake(Res1)
+    dump_memory(Norm1, f"{l_prefix}_08_Norm1.hex")
+    
+    # --- FFN Block ---
+    
+    # 9. Inter = Norm1 @ W1
+    Inter = sim_gemm_int8(Norm1, W['W1'])
+    dump_memory(Inter, f"{l_prefix}_09_FFN_Inter.hex")
+    
+    # 10. GELU
+    Act = sim_gelu_fake(Inter)
+    dump_memory(Act, f"{l_prefix}_10_FFN_Act.hex")
+    
+    # 11. Out_FFN = Act @ W2
+    Out_FFN = sim_gemm_int8(Act, W['W2'])
+    dump_memory(Out_FFN, f"{l_prefix}_11_FFN_Out.hex")
+    
+    # 12. Residual + LayerNorm (Norm2) -> Final Output
+    Res2 = sim_add_residual(Out_FFN, Norm1)
+    # dump_memory(Res2, f"{l_prefix}_12_Res2_PreNorm.hex") # Optional
+    Norm2 = sim_layernorm_fake(Res2)
+    dump_memory(Norm2, f"{l_prefix}_13_Norm2_Final.hex")
+    
+    return Norm2
+
+# ==========================================
+# 7. RTL 比對工具
+# ==========================================
+def load_hex_file(filepath):
+    """讀取 hex file 並轉成 list of integers"""
+    try:
+        with open(filepath, 'r') as f:
+            lines = f.readlines()
+        # 過濾空行與非 hex 內容
+        data = [int(line.strip(), 16) for line in lines if line.strip()]
+        return data
+    except Exception as e:
+        return None
+
+def verify_rtl_results():
+    """
+    自動遍歷 GOLDEN_DIR 中的所有 hex 檔案，
+    並嘗試在 RTL_DIR 中尋找同名檔案進行比對。
+    """
+    print(f"\n🔍 Starting RTL Verification...")
+    print(f"   Golden Dir: {GOLDEN_DIR}")
+    print(f"   RTL Dir   : {RTL_DIR}")
+    
+    if not os.path.exists(RTL_DIR):
+        print(f"❌ RTL directory not found. Please create '{RTL_DIR}' and place RTL dumps there.")
+        return
+
+    # 取得所有 Golden 檔案
+    golden_files = sorted(glob.glob(os.path.join(GOLDEN_DIR, "*.hex")))
+    
+    if not golden_files:
+        print("⚠️ No golden files found. Run the simulation first.")
+        return
+
+    pass_count = 0
+    fail_count = 0
+    missing_count = 0
+
+    for g_path in golden_files:
+        filename = os.path.basename(g_path)
+        r_path = os.path.join(RTL_DIR, filename)
         
-        # Feed-Forward Network
-        W['W_1'] = np.random.randn(CONFIG['H'], CONFIG['H_ff']) * 0.02
-        W['W_2'] = np.random.randn(CONFIG['H_ff'], CONFIG['H']) * 0.02
+        if not os.path.exists(r_path):
+            print(f"⚠️ [MISSING] {filename} not found in RTL dir.")
+            missing_count += 1
+            continue
+            
+        # Load data
+        golden_data = load_hex_file(g_path)
+        rtl_data = load_hex_file(r_path)
         
-        # LayerNorm Parameters
-        W['LN1_g'] = np.ones(CONFIG['H'])
-        W['LN1_b'] = np.zeros(CONFIG['H'])
-        W['LN2_g'] = np.ones(CONFIG['H'])
-        W['LN2_b'] = np.zeros(CONFIG['H'])
+        if golden_data is None or rtl_data is None:
+            print(f"❌ [ERROR] Could not read {filename}")
+            fail_count += 1
+            continue
+
+        # Check Length
+        if len(golden_data) != len(rtl_data):
+            print(f"❌ [FAIL] {filename} Length Mismatch! Golden: {len(golden_data)}, RTL: {len(rtl_data)}")
+            fail_count += 1
+            continue
+            
+        # Check Content
+        mismatches = 0
+        first_mismatch_idx = -1
         
-        all_layers_weights.append(W)
+        for idx, (g_val, r_val) in enumerate(zip(golden_data, rtl_data)):
+            # 注意: 兩邊讀進來應該都是 0-255 的 unsigned int
+            if g_val != r_val:
+                mismatches += 1
+                if first_mismatch_idx == -1:
+                    first_mismatch_idx = idx
         
-    return all_layers_weights
+        if mismatches == 0:
+            print(f"✅ [PASS] {filename}")
+            pass_count += 1
+        else:
+            print(f"❌ [FAIL] {filename} has {mismatches} mismatches.")
+            print(f"   First error at index {first_mismatch_idx}: Golden=0x{golden_data[first_mismatch_idx]:02X}, RTL=0x{rtl_data[first_mismatch_idx]:02X}")
+            fail_count += 1
+
+    print("\n" + "="*40)
+    print("Verification Summary")
+    print("="*40)
+    print(f"Total Files: {len(golden_files)}")
+    print(f"PASS       : {pass_count}")
+    print(f"FAIL       : {fail_count}")
+    print(f"MISSING    : {missing_count}")
+    print("="*40)
 
 # ==========================================
-# [微調] 單層 Encoder Layer (增加 layer_idx 方便顯示)
-# ==========================================
-def bert_encoder_layer(x, weights, layer_idx):
-    N, H = x.shape
-    
-    # 為了版面簡潔，我們只印出第一層和最後一層的詳細資訊，中間省略
-    verbose = (layer_idx == 0) or (layer_idx == CONFIG['Layers'] - 1)
-    
-    if verbose:
-        print(f"\n--- Layer {layer_idx + 1} Start ---")
-
-    # 1. Multi-Head Self-Attention
-    Q = matmul(x, weights['W_Q'])
-    K = matmul(x, weights['W_K'])
-    V = matmul(x, weights['W_V'])
-    
-    Q_split = Q.reshape(N, CONFIG['A'], CONFIG['D_k']).transpose(1, 0, 2)
-    K_split = K.reshape(N, CONFIG['A'], CONFIG['D_k']).transpose(1, 0, 2)
-    V_split = V.reshape(N, CONFIG['A'], CONFIG['D_k']).transpose(1, 0, 2)
-    
-    scores = matmul(Q_split, K_split.transpose(0, 2, 1))
-    scores = scores / np.sqrt(CONFIG['D_k'])
-    attn_probs = softmax(scores)
-    context = matmul(attn_probs, V_split)
-    
-    context = context.transpose(1, 0, 2).reshape(N, H)
-    attn_output = matmul(context, weights['W_O'])
-    x_attn = layer_norm(x + attn_output, weights['LN1_g'], weights['LN1_b'])
-
-    # 2. Feed-Forward Network
-    intermediate = matmul(x_attn, weights['W_1'])
-    activated = gelu(intermediate)
-    ffn_output = matmul(activated, weights['W_2'])
-    x_final = layer_norm(x_attn + ffn_output, weights['LN2_g'], weights['LN2_b'])
-    
-    if verbose:
-        print(f"Layer {layer_idx + 1} Output Shape: {x_final.shape}")
-    
-    return x_final
-
-# ==========================================
-# [修改] 主程式：執行完整的 BERT Inference
+# 8. 主程式
 # ==========================================
 if __name__ == "__main__":
-    # 1. 產生模擬輸入 (Batch=1, Seq=512, Hidden=768)
-    # 這就是 Embedding Layer 出來的結果
-    current_activation = np.random.randn(CONFIG['N'], CONFIG['H'])
-    print(f"Initial Input Shape: {current_activation.shape}")
+    import sys
     
-    # 2. 初始化所有層的權重 (List of Dictionaries)
-    bert_weights = init_bert_weights()
-    
-    # 3. 執行 12 層堆疊運算 (Pipeline)
-    print(f"\n🚀 開始執行 BERT-Base (12 Layers) Inference...")
-    
-    for i in range(CONFIG['Layers']):
-        # [關鍵邏輯]: 上一層的輸出 (current_activation) 變成下一層的輸入
-        # 每一層使用自己獨立的權重 (bert_weights[i])
-        current_activation = bert_encoder_layer(current_activation, bert_weights[i], i)
+    # 模式選擇
+    # 預設執行產生 Golden，如果有參數 "verify" 則執行比對
+    mode = "generate"
+    if len(sys.argv) > 1 and sys.argv[1] == "verify":
+        mode = "verify"
+
+    if mode == "generate":
+        print(f"🚀 Generating Granular Golden Models...")
+        print(f"📂 Output directory: {GOLDEN_DIR}")
         
-    # 4. 最終結果
-    final_output = current_activation
-    print(f"\n✅ 全程 Inference 完成！")
-    print(f"最終輸出形狀: {final_output.shape} (應為 [512, 768])")
-    print(f"前 5 個數值範例 (Feature Vector of [CLS]):\n{final_output[0, :5]}")
+        # 1. Init Data
+        np.random.seed(123)
+        input_data = np.random.randint(INT8_MIN, INT8_MAX, 
+                                       (CONFIG['N_SEQ'], CONFIG['H_DIM'])).astype(np.int8)
+        Weights = init_weights()
+        
+        # Save Initial Input
+        dump_memory(input_data, "init_input.hex")
+        
+        # 2. Loop Layers
+        current_in = input_data
+        
+        for i in range(CONFIG['LAYERS']):
+            print(f"Simulating Layer {i}...")
+            output = run_layer_sim(current_in, Weights, layer_idx=i)
+            current_in = output # Ping-Pong logic
+            
+        print("\n✅ Generation Complete.")
+        print("To verify RTL results, put RTL hex files in 'rtl_log' and run:")
+        print("python bert_golden_gen_granular.py verify")
+        
+    elif mode == "verify":
+        verify_rtl_results()

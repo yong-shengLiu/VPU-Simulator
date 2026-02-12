@@ -2,3 +2,4 @@
 dram_rtl.hex 
 log/*.hex 
 "*.hex" 
+"*.hex" 

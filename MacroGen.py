@@ -8,15 +8,15 @@ import sys
 # =========================================================
 
 class MacroOpType(enum.Enum):
-    CONV = 0
-    LOAD = 1
-    STORE = 2
+    CONV   = 0
+    LOAD   = 1
+    STORE  = 2
     VECTOR = 3
 
 class MemType(enum.Enum):
-    DRAM = 0
+    DRAM     = 0
     UNI_SRAM = 2
-    VRF = 3
+    VRF      = 3
 
 class DependencyTag:
     def __init__(self, ld=-1, tu=-1, st=-1):
