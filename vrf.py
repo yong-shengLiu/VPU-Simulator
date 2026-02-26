@@ -281,7 +281,7 @@ if __name__ == "__main__":
 
     # === Construct a VRF ===
     # vrf = VRF(SEW=16, LMUL=2)
-    vrf = VRF(SEW=8, LMUL=1)
+    vrf = VRF(SEW=64, LMUL=2)
 
     # === Print out the current VRF memory mapping (not synchronize with the change of vset currently)===
     with open(output_path, "w", encoding="utf-8") as f:
@@ -294,73 +294,73 @@ if __name__ == "__main__":
     print("VRF Shape(Lane, Bank, Depth-per-Bank): ", vrf.VRF.shape)
 
 
-    # === Testbench for load data to VRF ===
-    vrf.vset(64, 1) #(SEW, LMUL)
-    print("<1> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    vrf.load(0, 32, 10, [0x1111111111111111, 0x2222222222222222, 0x3333333333333333, 0x4444444444444444, 0x5555555555555555,
-                        0x6666666666666666, 0x7777777777777777, 0x8888888888888888, 0x9999999999999999, 0xAAAAAAAAAAAAAAAA])  # (vd, vstart, elen, data)
+    # # === Testbench for load data to VRF ===
+    # vrf.vset(64, 1) #(SEW, LMUL)
+    # print("<1> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # vrf.load(0, 32, 10, [0x1111111111111111, 0x2222222222222222, 0x3333333333333333, 0x4444444444444444, 0x5555555555555555,
+    #                     0x6666666666666666, 0x7777777777777777, 0x8888888888888888, 0x9999999999999999, 0xAAAAAAAAAAAAAAAA])  # (vd, vstart, elen, data)
     
-    vrf.vset(32, 1) #(SEW, LMUL)
-    print("<2> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    vrf.load(1, 0, 10, [0x11111111, 0x22222222, 0x33333333, 0x44444444, 0x55555555,
-                        0x66666666, 0x77777777, 0x88888888, 0x99999999, 0xAAAAAAAA])  # (vd, vstart, elen, data)
+    # vrf.vset(32, 1) #(SEW, LMUL)
+    # print("<2> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # vrf.load(1, 0, 10, [0x11111111, 0x22222222, 0x33333333, 0x44444444, 0x55555555,
+    #                     0x66666666, 0x77777777, 0x88888888, 0x99999999, 0xAAAAAAAA])  # (vd, vstart, elen, data)
     
-    vrf.vset(16, 1) #(SEW, LMUL)
-    print("<3> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    vrf.load(2, 0, 10, [0x1111, 0x2222, 0x3333, 0x4444, 0x5555,
-                        0x6666, 0x7777, 0x8888, 0x9999, 0xAAAA])   # (vd, vstart, elen, data)
+    # vrf.vset(16, 1) #(SEW, LMUL)
+    # print("<3> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # vrf.load(2, 0, 10, [0x1111, 0x2222, 0x3333, 0x4444, 0x5555,
+    #                     0x6666, 0x7777, 0x8888, 0x9999, 0xAAAA])   # (vd, vstart, elen, data)
     
-    vrf.vset(8, 1) #(SEW, LMUL)
-    print("<4> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    vrf.load(3, 0, 15, [0x11, 0x22, 0x33, 0x44, 0x55,
-                        0x66, 0x77, 0x88, 0x99, 0xAA,
-                        0xBB, 0xCC, 0xDD, 0xEE, 0xFF])   # (vd, vstart, elen, data)
+    # vrf.vset(8, 1) #(SEW, LMUL)
+    # print("<4> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # vrf.load(3, 0, 15, [0x11, 0x22, 0x33, 0x44, 0x55,
+    #                     0x66, 0x77, 0x88, 0x99, 0xAA,
+    #                     0xBB, 0xCC, 0xDD, 0xEE, 0xFF])   # (vd, vstart, elen, data)
     
-    # === Print out the current VRF memory mapping ===
-    with open(output_path, "w", encoding="utf-8") as f:
-        with redirect_stdout(f):
-            vrf.dumpVRF_data()
+    # # === Print out the current VRF memory mapping ===
+    # with open(output_path, "w", encoding="utf-8") as f:
+    #     with redirect_stdout(f):
+    #         vrf.dumpVRF_data()
     
 
-    # === Testbench for take data out from VRF ===
-    vrf.vset(64, 1) #(SEW, LMUL)
-    print("<5> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    rtn_vec = vrf.take(0, 30, 10) # (vs, vstart, elen)
-    print( [f"0x{val:X}"  for val in rtn_vec] )
+    # # === Testbench for take data out from VRF ===
+    # vrf.vset(64, 1) #(SEW, LMUL)
+    # print("<5> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # rtn_vec = vrf.take(0, 30, 10) # (vs, vstart, elen)
+    # print( [f"0x{val:X}"  for val in rtn_vec] )
 
-    vrf.vset(32, 1) #(SEW, LMUL)
-    print("<6> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    rtn_vec = vrf.take(1, 0, 10) # (vs, vstart, elen)
-    print( [f"0x{val:X}"  for val in rtn_vec] )
+    # vrf.vset(32, 1) #(SEW, LMUL)
+    # print("<6> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # rtn_vec = vrf.take(1, 0, 10) # (vs, vstart, elen)
+    # print( [f"0x{val:X}"  for val in rtn_vec] )
 
-    vrf.vset(16, 1) #(SEW, LMUL)
-    print("<7> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    rtn_vec = vrf.take(2, 1, 10)   # (vs, vstart, elen)
-    print( [f"0x{val:X}"  for val in rtn_vec] )
+    # vrf.vset(16, 1) #(SEW, LMUL)
+    # print("<7> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # rtn_vec = vrf.take(2, 1, 10)   # (vs, vstart, elen)
+    # print( [f"0x{val:X}"  for val in rtn_vec] )
     
-    vrf.vset(8, 1) #(SEW, LMUL)
-    print("<8> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
-    rtn_vec = vrf.take(3, 2, 15)   # (vs, vstart, elen)
-    print( [f"0x{val:X}"  for val in rtn_vec] )
+    # vrf.vset(8, 1) #(SEW, LMUL)
+    # print("<8> SEW: ", vrf._SEW, "LMUL: ", vrf._LMUL)
+    # rtn_vec = vrf.take(3, 2, 15)   # (vs, vstart, elen)
+    # print( [f"0x{val:X}"  for val in rtn_vec] )
 
-    # === Some long array can be taken as pattern ===
-    lookup_array = np.array([
-         0,  4,  8, 12, 16, 20, 24, 28,  1,  5,  9, 13, 17, 21, 25, 29,
-         2,  6, 10, 14, 18, 22, 26, 30,  3,  7, 11, 15, 19, 23, 27, 31,
-        32, 36, 40, 44, 48, 52, 56, 60, 33, 37, 41, 45, 49, 53, 57, 61,
-        34, 38, 42, 46, 50, 54, 58, 62, 35, 39, 43, 47, 51, 55, 59, 63
-    ])
+    # # === Some long array can be taken as pattern ===
+    # lookup_array = np.array([
+    #      0,  4,  8, 12, 16, 20, 24, 28,  1,  5,  9, 13, 17, 21, 25, 29,
+    #      2,  6, 10, 14, 18, 22, 26, 30,  3,  7, 11, 15, 19, 23, 27, 31,
+    #     32, 36, 40, 44, 48, 52, 56, 60, 33, 37, 41, 45, 49, 53, 57, 61,
+    #     34, 38, 42, 46, 50, 54, 58, 62, 35, 39, 43, 47, 51, 55, 59, 63
+    # ])
 
-    index_array = np.array([
-         0,  4,  8, 12, 16, 20, 24, 28, 32,  36,  40,  44,  48,  52,  56,  60,
-         1,  5,  9, 13, 17, 21, 25, 29, 33,  37,  41,  45,  49,  53,  57,  61,
-         2,  6, 10, 14, 18, 22, 26, 30, 34,  38,  42,  46,  50,  54,  58,  62,
-         3,  7, 11, 15, 19, 23, 27, 31, 35,  39,  43,  47,  51,  55,  59,  63,
-        64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124,
-        65, 69, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 113, 117, 121, 125,
-        66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126,
-        67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111, 115, 119, 123, 127
-    ])
+    # index_array = np.array([
+    #      0,  4,  8, 12, 16, 20, 24, 28, 32,  36,  40,  44,  48,  52,  56,  60,
+    #      1,  5,  9, 13, 17, 21, 25, 29, 33,  37,  41,  45,  49,  53,  57,  61,
+    #      2,  6, 10, 14, 18, 22, 26, 30, 34,  38,  42,  46,  50,  54,  58,  62,
+    #      3,  7, 11, 15, 19, 23, 27, 31, 35,  39,  43,  47,  51,  55,  59,  63,
+    #     64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120, 124,
+    #     65, 69, 73, 77, 81, 85, 89, 93, 97, 101, 105, 109, 113, 117, 121, 125,
+    #     66, 70, 74, 78, 82, 86, 90, 94, 98, 102, 106, 110, 114, 118, 122, 126,
+    #     67, 71, 75, 79, 83, 87, 91, 95, 99, 103, 107, 111, 115, 119, 123, 127
+    # ])
 
 
     
