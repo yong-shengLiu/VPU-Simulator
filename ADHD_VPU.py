@@ -8,9 +8,9 @@ NUM_VREGS = 32         # v0 ~ v31
 LANE = 4
 VLEN = 8192            # the vector length may change depending on sequence length (1024 byte)
 AXI_WIDTH = 64         # 64-bit AXI bus width (8 bytes)
-LSU_QUEUE_DEPTH = 8    # LSU uop queue
-VALU_QUEUE_DEPTH = 8   # VALU uop queue
-CIM_QUEUE_DEPTH = 4    # CIM uop queue (Tensor Core)
+LSU_QUEUE_DEPTH = 16    # LSU uop queue
+VALU_QUEUE_DEPTH = 16   # VALU uop queue
+CIM_QUEUE_DEPTH = 32    # CIM uop queue (Tensor Core)
 
 class UnitType(Enum):
     LSU  = auto()   # Load/Store
@@ -42,19 +42,23 @@ class MacroOp:
 class CSRConfig:
     """CSR Configuration for controlling the VPU"""
     # VRF idx related
-    MatA_reg_base: int
-    MatB_reg_base: int
-    MatC_reg_base: int
+    MatA_reg_base: int = 0
+    MatB_reg_base: int = 4
+    MatC_reg_base: int = 20
+
+    # GEMM Tiling related
+    M_tile: int = 64
+    N_tile: int = 64
+    K_tile: int = 32
 
     # Macro FSM control related
-    Enable_Double_Buffer: bool  # 1: Ping-Pong(Normal GEMM), 0: Single Buffer(FlashAttention)
+    Enable_Double_Buffer: bool = True  # 1: Ping-Pong(Normal GEMM), 0: Single Buffer(FlashAttention)
 
 @dataclass
 class TensorConfig:
     """Tensor Hardware Configuration for GEMM"""
-    input_row:  int  # input row is variable, depending on current vrf is enough to hold the tile or not
-    tensor_col: int
-    tensor_row: int
+    phys_M: int = 16
+    phys_N: int = 16
 
 @dataclass
 class VALUConfig:
@@ -69,9 +73,9 @@ class LatencySet:
     Store_One_Vector: int = VLEN / AXI_WIDTH + 1 # one cycle for vreg transition
     VALU_VSET: int = 1
     VALU_VMV: int = VLEN / LANE / AXI_WIDTH # AXI_WIDTH is same with VALU width (Assume)
-    VALU_VADD: int
-    VALU_VEXP: int
-    VALU_VGELU: int
+    VALU_VADD: int = VLEN / LANE / AXI_WIDTH # AXI_WIDTH is same with VALU width (Assume)
+    VALU_VEXP: int = VLEN / LANE / AXI_WIDTH # AXI_WIDTH is same with VALU width (Assume)
+    VALU_VGELU: int = VLEN / LANE / AXI_WIDTH # AXI_WIDTH is same with VALU width (Assume)
 
 
 # --- 2. Frontend Macro to micor Expander ---
@@ -177,7 +181,6 @@ class DecoupledQueue:
     
     def __len__(self):
         return len(self.queue)
-
 
 # --- 4. The abstract VPU ---
 class ADHD_VPU:
@@ -300,114 +303,94 @@ class ADHD_VPU:
         print(f"  - CIM Active  : {self.cim_unit.total_active_cycles/self.global_cycle:.1%}")
         print("="*40)
 
-
 # --- 5. Macro template ---
-def macro_gemm_template(k_tiles=4, reg_a=0, reg_b=4, reg_c=8):
+def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, Seq_Len=512):
     """
-    1. Macro_GEMM: 標準矩陣乘加 (Output Stationary)
-    特點：在 K 維度累加時，Psum 留在 Tensor Core 內部，不污染 VRF (不寫入 dst_regs)。
-    直到 K 迴圈結束，才透過 VCIM_OUT 寫回 VRF。
-    """
-    uops = []
-    # 執行 K 次的 MAC 運算 (從 VRF 讀取 A 和 B)
-    for k in range(k_tiles):
-        uops.append(MicroOp(
-            name=f"VCIM_MAC_k{k}", 
-            unit_type=UnitType.CIM, 
-            latency=4, 
-            src_regs=[reg_a + k, reg_b + k], 
-            dst_regs=[] # ★ 關鍵：Psum 在 CIM 內部，不寫回 VRF，無 Hazard！
-        ))
-    
-    # 累加結束，將結果從 Accumulator 寫回 VRF (reg_c)
-    uops.append(MicroOp(
-        name=f"VCIM_OUT", 
-        unit_type=UnitType.CIM, 
-        latency=2, 
-        src_regs=[], 
-        dst_regs=[reg_c] # 鎖定 reg_c，後續指令若要讀取會被 Scoreboard 擋住
-    ))
-    return uops
-
-def macro_softmax_template(v_start=0, length=4):
-    """
-    定義 Softmax 的展開邏輯。
-    這模擬了你在 Thesis 中提到的 Softmax (Load -> Exp -> Sum -> Div -> Store)
+    【終極完整版】Macro_FlashAttention (支援 Seq_Len = 512)
+    包含 Outer Loop (Q) 與 Inner Loop (K, V) 的完整硬體狀態機展開。
     """
     uops = []
-    # 假設每一個向量暫存器可以存 1 筆資料
-    for i in range(length):
-        reg = v_start + i
-        # 1. Load Data (LSU)
-        uops.append(MicroOp(f"VLOAD.v{reg}", UnitType.LSU, latency=10, dst_regs=[reg]))
-        # 2. Exp (VALU) - RAW Hazard on reg
-        uops.append(MicroOp(f"VEXP.v{reg}", UnitType.VALU, latency=4, src_regs=[reg], dst_regs=[reg]))
-        # 3. Accumulate (VALU) - 假設 v30 是 accumulator
-        uops.append(MicroOp(f"VADD.v30.v{reg}", UnitType.VALU, latency=2, src_regs=[reg, 30], dst_regs=[30]))
     
-    # ... 省略 Div 和 Store 以簡化 demo ...
+    # --- 硬體暫存器嚴格配置 (32 VREG 零溢出分配) ---
+    reg_q = 0         # v0~v3   (4KB INT8) - 常駐於 Outer Loop
+    reg_k = 4         # v4~v7   (4KB INT8) - 流動於 Inner Loop
+    reg_v = 8         # v8~v11  (4KB INT8) - 流動於 Inner Loop
+    reg_p = 12        # v12~v15 (4KB INT8) - 流動於 Inner Loop
+    reg_o_global = 16 # v16~v31 (16KB FP32) - 常駐於 Outer Loop，累積最終結果
+
+    # =====================================================================
+    # Outer Loop: Tiling Q (每次處理 64 個 Query Tokens)
+    # Seq_Len = 512, M_tile = 64 -> 跑 8 次
+    # =====================================================================
+    for q_start in range(0, Seq_Len, csr.M_tile):
+        
+        # 1. [初始化] 清空 O_global (v16~v31) 以及全域 Max/Sum 純量暫存器
+        uops.append(MicroOp("VALU_CLEAR_O_GLOBAL", UnitType.VALU, latency=1, src_regs=[], dst_regs=[reg_o_global + i for i in range(16)]))
+        
+        # 2. [LSU Load] 載入 Q_block_int8 (佔用 v0~v3)
+        uops.append(MicroOp(f"LSU_LOAD_Q_TILE_{q_start}", UnitType.LSU, latency=latency.Load_One_Vector*4, dst_regs=[reg_q, reg_q+1, reg_q+2, reg_q+3]))
+
+        # =====================================================================
+        # Inner Loop: Tiling K, V (每次載入 64 個 K, V Tokens 來跟 Q 配對)
+        # Seq_Len = 512, K_tile = 64 -> 跑 8 次
+        # =====================================================================
+        for k_start in range(0, Seq_Len, csr.K_tile):
+            
+            # --- Phase 1: Q * K^T -> S (16KB FP32 存在 L0 Buffer) ---
+            uops.append(MicroOp("CIM_CLEAR_L0_BUFFER", UnitType.CIM, latency=1))
+            uops.append(MicroOp(f"LSU_LOAD_K_TILE_{k_start}", UnitType.LSU, latency=latency.Load_One_Vector*4, dst_regs=[reg_k, reg_k+1, reg_k+2, reg_k+3]))
+
+            # CIM 時間摺疊 (Temporal Folding): 64x64 mapped to 16x16
+            for m_sub in range(0, csr.M_tile, tensor.phys_M):
+                for n_sub in range(0, csr.K_tile, tensor.phys_N):
+                    actual_q = reg_q + (m_sub // 16)
+                    actual_k = reg_k + (n_sub // 16)
+                    uops.append(MicroOp(
+                        name=f"CIM_QK_16x16_{m_sub}_{n_sub}", 
+                        unit_type=UnitType.CIM, latency=csr.K_tile, 
+                        src_regs=[actual_q, actual_k], dst_regs=[] # Psum 留在 L0 Buffer
+                    ))
+
+            # --- Phase 2: Online Softmax (VALU 接管 L0 Buffer) ---
+            # 更新全域 Max/Sum，算出局部機率 P，並量化成 INT8 寫回 reg_p (v12~v15)
+            uops.append(MicroOp("VALU_SOFTMAX_UPDATE_MAX_SUM", UnitType.VALU, latency=20, src_regs=[], dst_regs=[]))
+            uops.append(MicroOp("VALU_SOFTMAX_EXP_DIV_QUANT", UnitType.VALU, latency=1024, src_regs=[], dst_regs=[reg_p, reg_p+1, reg_p+2, reg_p+3]))
+
+            # --- Phase 3: P * V -> O_partial (16KB FP32 再次存在 L0 Buffer) ---
+            uops.append(MicroOp("CIM_CLEAR_L0_BUFFER", UnitType.CIM, latency=1))
+            uops.append(MicroOp(f"LSU_LOAD_V_TILE_{k_start}", UnitType.LSU, latency=latency.Load_One_Vector*4, dst_regs=[reg_v, reg_v+1, reg_v+2, reg_v+3]))
+
+            for m_sub in range(0, csr.M_tile, tensor.phys_M):
+                for n_sub in range(0, csr.K_tile, tensor.phys_N):
+                    actual_p = reg_p + (m_sub // 16)
+                    actual_v = reg_v + (n_sub // 16)
+                    uops.append(MicroOp(
+                        name=f"CIM_PV_16x16_{m_sub}_{n_sub}", 
+                        unit_type=UnitType.CIM, latency=csr.K_tile, 
+                        src_regs=[actual_p, actual_v], dst_regs=[] # O_partial 留在 L0 Buffer
+                    ))
+
+            # --- Phase 4: O_global Update (VALU 將 L0 融合進 VRF 的 O_global) ---
+            # 讀取 v16~v31，跟 L0 Buffer 的 O_partial 依照 scale 融合，寫回 v16~v31
+            uops.append(MicroOp(
+                name=f"VALU_GLOBAL_O_UPDATE_K_{k_start}", 
+                unit_type=UnitType.VALU, latency=64, 
+                src_regs=[reg_o_global + i for i in range(16)], 
+                dst_regs=[reg_o_global + i for i in range(16)]
+            ))
+            # [Inner Loop 結束] 繼續抓下一個 K, V 來跟現在這個 Q 配對
+
+        # =====================================================================
+        # Outer Loop 收尾：這個 Q 的所有 Context 都算完了！
+        # =====================================================================
+        # 將 reg_o_global (16KB FP32) 量化成 INT8，並存回 SRAM 成為最終的 Output
+        # 我們可以用 v12~v15 (原本放 P 的地方，現在空出來了) 當作 Quantize 後的 INT8 暫存區
+        uops.append(MicroOp("VALU_QUANTIZE_O_FINAL", UnitType.VALU, latency=20, src_regs=[reg_o_global + i for i in range(16)], dst_regs=[12, 13, 14, 15]))
+        uops.append(MicroOp(f"LSU_STORE_O_TILE_{q_start}", UnitType.LSU, latency=latency.Store_One_Vector*4, src_regs=[12, 13, 14, 15]))
+
     return uops
 
-def macro_gemm_gelu_template(k_tiles=4, reg_a=0, reg_b=4, reg_c=8):
-    """
-    2. Macro_GEMM_GELU: 算子融合 (GEMM 完無縫接軌 GELU)
-    特點：VALU 會緊盯著 CIM 的輸出 (reg_c)。Scoreboard 會自動處理跨 Unit 的 RAW Hazard。
-    """
-    # 先把 GEMM 展開
-    uops = macro_gemm_template(k_tiles, reg_a, reg_b, reg_c)
-    
-    # 緊接著插入 GELU 的硬體微指令 (分段線性或查表逼近)
-    # 這些指令會因為 reg_c 還在 CIM 裡算，而被 Scoreboard 卡在 Dispatch 階段
-    uops.append(MicroOp(name="VGELU_MUL_0.5", unit_type=UnitType.VALU, latency=2, src_regs=[reg_c], dst_regs=[reg_c]))
-    uops.append(MicroOp(name="VGELU_TANH_APPX", unit_type=UnitType.VALU, latency=5, src_regs=[reg_c], dst_regs=[reg_c]))
-    
-    return uops
-
-def macro_flash_attn_template(reg_q=0, reg_k=4, reg_v=8, reg_score=12, reg_out=16):
-    """
-    3. Macro_FlashAttention: Q*K -> Softmax -> Score*V
-    特點：完美展示 NPU 最難的「CIM -> VALU -> CIM」異質管線交錯。
-    """
-    uops = []
-    # Step 1: Q * K^T (假設 k_tiles=4), 輸出到 reg_score
-    uops.extend(macro_gemm_template(k_tiles=4, reg_a=reg_q, reg_b=reg_k, reg_c=reg_score))
-    
-    # Step 2: Online Softmax (由 VALU 執行)
-    # VALU 必須等 Step 1 的 VCIM_OUT 寫入 reg_score 後才能啟動
-    uops.append(MicroOp("VMAX_REDUCE", unit_type=UnitType.VALU, latency=3, src_regs=[reg_score], dst_regs=[20])) # 找最大值放 v20
-    uops.append(MicroOp("VSUB_EXP", unit_type=UnitType.VALU, latency=6, src_regs=[reg_score, 20], dst_regs=[reg_score])) # 減去 Max 並 Exp
-    uops.append(MicroOp("VSUM_REDUCE", unit_type=UnitType.VALU, latency=3, src_regs=[reg_score], dst_regs=[21])) # 求 Sum 放 v21
-    uops.append(MicroOp("VDIV", unit_type=UnitType.VALU, latency=8, src_regs=[reg_score, 21], dst_regs=[reg_score])) # 算出最終 Score 機率
-    
-    # Step 3: Score * V (再交回給 CIM 執行)
-    # CIM 必須等 VALU 的 VDIV 寫完 reg_score 才能啟動！
-    for k in range(4): # 假設 V 的維度也是 4
-        uops.append(MicroOp(f"VCIM_MAC_V_k{k}", unit_type=UnitType.CIM, latency=4, src_regs=[reg_score, reg_v + k], dst_regs=[]))
-    uops.append(MicroOp("VCIM_OUT_FINAL", unit_type=UnitType.CIM, latency=2, src_regs=[], dst_regs=[reg_out]))
-    
-    return uops
-
-def macro_layernorm_template(reg_in=0, reg_out=4, reg_mean=20, reg_var=21):
-    """
-    4. Macro_LayerNorm: Mean -> Var -> Normalize
-    特點：考驗 VALU 的 Reduction (歸約運算) 與 RSQRT (開根號倒數) 支援度。
-    """
-    uops = []
-    # Step 1: 算平均值 (Mean)
-    uops.append(MicroOp("VSUM_REDUCE", unit_type=UnitType.VALU, latency=3, src_regs=[reg_in], dst_regs=[reg_mean]))
-    uops.append(MicroOp("VDIV_N", unit_type=UnitType.VALU, latency=4, src_regs=[reg_mean], dst_regs=[reg_mean]))
-    
-    # Step 2: 算變異數 (Variance) -> (x - mean)^2
-    uops.append(MicroOp("VSUB_SQUARE", unit_type=UnitType.VALU, latency=5, src_regs=[reg_in, reg_mean], dst_regs=[reg_out]))
-    uops.append(MicroOp("VSUM_REDUCE", unit_type=UnitType.VALU, latency=3, src_regs=[reg_out], dst_regs=[reg_var]))
-    
-    # Step 3: RSQRT & Normalize -> (x - mean) * rsqrt(var)
-    uops.append(MicroOp("VRSQRT", unit_type=UnitType.VALU, latency=10, src_regs=[reg_var], dst_regs=[reg_var]))
-    uops.append(MicroOp("VMUL_NORM", unit_type=UnitType.VALU, latency=3, src_regs=[reg_in, reg_var], dst_regs=[reg_out]))
-    
-    return uops
-
-def macro_gemm_template_csr(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet, M_total=0, N_total=0, K_total=0):
+def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet, M_total=0, N_total=0, K_total=0):
     """
     GEMM template
     Note:
@@ -416,189 +399,260 @@ def macro_gemm_template_csr(csr: CSRConfig, tensor: TensorConfig, latency:Latenc
     """
     uops = []
 
-    for m_start in range(0, M_total, tensor.input_row):
-        for n_start in range(0, N_total, tensor.tensor_col):
-            
-            # --- [Clear Stage] clear the accumlation registers in tensor core ---
-            uops.append(MicroOp("VALU_VSET", UnitType.VALU, latency=latency.VALU_VSET))
-            uops.append(MicroOp("VALU_VMV_0", UnitType.VALU, latency=latency.VALU_VMV, dst_regs=[20, 21]))
-
-            # --- [Accumulation Stage] ---
-            for k_start in range(0, K_total, tensor.tensor_row):
-                
-                # 1. 發送 Load 需求給 LSU (載入 Input 和 Weight 到 VRF)
-                # 這裡假設每次 Load 一個 Tile 只需要 1 個 Vector Register
-                # 為了避免 WAW/RAW Hazard 卡住 pipeline，FSM 可以簡單地做 Register 交替 (Software Pipelining)
-                if csr.Enable_Double_Buffer:
-                    offset = (k_start // tensor.tensor_row) % 2
-                else:
-                    offset = 0
-                
-                reg_a = csr.MatA_reg_base + offset
-                reg_b = csr.MatB_reg_base + offset
-
-                
-                uops.append(MicroOp(f"LSU_LOAD_A_TILE", UnitType.LSU, latency=10, dst_regs=[reg_a]))
-                uops.append(MicroOp(f"LSU_LOAD_B_TILE", UnitType.LSU, latency=10, dst_regs=[reg_b]))
-                
-                # 2. 發送 Compute 需求給 Tensor Core
-                # Tensor Core 吃 VRF 的資料，但把 Psum 留在自己肚子裡 (不寫 dst_regs)
-                uops.append(MicroOp("CIM_MAC_TILE", UnitType.CIM, latency=tensor.tensor_row, src_regs=[reg_a, reg_b], dst_regs=[]))
-
-            # --- [Store Stage] K 維度算完，把 Psum 從 Tensor Core 吐到 SRAM ---
-            # 這裡我們用一個特殊的 uOP 把資料從 CIM 直接推給 LSU 存起來
-            # 或者先吐回 VRF (例如 v20)，再從 VRF 存出去
-            uops.append(MicroOp("CIM_OUT", UnitType.CIM, latency=2, src_regs=[], dst_regs=[20, 21]))
-            uops.append(MicroOp("LSU_STORE_C_TILE", UnitType.LSU, latency=10, src_regs=[20, 21]))
-            
-    return uops
-
-
-# --- 測試區 (替換原有的 run_simulation 內容) ---
-def run_simulation():
-    latencySet = LatencySet()
-    csr = CSRConfig(MatA_reg_base=0, MatB_reg_base=4, MatC_reg_base=8, Enable_Double_Buffer=True)
-    tensorHW = TensorConfig(input_row=64, tensor_col=16, tensor_row=64)
-    sim = ADHD_VPU()
-
-    # 假設 CPU 在迴圈裡，先 Load 資料，然後發出一個 FlashAttention Macro
-    # 我們這裡專注發射 Macro_FlashAttention
-    # macro_flash = MacroOp("MACRO_FLASH_ATTN", macro_flash_attn_template, {"reg_q": 0, "reg_k": 4, "reg_v": 8, "reg_score": 12, "reg_out": 16})
-    # macro_gemm  = MacroOp("MACRO_GEMM", macro_gemm_template, {"k_tiles": 4, "reg_a": 0, "reg_b": 4, "reg_c": 8})
-    macro_gemm_csr  = MacroOp("MACRO_GEMM_CSR", macro_gemm_template_csr, {"tensor": tensorHW, "latency": latencySet, "M_total": 64, "N_total": 16, "K_total": 64})
-    
-    print("--- Starting ADHD VPU Simulation (FlashAttention Fusion) ---")
-    # sim.fetch_macro([macro_flash])
-    # sim.fetch_macro([macro_gemm])
-    sim.fetch_macro([macro_gemm_csr])
-    
-    while not sim.is_idle():
-        sim.tick()
-        # if sim.global_cycle > 1000: break
-        
-    sim.print_report()
-
-if __name__ == "__main__":
-    run_simulation()
-
-# def run_simulation():
-#     sim = ADHD_VPU()
-    
-#     # 模擬 CPU 發送一個 Macro 指令：Softmax 處理 4 個 Vector
-#     # 實際上這在傳統 CPU 需要發送 4 * 3 = 12 條指令
-#     # 這裡只發送 1 條
-#     softmax_macro = MacroOp("MACRO_SOFTMAX_4vec", macro_softmax_template, {"v_start": 0, "length": 4})
-    
-#     # 再加一個 GEMM 測試 CIM 與 LSU 平行度
-#     # 假設 GEMM 計算 v0-v3 且不需要 LSU (資料已在 SRAM), 只需要很久的計算
-#     def macro_gemm_template():
-#         return [MicroOp("GEMM_4x4", UnitType.CIM, latency=20, src_regs=[0,1], dst_regs=[2])]
-    
-#     gemm_macro = MacroOp("MACRO_GEMM", macro_gemm_template)
-
-#     print("--- Starting Simulation ---")
-#     sim.fetch_macro([softmax_macro, gemm_macro])
-    
-#     while not sim.is_idle():
-#         sim.tick()
-#         # 簡單防止無窮迴圈
-#         if sim.global_cycle > 1000: break
-        
-#     sim.print_report()
-
-# if __name__ == "__main__":
-#     run_simulation()
-
-
-
-
-
-
-
-from dataclasses import dataclass
-from typing import List
-
-# 模擬之前定義的結構
-class UnitType: LSU = 1; CIM = 2; VALU = 3
-class MicroOp: 
-    def __init__(self, name, unit_type, latency, src_regs=None, dst_regs=None): pass
-
-@dataclass
-class TensorConfig:
-    """硬體的實體規格 (在晶片 Tape-out 後就寫死，不可改變)"""
-    phys_M: int = 16  # Tensor Core 的實體 Row 數量
-    phys_N: int = 16  # Tensor Core 的實體 Col 數量
-    # phys_K 由硬體 datapath (512-bit DLEN) 決定，每個 cycle 吞吐 16 Bytes
-
-@dataclass
-class CSRConfig:
-    """軟體可程式化的邏輯 Tiling 規格 (由 Compiler 動態設定)"""
-    M_tile: int = 64
-    N_tile: int = 64
-    K_tile: int = 32
-    Enable_Double_Buffer: bool = True
-    MatA_reg_base: int = 0
-    MatB_reg_base: int = 4
-    MatC_reg_base: int = 20  # 如果需要寫回 VRF 才用到
-
-@dataclass
-class LatencySet:
-    LSU_LOAD: int = 10
-    LSU_STORE: int = 10
-    CIM_OUT: int = 2
-
-def macro_gemm_template_csr(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, M_total=0, N_total=0, K_total=0):
-    """
-    【新版】支援時間摺疊 (Temporal Folding) 的 GEMM FSM 展開器
-    """
-    uops = []
-
-    # =====================================================================
-    # 外層大迴圈：軟體 / DMA 層級的 Tiling (走 64-bit AXI 慢速通道)
-    # =====================================================================
     for m_start in range(0, M_total, csr.M_tile):
         for n_start in range(0, N_total, csr.N_tile):
             
-            # --- [Clear Stage] 清空 Tensor Core 底下的 16KB L0 Buffer ---
-            # 絕對不是清空 VRF！我們用一個專屬的硬體控制訊號來 Clear SRAM
-            uops.append(MicroOp("CIM_CLEAR_L0_BUFFER", UnitType.CIM, latency=1, src_regs=[], dst_regs=[]))
+            # --- [CIM] clear the accumlation registers in tensor core ---
+            uops.append(MicroOp("CIM_CLEAR_PSUM_BUFFER", UnitType.CIM, latency=1, src_regs=[], dst_regs=[]))
+
+            # [邊界保護] 計算當下真實的 Tile 大小
+            current_m_tile = min(csr.M_tile, M_total - m_start)
+            current_n_tile = min(csr.N_tile, N_total - n_start)
 
             # --- [K Dimension Accumulation Stage] ---
             for k_start in range(0, K_total, csr.K_tile):
                 
-                # 1. 決定 VRF 的 Ping-Pong 位置
+                # 1. the position for VRF ping-pong buffer (if enabled)
                 if csr.Enable_Double_Buffer:
-                    offset = ((k_start // csr.K_tile) % 2) * 2 # 假設 64x32 佔用 2 個 VREG
+                    offset = ((k_start // csr.K_tile) % 2) * 2  # assume 64x32 occupy 2 VREG with VLEN=8192
                 else:
                     offset = 0
                 
                 reg_a = csr.MatA_reg_base + offset
                 reg_b = csr.MatB_reg_base + offset
+                # print(f" Ping-Pong Buffer Offset: {offset} (reg_a: v{reg_a}, reg_b: v{reg_b})")
 
-                # 2. [LSU] 從 L1 SRAM 載入 64x32 和 32x64 的資料到 VRF
-                # (VLEN=8192, 1個 VREG 是 1KB。64x32 = 2KB，所以佔用 2 個 VREG)
-                uops.append(MicroOp(f"LSU_LOAD_A_TILE_2KB", UnitType.LSU, latency=latency.LSU_LOAD, dst_regs=[reg_a, reg_a+1]))
-                uops.append(MicroOp(f"LSU_LOAD_B_TILE_2KB", UnitType.LSU, latency=latency.LSU_LOAD, dst_regs=[reg_b, reg_b+1]))
+                # 2. [LSU] Load Tile of A and B from SRAM to VRF (LSU)
+                uops.append(MicroOp(f"LSU_LOAD_A_TILE", UnitType.LSU, latency=latency.Load_One_Vector*2, dst_regs=[reg_a, reg_a+1]))
+                uops.append(MicroOp(f"LSU_LOAD_B_TILE", UnitType.LSU, latency=latency.Load_One_Vector*2, dst_regs=[reg_b, reg_b+1]))
                 
                 # 3. [CIM] 時間摺疊 (Temporal Folding) 核心邏輯！
                 # FSM 在這裡將 64x64 的邏輯任務，切給 16x16 的實體陣列執行
-                for m_sub in range(0, csr.M_tile, tensor.phys_M):
-                    for n_sub in range(0, csr.N_tile, tensor.phys_N):
+                # Tensor Core 吃 VRF 的資料，但把 Psum 留在自己肚子裡 (不寫 dst_regs)
+                for m_sub in range(0, current_m_tile, tensor.phys_M):
+                    for n_sub in range(0, current_n_tile, tensor.phys_N):
                         
-                        # 發出給 16x16 陣列的微指令。
-                        # Latency = K_tile (32 cycles)，因為陣列每個 cycle 會吞吐 K 維度的 1 步 (16 Bytes)
+                        # === 🌟 架構師的精細操作：計算這個 sub-tile 真正用到的實體 VREG ===
+                        actual_reg_a = reg_a if m_sub < 32 else reg_a + 1
+                        actual_reg_b = reg_b if n_sub < 32 else reg_b + 1
+                        
                         uops.append(MicroOp(
                             name=f"CIM_MAC_16x16_sub_{m_sub}_{n_sub}", 
                             unit_type=UnitType.CIM, 
                             latency=csr.K_tile, 
-                            src_regs=[reg_a, reg_a+1, reg_b, reg_b+1], # 從 VRF 讀取資料
-                            dst_regs=[]  # Psum 像瀑布一樣掉進底下的 16KB L0 Buffer，不寫回 VRF！
+                            # ★ 關鍵：每個 uOp 只會鎖定它真正需要的 1 個 reg_a 和 1 個 reg_b！
+                            src_regs=[actual_reg_a, actual_reg_b], 
+                            dst_regs=[]
                         ))
 
-            # --- [Store Stage] K 維度完全算完，16KB 的 L0 Buffer 已經有了最終的 FP32 結果 ---
-            # 針對 FlashAttention，這 16KB 的 FP32 通常會直接留在 L0 Buffer 裡繼續做 Softmax。
-            # 但如果是純 GEMM，我們會把它 Quantize 成 INT8，然後存回 VRF 或 SRAM。
-            uops.append(MicroOp("CIM_QUANTIZE_AND_OUT_TO_VRF", UnitType.CIM, latency=latency.CIM_OUT, src_regs=[], dst_regs=[csr.MatC_reg_base]))
-            uops.append(MicroOp("LSU_STORE_C_TILE", UnitType.LSU, latency=latency.LSU_STORE, src_regs=[csr.MatC_reg_base]))
+            # --- [CIM, LSU] K 維度算完，把 Psum 從 Tensor Core 吐到 SRAM ---
+            # 這裡我們用一個特殊的 uOP 把資料從 CIM 直接推給 LSU 存起來
+            # 或者先吐回 VRF (例如 v20)，再從 VRF 存出去
+            reg_c = csr.MatC_reg_base
+            c_regs = [reg_c, reg_c+1, reg_c+2, reg_c+3]
+            uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*4, src_regs=[], dst_regs=c_regs))
+            uops.append(MicroOp("LSU_STORE_C", UnitType.LSU, latency=latency.Store_One_Vector*4, src_regs=c_regs))
             
     return uops
+
+def macro_gemm_gelu_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, M_total=0, N_total=0, K_total=0):
+    """
+    【算子融合版】GEMM + GELU (支援時間摺疊與邊界保護)
+    特點：展示了 CIM -> VALU -> LSU 的無縫資料傳遞與 Scoreboard RAW 依賴解鎖。
+    """
+    uops = []
+
+    for m_start in range(0, M_total, csr.M_tile):
+        for n_start in range(0, N_total, csr.N_tile):
+            
+            # --- [CIM] Clear L0 Buffer ---
+            uops.append(MicroOp("CIM_CLEAR_L0_BUFFER", UnitType.CIM, latency=1, src_regs=[], dst_regs=[]))
+
+            # [邊界保護]
+            current_m_tile = min(csr.M_tile, M_total - m_start)
+            current_n_tile = min(csr.N_tile, N_total - n_start)
+
+            # --- [K Dimension Accumulation Stage] (跟 GEMM 完全一樣) ---
+            for k_start in range(0, K_total, csr.K_tile):
+                
+                # 1. Ping-Pong Offset
+                offset = ((k_start // csr.K_tile) % 2) * 2 if csr.Enable_Double_Buffer else 0
+                reg_a = csr.MatA_reg_base + offset
+                reg_b = csr.MatB_reg_base + offset
+
+                # 2. [LSU] Load Data
+                uops.append(MicroOp(f"LSU_LOAD_A", UnitType.LSU, latency=latency.Load_One_Vector*2, dst_regs=[reg_a, reg_a+1]))
+                uops.append(MicroOp(f"LSU_LOAD_B", UnitType.LSU, latency=latency.Load_One_Vector*2, dst_regs=[reg_b, reg_b+1]))
+                
+                # 3. [CIM] Temporal Folding
+                for m_sub in range(0, current_m_tile, tensor.phys_M):
+                    for n_sub in range(0, current_n_tile, tensor.phys_N):
+                        actual_reg_a = reg_a if m_sub < 32 else reg_a + 1
+                        actual_reg_b = reg_b if n_sub < 32 else reg_b + 1
+                        
+                        uops.append(MicroOp(
+                            name=f"CIM_MAC_sub_{m_sub}_{n_sub}", 
+                            unit_type=UnitType.CIM, 
+                            latency=csr.K_tile, 
+                            src_regs=[actual_reg_a, actual_reg_b], 
+                            dst_regs=[] # Psum 在 L0 Buffer 累積
+                        ))
+
+            # =====================================================================
+            # 🌟 [Fusion Stage: 量化 -> GELU 激勵 -> 儲存] 🌟
+            # =====================================================================
+            reg_c = csr.MatC_reg_base
+            
+            # 64x64 的 INT8 是 4KB，精確佔用 4 個 VREG (reg_c ~ reg_c+3)
+            c_regs = [reg_c, reg_c+1, reg_c+2, reg_c+3]
+
+            # Step 1 [CIM]: 從 L0 Buffer 量化成 INT8，寫入 VRF。
+            # 執行此指令時，Scoreboard 會將 c_regs 標記為 "Busy (Write Pending)"
+            uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*4, src_regs=[], dst_regs=c_regs))
+            
+            # Step 2 [VALU]: 對 VRF 的結果做 GELU 轉換 (查表或近似)。
+            # 前端派發時，發現 c_regs 正在被 CIM 寫入 -> 觸發 RAW Hazard Stall！
+            # VALU 會乖乖在 Queue 裡面等，直到 CIM 寫完解鎖，VALU 才會瞬間啟動。
+            uops.append(MicroOp("VALU_GELU_LUT", UnitType.VALU, latency=latency.VALU_VGELU*4, src_regs=c_regs, dst_regs=c_regs))
+            
+            # Step 3 [LSU]: 將做完 GELU 的結果存回 SRAM。
+            # 前端派發時，發現 c_regs 又被 VALU 鎖定了 -> 再次 RAW Hazard Stall！
+            # LSU 必須等 VALU 算完，才能把最終的激勵值存進 Main Memory。
+            uops.append(MicroOp("LSU_STORE_C", UnitType.LSU, latency=latency.Store_One_Vector*4, src_regs=c_regs, dst_regs=[]))
+            
+    return uops
+
+def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet, Seq_Len=0, Hidden_Dim=768):
+    """
+    【算子融合版】Residual Add + LayerNorm
+    行為: Output = LayerNorm( Input_A (from Main Branch) + Input_B (from Residual) )
+    """
+    uops = []
+    
+    # 假設我們每次處理 M 軸 (Sequence) 的一小塊，以配合 VRF 容量
+    # 一個 768 維的 FP32 token 佔 3KB。為簡化，我們用 INT8 (768 Bytes) 模擬，剛好塞進 1 個 VREG
+    
+    for seq_idx in range(0, Seq_Len, csr.M_tile):
+        # 為了雙緩衝與管線交錯，我們依舊可以做 Ping-Pong
+        offset = ((seq_idx // csr.M_tile) % 2) * 4 if csr.Enable_Double_Buffer else 0
+        
+        reg_main = csr.MatA_reg_base + offset       # 存放 Main Branch 輸出 (例如 FFN 的結果)
+        reg_residual = csr.MatB_reg_base + offset   # 存放 Residual (Shortcut) 的原始資料
+        reg_out = csr.MatC_reg_base + offset        # 存放最終結果
+        
+        # 中繼純量暫存器 (不會引發 Structural Hazard)
+        reg_mean = 28
+        reg_var = 29
+        
+        # 1. [LSU] 載入 Main 與 Residual
+        uops.append(MicroOp(f"LSU_LOAD_MAIN_{seq_idx}", UnitType.LSU, latency=latency.Load_One_Vector*2, dst_regs=[reg_main, reg_main+1]))
+        uops.append(MicroOp(f"LSU_LOAD_RES_{seq_idx}", UnitType.LSU, latency=latency.Load_One_Vector*2, dst_regs=[reg_residual, reg_residual+1]))
+        
+        # 2. [VALU] Residual Add
+        # Scoreboard 會卡住等 LSU 寫完
+        uops.append(MicroOp(f"VALU_VADD_RES", UnitType.VALU, latency=int(latency.VALU_VADD*2), src_regs=[reg_main, reg_main+1, reg_residual, reg_residual+1], dst_regs=[reg_out, reg_out+1]))
+        
+        # 3. [VALU] LayerNorm - Mean & Variance
+        # 這裡的 Latency 我們給一個稍微真實一點的數字 (處理 M_tile * Hidden_Dim)
+        realistic_valu_lat = (csr.M_tile * Hidden_Dim) // (LANE * AXI_WIDTH) + 10 
+        
+        uops.append(MicroOp("VALU_LN_MEAN", UnitType.VALU, latency=realistic_valu_lat, src_regs=[reg_out, reg_out+1], dst_regs=[reg_mean]))
+        uops.append(MicroOp("VALU_LN_VAR", UnitType.VALU, latency=realistic_valu_lat, src_regs=[reg_out, reg_out+1, reg_mean], dst_regs=[reg_var]))
+        
+        # 4. [VALU] LayerNorm - RSQRT & Normalize
+        uops.append(MicroOp("VALU_LN_RSQRT", UnitType.VALU, latency=20, src_regs=[reg_var], dst_regs=[reg_var]))
+        uops.append(MicroOp("VALU_LN_NORM", UnitType.VALU, latency=realistic_valu_lat, src_regs=[reg_out, reg_out+1, reg_mean, reg_var], dst_regs=[reg_out, reg_out+1]))
+        
+        # 5. [LSU] 存回 SRAM
+        uops.append(MicroOp(f"LSU_STORE_LN_{seq_idx}", UnitType.LSU, latency=latency.Store_One_Vector*2, src_regs=[reg_out, reg_out+1], dst_regs=[]))
+        
+    return uops
+
+
+# --- 6. Using Macro template to build the BERT Base ---
+def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int):
+    """
+    建構一層完整的 BERT Base Layer
+    BERT Base spec: Hidden_Dim (D) = 768, Heads = 12, Intermediate_Dim = 3072
+    """
+    D = 768
+    D_FFN = 3072
+    
+    print(f"\n--- Disptaching BERT Base Layer (Sequence Length: {seq_len}) ---")
+    
+    # 1. Q, K, V Projections (3x GEMM)
+    # Input: [N, D], Weight: [D, D] -> Output: [N, D]
+    sim.fetch_macro([MacroOp("PROJ_Q", macro_gemm_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": seq_len, "N_total": D, "K_total": D})])
+    sim.fetch_macro([MacroOp("PROJ_K", macro_gemm_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": seq_len, "N_total": D, "K_total": D})])
+    sim.fetch_macro([MacroOp("PROJ_V", macro_gemm_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": seq_len, "N_total": D, "K_total": D})])
+    
+    # 2. FlashAttention (Fusion of QK^T + Softmax + PV)
+    # 在 12 個 Heads 上平行或序列執行。這裡我們派發 12 次 MacroOp 代表 12 Heads
+    for h in range(12):
+        sim.fetch_macro([MacroOp(f"FLASH_ATTN_H{h}", macro_flash_attn_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "Seq_Len": seq_len})])
+    
+    # 3. Attention Output Projection (GEMM)
+    sim.fetch_macro([MacroOp("ATTN_OUT_PROJ", macro_gemm_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": seq_len, "N_total": D, "K_total": D})])
+    
+    # 4. Residual Add + LayerNorm 1
+    sim.fetch_macro([MacroOp("RES_LN_1", macro_residual_layernorm_template, {"csr":csr, "latency": latencySet, "Seq_Len": seq_len, "Hidden_Dim": D})])
+    
+    # 5. FFN Layer 1 (GEMM + GELU Fusion)
+    # Input: [N, D], Weight: [D, 3072] -> Output: [N, 3072]
+    sim.fetch_macro([MacroOp("FFN1_GELU", macro_gemm_gelu_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": seq_len, "N_total": D_FFN, "K_total": D})])
+    
+    # 6. FFN Layer 2 (GEMM)
+    # Input: [N, 3072], Weight: [3072, D] -> Output: [N, D]
+    sim.fetch_macro([MacroOp("FFN2", macro_gemm_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": seq_len, "N_total": D, "K_total": D_FFN})])
+    
+    # 7. Residual Add + LayerNorm 2
+    sim.fetch_macro([MacroOp("RES_LN_2", macro_residual_layernorm_template, {"csr":csr, "latency": latencySet, "Seq_Len": seq_len, "Hidden_Dim": D})])
+
+
+def run_simulation():
+    latencySet = LatencySet()
+    csr = CSRConfig(MatA_reg_base=0, MatB_reg_base=4, MatC_reg_base=8, Enable_Double_Buffer=True)
+    tensorHW = TensorConfig(phys_M=16, phys_N=16)
+    sim = ADHD_VPU()
+    
+    # 設定可變的 Sequence Length
+    target_seq_len = 512 # 你可以改成 1024, 4096 看看 Backend Utilization 的變化
+    
+    # 呼叫巨集組裝
+    build_bert_base_layer(sim, csr, tensorHW, latencySet, seq_len=target_seq_len)
+    
+    print("--- Simulation Running... ---")
+    while not sim.is_idle():
+        sim.tick()
+        
+    sim.print_report()
+
+# # --- 測試區 (替換原有的 run_simulation 內容) ---
+# def run_simulation():
+#     latencySet = LatencySet()
+#     csr = CSRConfig(MatA_reg_base=0, MatB_reg_base=4, MatC_reg_base=8, Enable_Double_Buffer=True)
+#     tensorHW = TensorConfig(phys_M=16, phys_N=16)
+#     sim = ADHD_VPU()
+
+#     # 假設 CPU 在迴圈裡，先 Load 資料，然後發出一個 FlashAttention Macro
+#     # 我們這裡專注發射 Macro_FlashAttention
+#     # TODO [Will build the BERT Base model here in future]
+#     macro_gemm  = MacroOp("MACRO_GEMM", macro_gemm_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": 512, "N_total": 768, "K_total": 768})
+#     macro_gemm_gelu  = MacroOp("MACRO_GEMM", macro_gemm_gelu_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "M_total": 512, "N_total": 3072, "K_total": 768})
+#     macro_flash = MacroOp("MACRO_FLASH_ATTN", macro_flash_attn_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet, "Seq_Len": 512})
+    
+    
+#     print("--- Starting ADHD VPU Simulation (FlashAttention Fusion) ---")
+#     sim.fetch_macro([macro_gemm])
+#     sim.fetch_macro([macro_gemm_gelu])
+#     sim.fetch_macro([macro_flash])
+    
+    
+#     while not sim.is_idle():
+#         sim.tick()
+#         # if sim.global_cycle > 1000: break
+        
+#     sim.print_report()
+
+if __name__ == "__main__":
+    run_simulation()
