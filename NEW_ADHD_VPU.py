@@ -10,6 +10,7 @@ from typing import List, Optional, Dict
 NUM_VREGS = 32          # Standard RISC-V Vector Register File (v0 ~ v31)
 LANE = 4                # Number of parallel processing lanes in VALU
 VLEN = 8192             # Vector length in bits (1024 bytes per vector register)
+VLENB = VLEN / 8        # Vector length in bytes
 AXI_WIDTH = 64          # 64-bit AXI bus width (8 bytes per transfer)
 LSU_QUEUE_DEPTH = 16    # Decoupled queue depth for Load/Store Unit
 VALU_QUEUE_DEPTH = 16   # Decoupled queue depth for Vector ALU
@@ -49,7 +50,7 @@ class MicroOp:
     mem_addr: int = 0               # Physical Base Address in SRAM/DRAM for this Tile
     mem_stride: int = 0             # Leading dimension (Bytes) for 2D Block memory access
     is_gather_scatter: bool = False # True: Indirect addressing (Sparse), False: Dense Block
-    index_reg: int = -1             # VRF ID storing the offset indices for Scatter/Gather
+    block_length: int = 0           # the number of contiguous elements in a block for scatter/gather operations
     
     def __repr__(self):
         return f"[{self.unit_type.name}] {self.name} (Lat:{self.latency}, Addr:{hex(self.mem_addr)})"
@@ -90,15 +91,15 @@ class CSRConfig:
       - Bits [63:48] : Mem_Stride_D         (16-bit) | D 換 Row 跳躍的 Bytes
 
     [ 0x806 ] CSR_VPU_MEM_ACCESS_CFG (記憶體存取模式 - Scatter/Gather 控制)
-      - Bit  [0]     : Is_Gather_A          (1-bit)  | 1: A 啟用間接定址 (如 Embedding)
-      - Bits [5:1]   : Index_Reg_A          (5-bit)  | 存放 A 的 Index offset 的 VREG ID
-      - Bit  [8]     : Is_Gather_B          (1-bit)  | 1: B 啟用間接定址 (如 Sparse Attention)
-      - Bits [13:9]  : Index_Reg_B          (5-bit)  | 存放 B 的 Index offset 的 VREG ID
-      - Bit  [16]    : Is_Scatter_C         (1-bit)  | 1: C 啟用間接寫回
-      - Bits [21:17] : Index_Reg_C          (5-bit)  | 存放 C 的 Index offset 的 VREG ID
-      - Bit  [24]    : Is_Gather_D          (1-bit)  | 1: D 啟用間接定址
-      - Bits [29:25] : Index_Reg_D          (5-bit)  | 存放 D 的 Index offset 的 VREG ID
-      - Bits [63:30] : Reserved             (34-bit) | 保留未來擴展
+      - Bit  [0]     : Is_Gather_A          (1-bit)  | A 啟用間接定址 (Load)
+      - Bits [10:1]  : BLOCK_LEN_A          (10-bit) | A 小區段的連續元素個數
+      - Bit  [11]    : Is_Gather_B          (1-bit)  | B 啟用間接定址 (Load)
+      - Bits [21:12] : BLOCK_LEN_B          (10-bit) | B 小區段的連續元素個數
+      - Bit  [22]    : Is_Scatter_C         (1-bit)  | C 啟用間接寫回 (Store)
+      - Bits [32:23] : BLOCK_LEN_C          (10-bit) | C 小區段的連續元素個數
+      - Bit  [33]    : Is_Gather_D          (1-bit)  | D 啟用間接定址 (Load)
+      - Bits [43:34] : BLOCK_LEN_D          (10-bit) | D 小區段的連續元素個數
+      - Bits [63:44] : Reserved             (20-bit) | 保留未來擴展
 
     --------------------------------------------------------------------------------
     【內部架構配置區 (Internal Architecture Config)】
@@ -134,9 +135,9 @@ class CSRConfig:
     [ 0x80A ] CSR_VPU_MACRO_TRIGGER (執行觸發與動態巨集參數)
       *** 寫入此 CSR 即代表 CPU 發射 Macro-OP，VPU Frontend 將開始解碼 ***
       - Bits [7:0]   : Macro_Opcode         (8-bit)  | 0x1: GEMM, 0x2: GEMM_GELU, 0x3: FLASH_ATTN, 0x4: RES_LN
-      - Bits [23:8]  : Dim_1 / Seq_Len      (16-bit) | M_total 或 Sequence Length
-      - Bits [39:24] : Dim_2                (16-bit) | N_total 或 Hidden_Dim
-      - Bits [55:40] : Dim_3                (16-bit) | K_total
+      - Bits [23:8]  : M_total / Seq_Len    (16-bit) | M_total 或 Sequence Length
+      - Bits [39:24] : N_total              (16-bit) | N_total 或 Hidden_Dim
+      - Bits [55:40] : K_total              (16-bit) | K_total
       - Bits [63:56] : Reserved             (8-bit)  | 保留未來擴展
     ================================================================================
     """
@@ -179,13 +180,20 @@ class CSRConfig:
 
     # --- 6. Memory Access Modes (Scatter/Gather) ---
     Is_Gather_A: bool = False
-    Index_Reg_A: int = 0
+    BLOCK_LEN_A: int = 0
     Is_Gather_B: bool = False
-    Index_Reg_B: int = 0
+    BLOCK_LEN_B: int = 0
     Is_Scatter_C: bool = False
-    Index_Reg_C: int = 0
+    BLOCK_LEN_C: int = 0
     Is_Gather_D: bool = False
-    Index_Reg_D: int = 0
+    BLOCK_LEN_D: int = 0
+
+
+    # --- Reserved for Future Extensions ---
+    Macro_Op_Name: str = "GEMM"
+    M_total: int = 0
+    N_total: int = 0
+    K_total: int = 0
 
 @dataclass
 class TensorConfig:
@@ -403,13 +411,13 @@ class ADHD_VPU:
             # [0x806] Memory Access CFG (Scatter/Gather)
             mem_acc_payload = (
                 (int(csr.Is_Gather_A) & 0x1) |
-                ((csr.Index_Reg_A & 0x1F) << 1) |
-                ((int(csr.Is_Gather_B) & 0x1) << 8) |
-                ((csr.Index_Reg_B & 0x1F) << 9) |
-                ((int(csr.Is_Scatter_C) & 0x1) << 16) |
-                ((csr.Index_Reg_C & 0x1F) << 17) |
-                ((int(csr.Is_Gather_D) & 0x1) << 24) |
-                ((csr.Index_Reg_D & 0x1F) << 25)
+                ((csr.BLOCK_LEN_A & 0x3FF) << 1) |
+                ((int(csr.Is_Gather_B) & 0x1) << 11) |
+                ((csr.BLOCK_LEN_B & 0x3FF) << 12) |
+                ((int(csr.Is_Scatter_C) & 0x1) << 22) |
+                ((csr.BLOCK_LEN_C & 0x3FF) << 23) |
+                ((int(csr.Is_Gather_D) & 0x1) << 33) |
+                ((csr.BLOCK_LEN_D & 0x3FF) << 34)
             )
             f.write(f"csrw 0x806, 0x{mem_acc_payload:016X}  # CSR_VPU_MEM_ACCESS_CFG\n")
 
@@ -570,17 +578,18 @@ def get_actual_vreg(base_reg, sub_idx, tile_size, stride):
     elements_per_vreg = max(1, tile_size // stride)
     return base_reg + (sub_idx // elements_per_vreg)
 
-def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet, M_total=0, N_total=0, K_total=0):
+def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet):
     uops = []
     c_regs = [csr.MatC_reg_base + i for i in range(csr.VREG_stride_C)]
 
-    for m_start in range(0, M_total, csr.M_tile):
-        for n_start in range(0, N_total, csr.N_tile):
+    for m_start in range(0, csr.M_total, csr.M_tile):
+        for n_start in range(0, csr.N_total, csr.N_tile):
             uops.append(MicroOp("CIM_CLEAR_PSUM", UnitType.CIM, latency=1))
-            current_m_tile = min(csr.M_tile, M_total - m_start)
-            current_n_tile = min(csr.N_tile, N_total - n_start)
+            current_m_tile = min(csr.M_tile, csr.M_total - m_start)  # forloop boundary check
+            current_n_tile = min(csr.N_tile, csr.N_total - n_start)  # forloop boundary check
 
-            for k_start in range(0, K_total, csr.K_tile):
+            for k_start in range(0, csr.K_total, csr.K_tile):
+                # ping-pong buffer in VRF
                 offset_a = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_A if csr.Enable_Double_Buffer else 0
                 offset_b = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_B if csr.Enable_Double_Buffer else 0
                 
@@ -595,15 +604,19 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
 
                 uops.append(MicroOp(
                     name=f"LSU_LOAD_A_m{m_start}_k{k_start}", unit_type=UnitType.LSU, 
-                    latency=latency.Load_One_Vector*csr.VREG_stride_A, dst_regs=a_regs,
-                    mem_addr=addr_A, mem_stride=csr.Mem_Stride_A
+                    latency=latency.Load_One_Vector*csr.VREG_stride_A + ((csr.VREG_stride_A * VLENB // csr.BLOCK_LEN_A) if csr.Is_Gather_A else 0),
+                    dst_regs=a_regs,
+                    mem_addr=addr_A, mem_stride=csr.Mem_Stride_A, 
+                    is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
                 ))
                 uops.append(MicroOp(
                     name=f"LSU_LOAD_B_k{k_start}_n{n_start}", unit_type=UnitType.LSU, 
-                    latency=latency.Load_One_Vector*csr.VREG_stride_B, dst_regs=b_regs,
-                    mem_addr=addr_B, mem_stride=csr.Mem_Stride_B
+                    latency=latency.Load_One_Vector*csr.VREG_stride_B + ((csr.VREG_stride_B * VLENB // csr.BLOCK_LEN_B) if csr.Is_Gather_B else 0),
+                    dst_regs=b_regs,
+                    mem_addr=addr_B, mem_stride=csr.Mem_Stride_B, 
+                    is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
                 ))
-                
+
                 # [CIM] Temporal Folding Matrix MAC
                 for m_sub in range(0, current_m_tile, tensor.phys_M):
                     for n_sub in range(0, current_n_tile, tensor.phys_N):
@@ -615,27 +628,30 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
                         ))
 
             # [AGU] Compute physical address for Output C
+            # TODO Support the Scatter Latency in the future
             addr_C = csr.Mem_Base_C + (m_start * csr.Mem_Stride_C) + (n_start * 1)
             uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*csr.VREG_stride_C, dst_regs=c_regs))
             uops.append(MicroOp(
                 name=f"LSU_STORE_C_m{m_start}_n{n_start}", unit_type=UnitType.LSU, 
-                latency=latency.Store_One_Vector*csr.VREG_stride_C, src_regs=c_regs,
-                mem_addr=addr_C, mem_stride=csr.Mem_Stride_C
+                latency=latency.Store_One_Vector*csr.VREG_stride_C + ((csr.VREG_stride_C * VLENB  // csr.BLOCK_LEN_C) if csr.Is_Scatter_C else 0),
+                src_regs=c_regs,
+                mem_addr=addr_C, mem_stride=csr.Mem_Stride_C,
+                is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
             ))
     return uops
 
-def macro_gemm_gelu_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, M_total=0, N_total=0, K_total=0):
+def macro_gemm_gelu_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet):
     """ Operator Fusion: GEMM + Activation with implicit memory addressing. """
     uops = []
     c_regs = [csr.MatC_reg_base + i for i in range(csr.VREG_stride_C)]
 
-    for m_start in range(0, M_total, csr.M_tile):
-        for n_start in range(0, N_total, csr.N_tile):
+    for m_start in range(0, csr.M_total, csr.M_tile):
+        for n_start in range(0, csr.N_total, csr.N_tile):
             uops.append(MicroOp("CIM_CLEAR_L0_BUFFER", UnitType.CIM, latency=1))
-            current_m_tile = min(csr.M_tile, M_total - m_start)
-            current_n_tile = min(csr.N_tile, N_total - n_start)
+            current_m_tile = min(csr.M_tile, csr.M_total - m_start)
+            current_n_tile = min(csr.N_tile, csr.N_total - n_start)
 
-            for k_start in range(0, K_total, csr.K_tile):
+            for k_start in range(0, csr.K_total, csr.K_tile):
                 offset_a = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_A if csr.Enable_Double_Buffer else 0
                 offset_b = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_B if csr.Enable_Double_Buffer else 0
                 reg_a = csr.MatA_reg_base + offset_a
@@ -646,8 +662,18 @@ def macro_gemm_gelu_template(csr: CSRConfig, tensor: TensorConfig, latency: Late
                 addr_A = csr.Mem_Base_A + (m_start * csr.Mem_Stride_A) + k_start
                 addr_B = csr.Mem_Base_B + (k_start * csr.Mem_Stride_B) + n_start
 
-                uops.append(MicroOp("LSU_LOAD_A", UnitType.LSU, latency=latency.Load_One_Vector*csr.VREG_stride_A, dst_regs=a_regs, mem_addr=addr_A, mem_stride=csr.Mem_Stride_A))
-                uops.append(MicroOp("LSU_LOAD_B", UnitType.LSU, latency=latency.Load_One_Vector*csr.VREG_stride_B, dst_regs=b_regs, mem_addr=addr_B, mem_stride=csr.Mem_Stride_B))
+                uops.append(MicroOp("LSU_LOAD_A", unit_type=UnitType.LSU, 
+                    latency=latency.Load_One_Vector*csr.VREG_stride_A + ((csr.VREG_stride_A * VLENB // csr.BLOCK_LEN_A) if csr.Is_Gather_A else 0),
+                    dst_regs=a_regs,
+                    mem_addr=addr_A, mem_stride=csr.Mem_Stride_A, 
+                    is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
+                ))
+                uops.append(MicroOp("LSU_LOAD_B", unit_type=UnitType.LSU, 
+                    latency=latency.Load_One_Vector*csr.VREG_stride_B + ((csr.VREG_stride_B * VLENB // csr.BLOCK_LEN_B) if csr.Is_Gather_B else 0),
+                    dst_regs=b_regs,
+                    mem_addr=addr_B, mem_stride=csr.Mem_Stride_B, 
+                    is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
+                ))
                 
                 for m_sub in range(0, current_m_tile, tensor.phys_M):
                     for n_sub in range(0, current_n_tile, tensor.phys_N):
@@ -659,7 +685,12 @@ def macro_gemm_gelu_template(csr: CSRConfig, tensor: TensorConfig, latency: Late
             uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*csr.VREG_stride_C, dst_regs=c_regs))
             act_name = csr.Act_Type.name if csr.Act_Type != ActivationType.NONE else "LINEAR"
             uops.append(MicroOp(f"VALU_{act_name}_LUT", UnitType.VALU, latency=latency.VALU_VGELU*csr.VREG_stride_C, src_regs=c_regs, dst_regs=c_regs))
-            uops.append(MicroOp("LSU_STORE_C", UnitType.LSU, latency=latency.Store_One_Vector*csr.VREG_stride_C, src_regs=c_regs, mem_addr=addr_C, mem_stride=csr.Mem_Stride_C))
+            uops.append(MicroOp("LSU_STORE_C", unit_type=UnitType.LSU, 
+                latency=latency.Store_One_Vector*csr.VREG_stride_C + ((csr.VREG_stride_C * VLENB  // csr.BLOCK_LEN_C) if csr.Is_Scatter_C else 0),
+                src_regs=c_regs,
+                mem_addr=addr_C, mem_stride=csr.Mem_Stride_C,
+                is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
+            ))
     return uops
 
 def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, Seq_Len=512):
@@ -1071,15 +1102,149 @@ def build_gpt2_prefill_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConf
 
     mem_mgr.reset()
 
+def build_subOP(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, mem_mgr: MemoryManager):
+    print(f"\n Sub Macro OP for test ---")
+
+    seq_len = 512
+    Hidden_Dim = 768
+    head_Dim = Hidden_Dim // 12
+    FFN_Dim = 3072
+
+    """ Attention """
+    # set tile dimensions
+    csr.M_tile, csr.N_tile, csr.K_tile = 64, 64, 32
+
+    # set External Memory
+    csr.Mem_Base_A = mem_mgr.allocate(seq_len * head_Dim);   csr.Mem_Stride_A = Hidden_Dim  # Q
+    csr.Mem_Base_B = mem_mgr.allocate(head_Dim * seq_len);   csr.Mem_Stride_B = Hidden_Dim  # K
+    csr.Mem_Base_D = mem_mgr.allocate(seq_len * head_Dim);   csr.Mem_Stride_D = Hidden_Dim  # V
+    csr.Mem_Base_C = mem_mgr.allocate(seq_len * Hidden_Dim); csr.Mem_Stride_C = Hidden_Dim  # Output Head
+
+    # Memory Access Modes (Scatter/Gather)
+    csr.Is_Gather_A,  csr.BLOCK_LEN_A  = True, csr.K_tile
+    csr.Is_Gather_B,  csr.BLOCK_LEN_B  = True, csr.N_tile
+    csr.Is_Scatter_C, csr.BLOCK_LEN_C  = True, csr.N_tile
+    csr.Is_Gather_D,  csr.BLOCK_LEN_D  = True, 0  # <--- Fix: No ZeroDivisionError protection applied inside latency logic
+
+    # set VREG Mapping
+    # TODO check logic
+    csr.MatA_reg_base, csr.VREG_stride_A = 0, 2    # MatQ_tile VREG0 ~ VREG1
+    csr.MatB_reg_base, csr.VREG_stride_B = 4, 2    # MatK_tile VREG4 ~ VREG5
+    csr.MatD_reg_base, csr.VREG_stride_D = 8, 2    # MatV_tile VREG8 ~ VREG9
+    csr.MatE_reg_base, csr.VREG_stride_E = 12, 4
+    csr.MatC_reg_base, csr.VREG_stride_O = 16, 16
+    csr.Enable_Double_Buffer, csr.Act_Type = True, ActivationType.NONE
+
+    # Execution
+    csr.Macro_Op_Name = "GEMM"
+    csr.M_total, csr.N_total, csr.K_total = seq_len, seq_len, head_Dim
+    sim.fetch_macro([MacroOp("Attention", macro_flash_attn_template, {"csr":csr, "tensor": tensorHW, "latency": latencySet})])
+
+
+    """
+    Projection
+    """
+    # set tile dimensions
+    csr.M_tile = 64
+    csr.N_tile = 64
+    csr.K_tile = 32
+
+    # set External Memory
+    csr.Mem_Base_A = mem_mgr.allocate(seq_len * Hidden_Dim)    # MatA
+    csr.Mem_Stride_A = Hidden_Dim                              # 768 elements per row
+    csr.Mem_Base_B = mem_mgr.allocate(Hidden_Dim * Hidden_Dim) # MatB
+    csr.Mem_Stride_B = Hidden_Dim                              # 768 elements per row
+    csr.Mem_Base_C = mem_mgr.allocate(seq_len * Hidden_Dim)    # MatC
+    csr.Mem_Stride_C = Hidden_Dim                              # 768 elements per row
+
+    # Memory Access Modes (Scatter/Gather)
+    csr.Is_Gather_A  = True
+    csr.BLOCK_LEN_A  = csr.K_tile
+    csr.Is_Gather_B  = True
+    csr.BLOCK_LEN_B  = csr.N_tile
+    csr.Is_Scatter_C = True
+    csr.BLOCK_LEN_C  = csr.N_tile
+    csr.Is_Gather_D  = True
+    csr.BLOCK_LEN_D  = 0
+
+    # set VREG Mapping
+    csr.MatA_reg_base = 0  # MatA_tile VREG0 ~ VREG1
+    csr.VREG_stride_A = 2
+    csr.MatB_reg_base = 4  # MatB_tile VREG4 ~ VREG5
+    csr.VREG_stride_B = 2
+    csr.MatC_reg_base = 8  # MatC_tile VREG8 ~ VREG11
+    csr.VREG_stride_C = 4
+
+    # set operation flag
+    csr.Enable_Double_Buffer = True
+    csr.Act_Type = ActivationType.NONE
+    
+    # Execution
+    csr.Macro_Op_Name = "GEMM"
+    csr.M_total = seq_len
+    csr.N_total = Hidden_Dim
+    csr.K_total = Hidden_Dim
+
+
+    sim.fetch_macro([MacroOp("Projection", 
+                             macro_gemm_template, 
+                             {"csr":csr, "tensor": tensorHW, "latency": latencySet})])
+    
+
+
+    """
+    FNN + GELU
+    """
+    # set External Memory
+    csr.Mem_Base_A = mem_mgr.allocate(seq_len * Hidden_Dim)    # MatA
+    csr.Mem_Stride_A = Hidden_Dim
+    csr.Mem_Base_B = mem_mgr.allocate(Hidden_Dim * FFN_Dim) # MatB
+    csr.Mem_Stride_B = FFN_Dim
+    csr.Mem_Base_C = mem_mgr.allocate(seq_len * FFN_Dim)    # MatC
+    csr.Mem_Stride_C = FFN_Dim
+
+    # Memory Access Modes (Scatter/Gather)
+    csr.Is_Gather_A  = True
+    csr.BLOCK_LEN_A  = csr.K_tile
+    csr.Is_Gather_B  = True
+    csr.BLOCK_LEN_B  = csr.N_tile
+    csr.Is_Scatter_C = True
+    csr.BLOCK_LEN_C  = csr.N_tile
+    csr.Is_Gather_D  = True
+    csr.BLOCK_LEN_D  = 0
+
+    # set VREG Mapping
+    csr.MatA_reg_base = 0  # MatA_tile VREG0 ~ VREG1
+    csr.VREG_stride_A = 2
+    csr.MatB_reg_base = 4  # MatB_tile VREG4 ~ VREG5
+    csr.VREG_stride_B = 2
+    csr.MatC_reg_base = 8  # MatC_tile VREG8 ~ VREG11
+    csr.VREG_stride_C = 4
+
+    # set operation flag
+    csr.Enable_Double_Buffer = True
+    csr.Act_Type = ActivationType.GELU
+    
+    # Execution
+    csr.Macro_Op_Name = "GEMM_GELU"
+    csr.M_total = seq_len
+    csr.N_total = FFN_Dim
+    csr.K_total = Hidden_Dim
+
+
+    sim.fetch_macro([MacroOp("Fnn_GELU", 
+                             macro_gemm_gelu_template, 
+                             {"csr":csr, "tensor": tensorHW, "latency": latencySet})])
 
 # ==============================================================================
 # 6. Run Simulation
 # ==============================================================================
 def run_simulation():
-    model = "BERT_Base" # "BERT_Base", "ViT_Base", "GPT2_Base"
+    model = "TEST_SUBOP" # "BERT_Base", "ViT_Base", "GPT2_Base", "TEST_SUBOP"
 
     latencySet = LatencySet()
-    csr = CSRConfig(MatA_reg_base=0, MatB_reg_base=4, MatC_reg_base=8, Enable_Double_Buffer=True)
+    # csr = CSRConfig(MatA_reg_base=0, MatB_reg_base=4, MatC_reg_base=8, Enable_Double_Buffer=True)
+    csr = CSRConfig()
     tensorHW = TensorConfig(phys_M=16, phys_N=16)
     sim = ADHD_VPU(model_name=model)
     mem_mgr = MemoryManager(base_addr=0xE000_0000)
@@ -1095,7 +1260,9 @@ def run_simulation():
     elif model == "GPT2_Base":
         target_seq_len = 1024
         build_gpt2_prefill_layer(sim, csr, tensorHW, latencySet, seq_len=target_seq_len, mem_mgr=mem_mgr)
-    
+    elif model == "TEST_SUBOP":
+        build_subOP(sim, csr, tensorHW, latencySet, mem_mgr=mem_mgr)
+
     print(f"--- Simulation Running {model} ... ---")
     while not sim.is_idle():
         sim.tick()

@@ -3,245 +3,41 @@
 // =========================================================
 #include <stdint.h>
 
-static inline void dispatch_bert_base_macros() {
+static inline void dispatch_sub_ops() {
 
-    // --- Dispatching Macro: PROJ_Q ---
+    // --- Dispatching Macro: Attention ---
     __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0000000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0060000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E00F0000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
+    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0008000ULL));
+    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0018000ULL));
+    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0010000ULL));
+    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0300030003000300ULL));
+    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000220440841ULL));
+    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C44080ULL));
+    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
+    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
+    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000400200020003ULL));
+
+    // --- Dispatching Macro: Projection ---
+    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0078000ULL));
+    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E00D8000ULL));
+    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0168000ULL));
+    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0010000ULL));
+    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0300030003000300ULL));
+    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000220440841ULL));
     __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
     __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
     __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
     __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0003000300020001ULL));
 
-    // --- Dispatching Macro: PROJ_K ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0150000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E01B0000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0240000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0003000300020001ULL));
-
-    // --- Dispatching Macro: PROJ_V ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E02A0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0300000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0390000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0003000300020001ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H0 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E03F0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E03F8000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0408000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0400000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H1 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0410000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0418000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0428000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0420000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H2 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0430000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0438000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0448000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0440000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H3 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0450000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0458000ULL));
+    // --- Dispatching Macro: Fnn_GELU ---
+    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E01C8000ULL));
+    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0228000ULL));
     __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0468000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0460000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H4 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0470000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0478000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0488000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0480000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H5 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0490000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0498000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E04A8000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E04A0000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H6 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E04B0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E04B8000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E04C8000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E04C0000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H7 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E04D0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E04D8000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E04E8000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E04E0000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H8 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E04F0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E04F8000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0508000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0500000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H9 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0510000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0518000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0528000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0520000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H10 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0530000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0538000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0548000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0540000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: FLASH_ATTN_H11 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0550000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0558000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0568000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0560000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040004000400040ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000000020003ULL));
-
-    // --- Dispatching Macro: ATTN_OUT_PROJ ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0570000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E05D0000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0660000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0560000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0003000300020001ULL));
-
-    // --- Dispatching Macro: RES_LN_1 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E06C0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0720000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0780000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0560000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000300020004ULL));
-
-    // --- Dispatching Macro: FFN1_GELU ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E07E0000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0840000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0A80000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0560000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x00400C000C000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
+    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0010000ULL));
+    __asm__ volatile("csrw 0x805, %0" :: "r"(0x03000C000C000300ULL));
+    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000220440841ULL));
     __asm__ volatile("csrw 0x807, %0" :: "r"(0x0000000178C42080ULL));
     __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
     __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
     __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0003000C00020002ULL));
-
-    // --- Dispatching Macro: FFN2 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E0C00000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E0D80000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E0FC0000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0560000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000C00ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x000C000300020001ULL));
-
-    // --- Dispatching Macro: RES_LN_2 ---
-    __asm__ volatile("csrw 0x801, %0" :: "r"(0x00000000E1020000ULL));
-    __asm__ volatile("csrw 0x802, %0" :: "r"(0x00000000E1080000ULL));
-    __asm__ volatile("csrw 0x803, %0" :: "r"(0x00000000E10E0000ULL));
-    __asm__ volatile("csrw 0x804, %0" :: "r"(0x00000000E0560000ULL));
-    __asm__ volatile("csrw 0x805, %0" :: "r"(0x0040030003000300ULL));
-    __asm__ volatile("csrw 0x806, %0" :: "r"(0x0000000000000000ULL));
-    __asm__ volatile("csrw 0x807, %0" :: "r"(0x00000000F8C42080ULL));
-    __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000020411042ULL));
-    __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000002000400040ULL));
-    __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000300020004ULL));
 }
