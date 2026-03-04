@@ -1,0 +1,16 @@
+=========================================================
+ ADHD VPU Firmware CSR Trace (TEST_SUBOP)
+=========================================================
+
+# --- Dispatching Macro: Attention (macro_flash_attn_template) ---
+csrw 0x801, 0x00000000E0000000  # CSR_VPU_MEM_BASE_A
+csrw 0x802, 0x00000000E0008000  # CSR_VPU_MEM_BASE_B
+csrw 0x803, 0x00000000E0018000  # CSR_VPU_MEM_BASE_C
+csrw 0x804, 0x00000000E0010000  # CSR_VPU_MEM_BASE_D
+csrw 0x805, 0x0300030003000300  # CSR_VPU_MEM_STRIDE
+csrw 0x806, 0x0000008210420841  # CSR_VPU_MEM_ACCESS_CFG
+csrw 0x807, 0x00000000F8A34040  # CSR_VPU_REG_BASE_CFG
+csrw 0x808, 0x0000000010111042  # CSR_VPU_STRIDE_CFG
+csrw 0x809, 0x0000002000200020  # CSR_VPU_TILE_CFG
+csrw 0x80A, 0x0000000000000003  # CSR_VPU_MACRO_TRIGGER
+
