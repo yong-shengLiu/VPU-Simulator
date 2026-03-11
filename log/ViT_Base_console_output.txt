@@ -1,0 +1,42 @@
+
+============================================================
+🖼️ 初始化 ViT Base 模型 (12 Layers, Seq Length: 197)
+============================================================
+  -> Dispatching ViT Layer 1/12 ...
+
+✅ 所有 12 層 ViT 巨集指令派發完成！進入硬體 FSM 模擬...
+--- Simulation Running ViT_Base ... ---
+  [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.7 秒)
+  [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.4 秒)
+  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.4 秒)
+  [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 7.1 秒)
+  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.9 秒)
+  [Heartbeat] 已經模擬了 6,000,000 個 Cycles... (耗時: 10.6 秒)
+  [Heartbeat] 已經模擬了 7,000,000 個 Cycles... (耗時: 12.3 秒)
+  [Heartbeat] 已經模擬了 8,000,000 個 Cycles... (耗時: 14.0 秒)
+  [Heartbeat] 已經模擬了 9,000,000 個 Cycles... (耗時: 15.7 秒)
+============================================================
+Simulation Report (Total Cycles: 9,748,577)
+============================================================
+[Instruction Fetch Bandwidth Reduction]
+  - CPU Macro Ops Fetched : 524
+  - VPU Micro Ops Executed: 261,724
+  - Expansion Ratio       : 1:499.5
+
+[Frontend Stall Analysis]
+  - Queue Full Stalls     : 9,484,635 cycles (97.3%)
+
+[Backend Overlap & Hazard Analysis (The True Decoupling)]
+  - LSU Active  : 93.5% | Wait Data (RAW/WAR):  6.5%
+  - VALU Active :  2.2% | Wait Data (RAW/WAR):  7.1%
+  - CIM Active  : 77.7% | Wait Data (RAW/WAR): 22.3%
+
+[SRAM Memory Bandwidth Monitor (@ 1.0 GHz)]
+  - Total Data Transferred: 69.56 MB
+  - Average Bandwidth     : 7.48 GB/s
+  - Peak AXI Bandwidth    : 8.00 GB/s
+  - Bandwidth Utilization : 93.5%
+
+[Sparsity & Datafusion Bandwidth Savings Analysis]
+  - [FlashAttn Datafusion] O(N^2) SRAM Traffic Saved : 4.04 MB
+============================================================

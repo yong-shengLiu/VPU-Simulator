@@ -1,3 +1,9 @@
+# ==============================================================================
+# TODO List
+# ==============================================================================
+# 1. 傳進gemm template的tile參數目前都是直接寫數字，沒有參數化: 64, 64, 32
+
+
 import os
 import sys
 import time
@@ -255,6 +261,32 @@ class MemoryManager:
 # ==============================================================================
 # 3. Decoupled Micro-Architecture Components
 # ==============================================================================
+
+class BandwidthAnalyzer:
+    def __init__(self):
+        # 1. 紀錄 Causal Mask 省下的 K/V 載入量 (Software Level)
+        self.causal_mask_skipped_bytes = 0 
+        self.dense_kv_bytes_if_no_mask = 0  
+        
+        # 2. 紀錄 FlashAttention 省下的 O(N^2) 中繼讀寫量 (Hardware Level)
+        self.flash_saved_intermediate_bytes = 0 
+
+    def report(self):
+        print(f"\n[Sparsity & Datafusion Bandwidth Savings Analysis]")
+        
+        # Causal Mask 節省分析
+        if self.dense_kv_bytes_if_no_mask > 0:
+            saved_mask_mb = self.causal_mask_skipped_bytes / (1024**2)
+            dense_mb = self.dense_kv_bytes_if_no_mask / (1024**2)
+            ratio = self.causal_mask_skipped_bytes / self.dense_kv_bytes_if_no_mask
+            print(f"  - [Causal Mask] Theoretical Dense K/V Traffic : {dense_mb:.2f} MB")
+            print(f"  - [Causal Mask] Actual Skipped K/V Traffic  : {saved_mask_mb:.2f} MB")
+            print(f"  - [Causal Mask] K/V Bandwidth Reduction     : {ratio:.1%}")
+
+        # FlashAttention Datafusion 節省分析
+        saved_flash_mb = self.flash_saved_intermediate_bytes / (1024**2)
+        print(f"  - [FlashAttn Datafusion] O(N^2) SRAM Traffic Saved : {saved_flash_mb:.2f} MB")
+
 class MacroExpander:
     """ Hardware FSM Micro-sequencer: Unrolls Macro-Ops into execution uOPs. """
     def expand(self, macro_op: MacroOp) -> List[MicroOp]:
@@ -347,6 +379,7 @@ class ADHD_VPU:
     """
     def __init__(self, model_name="BERT_Base"):
         self.global_cycle = 0
+        self.analyzer   = BandwidthAnalyzer()
         self.scoreboard = Scoreboard()
         self.expander   = MacroExpander()
         
@@ -582,6 +615,9 @@ class ADHD_VPU:
         print(f"  - Average Bandwidth     : {avg_bw_gbs:.2f} GB/s")
         print(f"  - Peak AXI Bandwidth    : {peak_bw_gbs:.2f} GB/s")
         print(f"  - Bandwidth Utilization : {(avg_bw_gbs/peak_bw_gbs):.1%}")
+
+        # FlashAttention 和 Causal Mask 所節省的 Bandwidth
+        self.analyzer.report()
         print("="*60)
 
 # ==============================================================================
@@ -658,7 +694,7 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
     ))
     return uops
 
-def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet):
+def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
     """
     【一維解耦 FlashAttention】：外層 Q 迴圈已交由 CPU 軟體處理。
     硬體 FSM 僅負責 K, V 的上下文序列遍歷。
@@ -737,6 +773,24 @@ def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: Lat
         src_regs=quant_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
         is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
     ))
+
+    
+    # 計算 FlashAttention 幫我們省下的 O(N^2) 中繼 SRAM 頻寬
+    if vpu is not None:
+        # 假設資料精度是 16-bit (2 Bytes)
+        bytes_per_element = 2 
+        
+        # 中繼矩陣大小: M_tile * N_total
+        intermediate_matrix_size = csr.M_tile * csr.N_total * bytes_per_element
+        
+        # 傳統 Attention 的致命傷：
+        # 1. 寫出 QK^T
+        # 2. 讀入 QK^T 做 Softmax
+        # 3. 寫出 Softmax Prob
+        # 4. 讀入 Softmax Prob 去乘 V
+        # 總共 4 次 SRAM 存取！FlashAttention 把它們全部融合在 VRF/L0 Buffer 了！
+        saved_traffic = intermediate_matrix_size * 4
+        vpu.analyzer.flash_saved_intermediate_bytes += saved_traffic
 
     return uops
 
@@ -874,7 +928,7 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
             csr.MatC_reg_base, csr.VREG_stride_O = 16, 8   
             csr.Enable_Double_Buffer = True
             
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
     # =====================================================================
     # 3. Attention Output Projection
@@ -952,7 +1006,7 @@ def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     hidden_workspace_0 = mem_mgr.allocate(seq_len * D)
     hidden_workspace_1 = mem_mgr.allocate(seq_len * D)
     
-    for layer in range(1):
+    for layer in range(12):
         # 決定當前層的輸入與輸出在哪個 Workspace
         hidden_in = hidden_workspace_0 if layer % 2 == 0 else hidden_workspace_1
         hidden_out = hidden_workspace_1 if layer % 2 == 0 else hidden_workspace_0
@@ -1007,7 +1061,7 @@ def build_vit_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]:
         for m in range(0, seq_len, 64):
             for n in range(0, D, 64):
-                set_gemm_csr(csr, LN1_out + (m*D), w_ptr + n, out_ptr + (m*D) + n, D, D, D, 64, 64, D)
+                set_gemm_csr(csr, LN1_out + (m*D), w_ptr + n, out_ptr + (m*D) + n, D, D, D, 64, 64, 32, D)
                 sim.fetch_macro([MacroOp(f"L{layer_idx}_VIT_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
@@ -1033,7 +1087,7 @@ def build_vit_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
             csr.MatC_reg_base, csr.VREG_stride_O = 16, 8   
             csr.Enable_Double_Buffer = True
             
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_VIT_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_VIT_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
     # =====================================================================
     # 4. Attention Output Projection
@@ -1041,7 +1095,7 @@ def build_vit_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     Attn_proj_out = mem_mgr.allocate(seq_len * D); W_O = mem_mgr.allocate(D * D)
     for m in range(0, seq_len, 64):
         for n in range(0, D, 64):
-            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, Attn_proj_out + (m*D) + n, D, D, D, 64, 64, D)
+            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, Attn_proj_out + (m*D) + n, D, D, D, 64, 64, 32, D)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_VIT_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
@@ -1068,7 +1122,7 @@ def build_vit_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     MLP1_out = mem_mgr.allocate(seq_len * D_FFN); W_M1 = mem_mgr.allocate(D * D_FFN)
     for m in range(0, seq_len, 64):
         for n in range(0, D_FFN, 64):
-            set_gemm_csr(csr, LN2_out + (m*D), W_M1 + n, MLP1_out + (m*D_FFN) + n, D, D_FFN, D_FFN, 64, 64, D, act=ActivationType.GELU)
+            set_gemm_csr(csr, LN2_out + (m*D), W_M1 + n, MLP1_out + (m*D_FFN) + n, D, D_FFN, D_FFN, 64, 64, 32, D, act=ActivationType.GELU)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_VIT_MLP1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
@@ -1078,7 +1132,7 @@ def build_vit_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     for m in range(0, seq_len, 64):
         for n in range(0, D, 64):
             # 寫入 hidden_out，作為下一層的輸入
-            set_gemm_csr(csr, MLP1_out + (m*D_FFN), W_M2 + n, hidden_out + (m*D) + n, D_FFN, D, D, 64, 64, D_FFN)
+            set_gemm_csr(csr, MLP1_out + (m*D_FFN), W_M2 + n, hidden_out + (m*D) + n, D_FFN, D, D, 64, 64, 32, D_FFN)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_VIT_MLP2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
 def build_vit_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int, mem_mgr: MemoryManager):
@@ -1094,7 +1148,7 @@ def build_vit_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     hidden_workspace_0 = mem_mgr.allocate(seq_len * D)
     hidden_workspace_1 = mem_mgr.allocate(seq_len * D)
     
-    for layer in range(12):
+    for layer in range(1):
         hidden_in = hidden_workspace_0 if layer % 2 == 0 else hidden_workspace_1
         hidden_out = hidden_workspace_1 if layer % 2 == 0 else hidden_workspace_0
         
@@ -1141,7 +1195,7 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]:
         for m in range(0, seq_len, 64):
             for n in range(0, D, 64):
-                set_gemm_csr(csr, LN1_out + (m*D), w_ptr + n, out_ptr + (m*D) + n, D, D, D, 64, 64, D)
+                set_gemm_csr(csr, LN1_out + (m*D), w_ptr + n, out_ptr + (m*D) + n, D, D, D, 64, 64, 32, D)
                 sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
@@ -1155,8 +1209,19 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
             
             # ✨ 【軟體定義的 Causal Masking (因果遮罩)】 ✨
             # 硬體 K, V 迴圈只會掃描到 q_start + M_tile 的位置，未來的 Token 絕對不會被讀進 VPU！
-            csr.N_total = min(seq_len, q_start + csr.M_tile) 
+            csr.N_total = min(seq_len, q_start + csr.M_tile)
+
+            # 計算Causal Masking所節省的頻寬
+            dense_N_total = seq_len  # 如果沒有 Mask，N 應該要掃完一整排 512
+            # 紀錄 CPU Runtime 幫我們攔截掉的無效記憶體傳輸
+            bytes_per_element = 1
+            # K 和 V 每個都要被讀進來，大小是 N_total * head_dim
+            dense_kv_bytes = (dense_N_total * head_dim * bytes_per_element) * 2  # *2 是因為有 K 和 V
+            actual_kv_bytes = (csr.N_total * head_dim * bytes_per_element) * 2
+            sim.analyzer.dense_kv_bytes_if_no_mask += dense_kv_bytes
+            sim.analyzer.causal_mask_skipped_bytes += (dense_kv_bytes - actual_kv_bytes)
             
+            # setup the CSR
             csr.Mem_Base_A = Q_out + (q_start * D) + (h * head_dim)
             csr.Mem_Base_B = K_out + (h * head_dim)
             csr.Mem_Base_D = V_out + (h * head_dim)
@@ -1171,7 +1236,7 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
             csr.MatC_reg_base, csr.VREG_stride_O = 16, 8   
             csr.Enable_Double_Buffer = True
             
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_CAUSAL_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_CAUSAL_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
     # =====================================================================
     # 4. Attention Output Projection
@@ -1179,7 +1244,7 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     Attn_proj_out = mem_mgr.allocate(seq_len * D); W_O = mem_mgr.allocate(D * D)
     for m in range(0, seq_len, 64):
         for n in range(0, D, 64):
-            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, Attn_proj_out + (m*D) + n, D, D, D, 64, 64, D)
+            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, Attn_proj_out + (m*D) + n, D, D, D, 64, 64, 32, D)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
@@ -1203,7 +1268,7 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     MLP1_out = mem_mgr.allocate(seq_len * D_FFN); W_M1 = mem_mgr.allocate(D * D_FFN)
     for m in range(0, seq_len, 64):
         for n in range(0, D_FFN, 64):
-            set_gemm_csr(csr, LN2_out + (m*D), W_M1 + n, MLP1_out + (m*D_FFN) + n, D, D_FFN, D_FFN, 64, 64, D, act=ActivationType.GELU)
+            set_gemm_csr(csr, LN2_out + (m*D), W_M1 + n, MLP1_out + (m*D_FFN) + n, D, D_FFN, D_FFN, 64, 64, 32, D, act=ActivationType.GELU)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_MLP1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
@@ -1212,7 +1277,7 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     W_M2 = mem_mgr.allocate(D_FFN * D)
     for m in range(0, seq_len, 64):
         for n in range(0, D, 64):
-            set_gemm_csr(csr, MLP1_out + (m*D_FFN), W_M2 + n, hidden_out + (m*D) + n, D_FFN, D, D, 64, 64, D_FFN)
+            set_gemm_csr(csr, MLP1_out + (m*D_FFN), W_M2 + n, hidden_out + (m*D) + n, D_FFN, D, D, 64, 64, 32, D_FFN)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_MLP2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
 def build_gpt2_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int, mem_mgr: MemoryManager):
@@ -1227,7 +1292,7 @@ def build_gpt2_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     hidden_workspace_0 = mem_mgr.allocate(seq_len * D)
     hidden_workspace_1 = mem_mgr.allocate(seq_len * D)
     
-    for layer in range(12):
+    for layer in range(1):
         hidden_in = hidden_workspace_0 if layer % 2 == 0 else hidden_workspace_1
         hidden_out = hidden_workspace_1 if layer % 2 == 0 else hidden_workspace_0
         
@@ -1272,7 +1337,7 @@ def build_subOP(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySe
     # # Execution
     # csr.Macro_Op_Name = "Attention"
     # csr.M_total, csr.N_total, csr.K_total = seq_len, seq_len, head_Dim
-    # sim.fetch_macro([MacroOp("Attention", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # sim.fetch_macro([MacroOp("Attention", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
 
     """ Attention With PingPong"""
@@ -1302,7 +1367,7 @@ def build_subOP(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySe
     # Execution
     csr.Macro_Op_Name = "Attention"
     csr.M_total, csr.N_total, csr.K_total = seq_len, seq_len, head_Dim
-    sim.fetch_macro([MacroOp("Attention", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    sim.fetch_macro([MacroOp("Attention", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
     # """
     # Projection

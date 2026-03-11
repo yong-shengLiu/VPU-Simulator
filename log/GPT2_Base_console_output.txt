@@ -1,0 +1,78 @@
+
+============================================================
+🤖 初始化 GPT-2 Base 模型 (12 Layers, Context Length: 1024)
+============================================================
+  -> Dispatching GPT-2 Layer 1/12 (Prefill Phase) ...
+
+✅ 所有 12 層 GPT-2 巨集指令派發完成！進入硬體 FSM 模擬...
+--- Simulation Running GPT2_Base ... ---
+  [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.7 秒)
+  [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.5 秒)
+  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.2 秒)
+  [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 6.9 秒)
+  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.7 秒)
+  [Heartbeat] 已經模擬了 6,000,000 個 Cycles... (耗時: 10.4 秒)
+  [Heartbeat] 已經模擬了 7,000,000 個 Cycles... (耗時: 12.2 秒)
+  [Heartbeat] 已經模擬了 8,000,000 個 Cycles... (耗時: 13.9 秒)
+  [Heartbeat] 已經模擬了 9,000,000 個 Cycles... (耗時: 15.6 秒)
+  [Heartbeat] 已經模擬了 10,000,000 個 Cycles... (耗時: 17.6 秒)
+  [Heartbeat] 已經模擬了 11,000,000 個 Cycles... (耗時: 19.8 秒)
+  [Heartbeat] 已經模擬了 12,000,000 個 Cycles... (耗時: 22.0 秒)
+  [Heartbeat] 已經模擬了 13,000,000 個 Cycles... (耗時: 24.1 秒)
+  [Heartbeat] 已經模擬了 14,000,000 個 Cycles... (耗時: 26.3 秒)
+  [Heartbeat] 已經模擬了 15,000,000 個 Cycles... (耗時: 28.4 秒)
+  [Heartbeat] 已經模擬了 16,000,000 個 Cycles... (耗時: 30.3 秒)
+  [Heartbeat] 已經模擬了 17,000,000 個 Cycles... (耗時: 32.0 秒)
+  [Heartbeat] 已經模擬了 18,000,000 個 Cycles... (耗時: 33.7 秒)
+  [Heartbeat] 已經模擬了 19,000,000 個 Cycles... (耗時: 35.4 秒)
+  [Heartbeat] 已經模擬了 20,000,000 個 Cycles... (耗時: 37.2 秒)
+  [Heartbeat] 已經模擬了 21,000,000 個 Cycles... (耗時: 38.9 秒)
+  [Heartbeat] 已經模擬了 22,000,000 個 Cycles... (耗時: 40.7 秒)
+  [Heartbeat] 已經模擬了 23,000,000 個 Cycles... (耗時: 42.4 秒)
+  [Heartbeat] 已經模擬了 24,000,000 個 Cycles... (耗時: 44.1 秒)
+  [Heartbeat] 已經模擬了 25,000,000 個 Cycles... (耗時: 45.9 秒)
+  [Heartbeat] 已經模擬了 26,000,000 個 Cycles... (耗時: 47.6 秒)
+  [Heartbeat] 已經模擬了 27,000,000 個 Cycles... (耗時: 49.3 秒)
+  [Heartbeat] 已經模擬了 28,000,000 個 Cycles... (耗時: 51.1 秒)
+  [Heartbeat] 已經模擬了 29,000,000 個 Cycles... (耗時: 52.8 秒)
+  [Heartbeat] 已經模擬了 30,000,000 個 Cycles... (耗時: 54.5 秒)
+  [Heartbeat] 已經模擬了 31,000,000 個 Cycles... (耗時: 56.3 秒)
+  [Heartbeat] 已經模擬了 32,000,000 個 Cycles... (耗時: 58.0 秒)
+  [Heartbeat] 已經模擬了 33,000,000 個 Cycles... (耗時: 59.7 秒)
+  [Heartbeat] 已經模擬了 34,000,000 個 Cycles... (耗時: 61.4 秒)
+  [Heartbeat] 已經模擬了 35,000,000 個 Cycles... (耗時: 63.0 秒)
+  [Heartbeat] 已經模擬了 36,000,000 個 Cycles... (耗時: 64.7 秒)
+  [Heartbeat] 已經模擬了 37,000,000 個 Cycles... (耗時: 66.4 秒)
+  [Heartbeat] 已經模擬了 38,000,000 個 Cycles... (耗時: 68.1 秒)
+  [Heartbeat] 已經模擬了 39,000,000 個 Cycles... (耗時: 69.8 秒)
+  [Heartbeat] 已經模擬了 40,000,000 個 Cycles... (耗時: 71.5 秒)
+  [Heartbeat] 已經模擬了 41,000,000 個 Cycles... (耗時: 73.2 秒)
+  [Heartbeat] 已經模擬了 42,000,000 個 Cycles... (耗時: 74.8 秒)
+============================================================
+Simulation Report (Total Cycles: 42,627,041)
+============================================================
+[Instruction Fetch Bandwidth Reduction]
+  - CPU Macro Ops Fetched : 2,144
+  - VPU Micro Ops Executed: 1,123,456
+  - Expansion Ratio       : 1:524.0
+
+[Frontend Stall Analysis]
+  - Queue Full Stalls     : 41,501,367 cycles (97.4%)
+
+[Backend Overlap & Hazard Analysis (The True Decoupling)]
+  - LSU Active  : 90.8% | Wait Data (RAW/WAR):  9.2%
+  - VALU Active :  5.4% | Wait Data (RAW/WAR): 11.7%
+  - CIM Active  : 76.2% | Wait Data (RAW/WAR): 23.7%
+
+[SRAM Memory Bandwidth Monitor (@ 1.0 GHz)]
+  - Total Data Transferred: 295.24 MB
+  - Average Bandwidth     : 7.26 GB/s
+  - Peak AXI Bandwidth    : 8.00 GB/s
+  - Bandwidth Utilization : 90.8%
+
+[Sparsity & Datafusion Bandwidth Savings Analysis]
+  - [Causal Mask] Theoretical Dense K/V Traffic : 48.00 MB
+  - [Causal Mask] Actual Skipped K/V Traffic  : 23.25 MB
+  - [Causal Mask] K/V Bandwidth Reduction     : 48.4%
+  - [FlashAttn Datafusion] O(N^2) SRAM Traffic Saved : 49.50 MB
+============================================================
