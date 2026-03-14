@@ -8,6 +8,7 @@ import os
 import sys
 import time
 import copy
+import random
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from collections import deque
@@ -219,6 +220,8 @@ class CSRConfig:
     N_total: int = 0
     K_total: int = 0
 
+    # --- 7. Sparsity Mask ---
+    Sparse_Mask: int = 0
 @dataclass
 class TensorConfig:
     """ Hardware Spatial Dimensions for the Tensor Core (CIM Array) """
@@ -268,20 +271,34 @@ class BandwidthAnalyzer:
         self.causal_mask_skipped_bytes = 0 
         self.dense_kv_bytes_if_no_mask = 0  
         
-        # 2. 紀錄 FlashAttention 省下的 O(N^2) 中繼讀寫量 (Hardware Level)
+        # 2. 紀錄 Content-based Dynamic Sparsity 省下的 K/V 載入量
+        self.content_sparsity_skipped_bytes = 0
+
+        # 3. 紀錄 FlashAttention 省下的 O(N^2) 中繼讀寫量 (Hardware Level)
         self.flash_saved_intermediate_bytes = 0 
 
     def report(self):
         print(f"\n[Sparsity & Datafusion Bandwidth Savings Analysis]")
         
-        # Causal Mask 節省分析
         if self.dense_kv_bytes_if_no_mask > 0:
-            saved_mask_mb = self.causal_mask_skipped_bytes / (1024**2)
             dense_mb = self.dense_kv_bytes_if_no_mask / (1024**2)
-            ratio = self.causal_mask_skipped_bytes / self.dense_kv_bytes_if_no_mask
-            print(f"  - [Causal Mask] Theoretical Dense K/V Traffic : {dense_mb:.2f} MB")
-            print(f"  - [Causal Mask] Actual Skipped K/V Traffic  : {saved_mask_mb:.2f} MB")
-            print(f"  - [Causal Mask] K/V Bandwidth Reduction     : {ratio:.1%}")
+            saved_causal_mb = self.causal_mask_skipped_bytes / (1024**2)
+            saved_content_mb = self.content_sparsity_skipped_bytes / (1024**2)
+            
+            # 計算經過 Causal 裁切後，剩下多少合法的 Bytes
+            valid_bytes_after_causal = self.dense_kv_bytes_if_no_mask - self.causal_mask_skipped_bytes
+            
+            causal_ratio = self.causal_mask_skipped_bytes / self.dense_kv_bytes_if_no_mask
+            # Content Sparsity 的壓縮率應該建立在「剩下的合法區域」上
+            content_ratio = self.content_sparsity_skipped_bytes / valid_bytes_after_causal if valid_bytes_after_causal > 0 else 0
+            
+            total_saved_mb = saved_causal_mb + saved_content_mb
+            total_ratio = total_saved_mb / dense_mb
+
+            print(f"  - Theoretical Dense K/V Traffic   : {dense_mb:.2f} MB")
+            print(f"  - [Causal Mask] Traffic Saved     : {saved_causal_mb:.2f} MB ({causal_ratio:.1%})")
+            print(f"  - [Content Sparsity] Traffic Saved: {saved_content_mb:.2f} MB ({content_ratio:.1%})")
+            print(f"  -> Total K/V Bandwidth Reduction  : {total_ratio:.1%}")
 
         # FlashAttention Datafusion 節省分析
         saved_flash_mb = self.flash_saved_intermediate_bytes / (1024**2)
@@ -694,7 +711,81 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
     ))
     return uops
 
-def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
+def macro_lsh_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet):
+    """
+    【一維解耦 LSH Hashing】：
+    底層本質上是一個小型 GEMM (Q * Random_Matrix)。
+    核心差異：Output 階段不寫回龐大的矩陣，而是經由 VALU 執行 Sign() 二值化與 Bit-packing，
+    最後由 LSU 寫回極小的 Hash ID 陣列。
+    """
+    uops = []
+    c_regs = [csr.MatC_reg_base + i for i in range(csr.VREG_stride_C)]
+
+    uops.append(MicroOp("CIM_CLEAR_PSUM", UnitType.CIM, latency=1))
+
+    # [Inner Loop]: 遍歷 D 維度 (對應 GEMM 的 K)
+    for k_start in range(0, csr.K_total, csr.K_tile):
+        offset_a = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_A if csr.Enable_Double_Buffer else 0
+        offset_b = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_B if csr.Enable_Double_Buffer else 0
+        
+        reg_a = csr.MatA_reg_base + offset_a
+        reg_b = csr.MatB_reg_base + offset_b
+        a_regs = [reg_a + i for i in range(csr.VREG_stride_A)]
+        b_regs = [reg_b + i for i in range(csr.VREG_stride_B)]
+
+        # AGU 計算相對 Offset
+        addr_A = csr.Mem_Base_A + k_start 
+        addr_B = csr.Mem_Base_B + (k_start * csr.Mem_Stride_B)
+
+        uops.append(MicroOp(
+            name=f"LSU_LOAD_Q_k{k_start}", unit_type=UnitType.LSU, 
+            latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_A, csr.Is_Gather_A, csr.BLOCK_LEN_A),
+            dst_regs=a_regs, mem_addr=addr_A, mem_stride=csr.Mem_Stride_A, 
+            is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
+        ))
+        uops.append(MicroOp(
+            name=f"LSU_LOAD_R_k{k_start}", unit_type=UnitType.LSU,  # R 矩陣 (Random Projection)
+            latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_B, csr.Is_Gather_B, csr.BLOCK_LEN_B),
+            dst_regs=b_regs, mem_addr=addr_B, mem_stride=csr.Mem_Stride_B, 
+            is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
+        ))
+
+        # CIM 運算 (計算 Q * R)
+        for m_sub in range(0, csr.M_tile, tensor.phys_M):
+            for n_sub in range(0, csr.N_tile, tensor.phys_N):
+                actual_reg_a = get_actual_vreg(reg_a, m_sub, csr.M_tile, csr.VREG_stride_A)
+                actual_reg_b = get_actual_vreg(reg_b, n_sub, csr.N_tile, csr.VREG_stride_B)
+                uops.append(MicroOp(
+                    name=f"CIM_MAC_{m_sub}_{n_sub}", unit_type=UnitType.CIM, latency=csr.K_tile, 
+                    src_regs=[actual_reg_a, actual_reg_b]
+                ))
+
+    # =========================================================================
+    # 🌟 Output 寫回與 Hash Binarization (LSH 的精華差異！)
+    # =========================================================================
+    
+    # 1. 將 Accumulator 的結果讀出到 VREG
+    uops.append(MicroOp("CIM_READ_PSUM", UnitType.CIM, latency=1, dst_regs=c_regs))
+    
+    # 2. ⚡ 交給 VALU 執行 Sign() 和 Bit-packing (關鍵步驟)
+    # 硬體行為：(val >= 0) ? 1 : 0，並將 32 個結果壓縮成一個 32-bit 整數
+    uops.append(MicroOp(
+        name=f"VALU_LSH_SIGN_PACK", unit_type=UnitType.VALU, 
+        latency=latency.VALU_VGELU * csr.VREG_stride_C, # 延遲與一般非線性算子相近
+        src_regs=c_regs, dst_regs=c_regs
+    ))
+        
+    # 3. 寫回 SRAM (注意：這裡寫回的資料量極小，只有 Hash ID)
+    uops.append(MicroOp(
+        name=f"LSU_STORE_HASH_ID", unit_type=UnitType.LSU, 
+        latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_C, csr.Is_Scatter_C, csr.BLOCK_LEN_C),
+        src_regs=c_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
+        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
+    ))
+    
+    return uops
+
+def macro_flash_attn_template_deprecate(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
     """
     【一維解耦 FlashAttention】：外層 Q 迴圈已交由 CPU 軟體處理。
     硬體 FSM 僅負責 K, V 的上下文序列遍歷。
@@ -719,6 +810,120 @@ def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: Lat
 
     # [Inner Loop]: 遍歷 K, V 的 Sequence (Context Length)
     for k_start in range(0, csr.N_total, csr.N_tile):
+        current_n_tile = min(csr.N_tile, csr.N_total - k_start)
+        uops.append(MicroOp("CIM_CLEAR_L0", UnitType.CIM, latency=1))
+        
+        # 🏓 Ping-Pong 邏輯
+        offset_k = ((k_start // csr.N_tile) % 2) * csr.VREG_stride_B if csr.Enable_Double_Buffer else 0
+        offset_v = ((k_start // csr.N_tile) % 2) * csr.VREG_stride_D if csr.Enable_Double_Buffer else 0
+        reg_k_actual, reg_v_actual = reg_k + offset_k, reg_v + offset_v
+        k_regs_actual = [reg_k_actual + i for i in range(csr.VREG_stride_B)]
+        v_regs_actual = [reg_v_actual + i for i in range(csr.VREG_stride_D)]
+
+        addr_K = csr.Mem_Base_B + (k_start * csr.Mem_Stride_B)
+        uops.append(MicroOp(
+            name=f"LSU_LOAD_K_k{k_start}", unit_type=UnitType.LSU, 
+            latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_B, csr.Is_Gather_B, csr.BLOCK_LEN_B), 
+            dst_regs=k_regs_actual, mem_addr=addr_K, mem_stride=csr.Mem_Stride_B,
+            is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
+        ))
+
+        # GEMM 1: Q * K^T -> S
+        for m_sub in range(0, csr.M_tile, tensor.phys_M):
+            for n_sub in range(0, current_n_tile, tensor.phys_N):
+                actual_q = get_actual_vreg(reg_q, m_sub, csr.M_tile, csr.VREG_stride_A)
+                actual_k = get_actual_vreg(reg_k_actual, n_sub, csr.N_tile, csr.VREG_stride_B)
+                uops.append(MicroOp(f"CIM_QK_{m_sub}_{n_sub}", UnitType.CIM, latency=head_dim, src_regs=[actual_q, actual_k], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+
+        uops.append(MicroOp("VALU_SOFTMAX_UPDATE", UnitType.VALU, latency=20, src_regs=[VIRTUAL_L0_BUFFER_ID]))
+        uops.append(MicroOp("VALU_SOFTMAX_EXP", UnitType.VALU, latency=max(1, csr.M_tile*current_n_tile//LANE), src_regs=[VIRTUAL_L0_BUFFER_ID], dst_regs=p_regs))
+        uops.append(MicroOp("CIM_CLEAR_L0", UnitType.CIM, latency=1))
+        
+        addr_V = csr.Mem_Base_D + (k_start * csr.Mem_Stride_D)
+        uops.append(MicroOp(
+            name=f"LSU_LOAD_V_k{k_start}", unit_type=UnitType.LSU, 
+            latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_D, csr.Is_Gather_D, csr.BLOCK_LEN_D), 
+            dst_regs=v_regs_actual, mem_addr=addr_V, mem_stride=csr.Mem_Stride_D,
+            is_gather_scatter=csr.Is_Gather_D, block_length=csr.BLOCK_LEN_D
+        ))
+
+        # GEMM 2: P * V -> O
+        for m_sub in range(0, csr.M_tile, tensor.phys_M):
+            for d_sub in range(0, head_dim, tensor.phys_N): 
+                actual_p = get_actual_vreg(reg_p, m_sub, csr.M_tile, csr.VREG_stride_E)
+                actual_v = get_actual_vreg(reg_v_actual, d_sub, head_dim, csr.VREG_stride_D)
+                uops.append(MicroOp(f"CIM_PV_{m_sub}_{d_sub}", UnitType.CIM, latency=current_n_tile, src_regs=[actual_p, actual_v], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+
+        uops.append(MicroOp("VALU_GLOBAL_O", UnitType.VALU, latency=64, src_regs=o_global_regs + [VIRTUAL_L0_BUFFER_ID], dst_regs=o_global_regs))
+
+    # [Inner Loop 結束]：量化並寫回 SRAM
+    uops.append(MicroOp("VALU_QUANT_O", UnitType.VALU, latency=20, src_regs=o_global_regs, dst_regs=quant_regs))
+    uops.append(MicroOp(
+        name=f"LSU_STORE_O_TILE", unit_type=UnitType.LSU, 
+        latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_C, csr.Is_Scatter_C, csr.BLOCK_LEN_C), 
+        src_regs=quant_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
+        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
+    ))
+
+    
+    # 計算 FlashAttention 幫我們省下的 O(N^2) 中繼 SRAM 頻寬
+    if vpu is not None:
+        # 假設資料精度是 16-bit (2 Bytes)
+        bytes_per_element = 2 
+        
+        # 中繼矩陣大小: M_tile * N_total
+        intermediate_matrix_size = csr.M_tile * csr.N_total * bytes_per_element
+        
+        # 傳統 Attention 的致命傷：
+        # 1. 寫出 QK^T
+        # 2. 讀入 QK^T 做 Softmax
+        # 3. 寫出 Softmax Prob
+        # 4. 讀入 Softmax Prob 去乘 V
+        # 總共 4 次 SRAM 存取！FlashAttention 把它們全部融合在 VRF/L0 Buffer 了！
+        saved_traffic = intermediate_matrix_size * 4
+        vpu.analyzer.flash_saved_intermediate_bytes += saved_traffic
+
+    return uops
+
+def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
+    """
+    1.【一維解耦 FlashAttention】：外層 Q 迴圈已交由 CPU 軟體處理。
+    硬體 FSM 僅負責 K, V 的上下文序列遍歷。
+    2. 加入sparse mask在k維度上，實現content-base的功能
+    """
+
+    # 🌟 [新增] 讀取 CPU 傳下來的 Sparse_Mask (預設為全 1，代表全部要算)
+    sparse_mask = getattr(csr, "Sparse_Mask", 0xFFFFFFFF)
+    print(f"Sparse Mask: {sparse_mask}")
+
+    uops = []
+    head_dim = csr.K_total
+    
+    reg_q, reg_k, reg_v, reg_p, reg_o_global = csr.MatA_reg_base, csr.MatB_reg_base, csr.MatD_reg_base, csr.MatE_reg_base, csr.MatC_reg_base
+    q_regs = [reg_q + i for i in range(csr.VREG_stride_A)]
+    p_regs = [reg_p + i for i in range(csr.VREG_stride_E)]
+    o_global_regs = [reg_o_global + i for i in range(csr.VREG_stride_O)]
+    quant_regs = [csr.Temp_reg_base + i for i in range(csr.VREG_stride_C)]
+
+    # 1. 載入 CPU 指定好的 Q-Tile
+    uops.append(MicroOp("VALU_CLEAR_O_GLOBAL", UnitType.VALU, latency=1, dst_regs=o_global_regs))
+    uops.append(MicroOp(
+        name=f"LSU_LOAD_Q_TILE", unit_type=UnitType.LSU, 
+        latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_A, csr.Is_Gather_A, csr.BLOCK_LEN_A), 
+        dst_regs=q_regs, mem_addr=csr.Mem_Base_A, mem_stride=csr.Mem_Stride_A,
+        is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
+    ))
+
+    # [Inner Loop]: 遍歷 K, V 的 Sequence (Context Length)
+    for k_start in range(0, csr.N_total, csr.N_tile):
+        # ⚡ FSM 硬體檢查：透過 Bitwise AND 判斷這一個 Block 需不需要算
+        block_num = k_start // csr.N_tile
+        if not (sparse_mask & (1 << block_num)):
+            # 硬體直接跳過這個 Block (Bypass)，可能只消耗 1 個 Cycle 的判斷延遲
+            # (在 Python 模擬器中，直接 continue 就不會產生任何 LSU/CIM/VALU 的 uOPs)
+            continue
+
+        # --- 以下是原本正常的 FlashAttention 執行步驟 ---
         current_n_tile = min(csr.N_tile, csr.N_total - k_start)
         uops.append(MicroOp("CIM_CLEAR_L0", UnitType.CIM, latency=1))
         
@@ -1148,7 +1353,7 @@ def build_vit_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     hidden_workspace_0 = mem_mgr.allocate(seq_len * D)
     hidden_workspace_1 = mem_mgr.allocate(seq_len * D)
     
-    for layer in range(1):
+    for layer in range(12):
         hidden_in = hidden_workspace_0 if layer % 2 == 0 else hidden_workspace_1
         hidden_out = hidden_workspace_1 if layer % 2 == 0 else hidden_workspace_0
         
@@ -1159,7 +1364,8 @@ def build_vit_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, 
     print("\n✅ 所有 12 層 ViT 巨集指令派發完成！進入硬體 FSM 模擬...")
 
 def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, 
-                          seq_len: int, layer_idx: int, hidden_in: int, hidden_out: int, mem_mgr: MemoryManager):
+                          seq_len: int, layer_idx: int, hidden_in: int, hidden_out: int, mem_mgr: MemoryManager,
+                          sparsity_ratio: float = 0.5):
     """
     【不偷懶的完整單層 GPT-2 Base (Prefill)】
     核心亮點：Causal Masking 由 CPU 動態調整 N_total 達成，硬體完全無需修改！
@@ -1199,7 +1405,29 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
                 sim.fetch_macro([MacroOp(f"L{layer_idx}_GPT_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
-    # 3. 核心：Causal Flash Attention (12 Heads)
+    # 🌟 2.5 LSH Hashing (模擬 NPU 計算 Hash 的「硬體代價」)
+    # =====================================================================
+    b_hash = 32 # 壓成 32-bit Hash ID
+    R_ptr = mem_mgr.allocate(D * b_hash)
+    Hash_Q_ptr = mem_mgr.allocate(seq_len * b_hash)
+    Hash_K_ptr = mem_mgr.allocate(seq_len * b_hash)
+
+    # 發射 LSH 巨集，讓 NPU 消耗 Cycle 並產生 SRAM 讀寫流量
+    for m in range(0, seq_len, 64):
+        set_gemm_csr(csr, Q_out + (m*D), R_ptr, Hash_Q_ptr + (m*b_hash), D, b_hash, b_hash, 64, b_hash, 32, D)
+        sim.fetch_macro([MacroOp(f"L{layer_idx}_LSH_Q_m{m}", macro_lsh_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+
+    for m in range(0, seq_len, 64):
+        set_gemm_csr(csr, K_out + (m*D), R_ptr, Hash_K_ptr + (m*b_hash), D, b_hash, b_hash, 64, b_hash, 32, D)
+        sim.fetch_macro([MacroOp(f"L{layer_idx}_LSH_K_m{m}", macro_lsh_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+
+    print(f"   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...")
+
+    # =====================================================================
+    # 3. 核心：Attention (12 Heads)
+    # - Causal Mask
+    # - Sparse Mask
+    # - FlashAttention
     # =====================================================================
     Attn_out = mem_mgr.allocate(seq_len * D) 
     
@@ -1211,15 +1439,40 @@ def build_gpt2_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
             # 硬體 K, V 迴圈只會掃描到 q_start + M_tile 的位置，未來的 Token 絕對不會被讀進 VPU！
             csr.N_total = min(seq_len, q_start + csr.M_tile)
 
-            # 計算Causal Masking所節省的頻寬
-            dense_N_total = seq_len  # 如果沒有 Mask，N 應該要掃完一整排 512
-            # 紀錄 CPU Runtime 幫我們攔截掉的無效記憶體傳輸
+            # 🌟 [新增] 第二層防禦：Content-Based Dynamic Sparsity (軟體排程)
+            sparse_mask = 0
+            valid_content_blocks = 0
+
+            # 模擬 CPU 在發射前，透過 Hash ID 產生的 Block 遮罩
+            for k_start in range(0, csr.N_total, 32):
+                is_valid = True
+                
+                # 對於對角線 (Diagonal) Block，因為包含自己，一定要保留以確保數值穩定性
+                if k_start == q_start:
+                    is_valid = True
+                else:
+                    # 對於過去的 Block，根據 sparsity_ratio 隨機剔除 (模擬 LSH 效果)
+                    if random.random() < sparsity_ratio:
+                        is_valid = False
+                
+                if is_valid:
+                    block_num = k_start // 32
+                    sparse_mask |= (1 << block_num)  # 將該 bit 設為 1
+                    valid_content_blocks += 1
+
+            # 將算好的 Mask 寫入 CSR 交給硬體
+            csr.Sparse_Mask = sparse_mask
+
+            # 📊 [頻寬節省量計算]
             bytes_per_element = 1
-            # K 和 V 每個都要被讀進來，大小是 N_total * head_dim
-            dense_kv_bytes = (dense_N_total * head_dim * bytes_per_element) * 2  # *2 是因為有 K 和 V
-            actual_kv_bytes = (csr.N_total * head_dim * bytes_per_element) * 2
+            dense_kv_bytes = (seq_len * head_dim * bytes_per_element) * 2  # 無 Mask: 完整讀取 N 個
+            causal_kv_bytes = (csr.N_total * head_dim * bytes_per_element) * 2 # 只有 Causal Mask
+            final_kv_bytes = (valid_content_blocks * 32 * head_dim * bytes_per_element) * 2 # Causal + Dynamic Mask
+            
+            # 累加統計數據
             sim.analyzer.dense_kv_bytes_if_no_mask += dense_kv_bytes
-            sim.analyzer.causal_mask_skipped_bytes += (dense_kv_bytes - actual_kv_bytes)
+            sim.analyzer.causal_mask_skipped_bytes += (dense_kv_bytes - causal_kv_bytes)
+            sim.analyzer.content_sparsity_skipped_bytes += (causal_kv_bytes - final_kv_bytes)
             
             # setup the CSR
             csr.Mem_Base_A = Q_out + (q_start * D) + (h * head_dim)
@@ -1292,7 +1545,7 @@ def build_gpt2_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     hidden_workspace_0 = mem_mgr.allocate(seq_len * D)
     hidden_workspace_1 = mem_mgr.allocate(seq_len * D)
     
-    for layer in range(1):
+    for layer in range(12):
         hidden_in = hidden_workspace_0 if layer % 2 == 0 else hidden_workspace_1
         hidden_out = hidden_workspace_1 if layer % 2 == 0 else hidden_workspace_0
         
@@ -1468,7 +1721,7 @@ def build_subOP(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySe
 # 6. Run Simulation
 # ==============================================================================
 def run_simulation():
-    model = "BERT_Base" # 可切換 "BERT_Base", "ViT_Base", "GPT2_Base", "TEST_SUBOP"
+    model = "GPT2_Base" # 可切換 "BERT_Base", "ViT_Base", "GPT2_Base", "TEST_SUBOP"
     
     # 建立 DualLogger (自動導向到 log/ 資料夾中，包含模型名稱)
     current_dir = os.path.dirname(os.path.abspath(__file__))

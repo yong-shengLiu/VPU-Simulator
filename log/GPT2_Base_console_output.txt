@@ -3,76 +3,282 @@
 🤖 初始化 GPT-2 Base 模型 (12 Layers, Context Length: 1024)
 ============================================================
   -> Dispatching GPT-2 Layer 1/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 2/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 3/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 4/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 5/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 6/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 7/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 8/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 9/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 10/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 11/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
+  -> Dispatching GPT-2 Layer 12/12 (Prefill Phase) ...
+   [CPU] LSH completed. CPU is grouping Tokens by Hash ID to build Sparse Attention schedule...
 
 ✅ 所有 12 層 GPT-2 巨集指令派發完成！進入硬體 FSM 模擬...
 --- Simulation Running GPT2_Base ... ---
-  [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.7 秒)
-  [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.5 秒)
-  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.2 秒)
-  [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 6.9 秒)
-  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.7 秒)
-  [Heartbeat] 已經模擬了 6,000,000 個 Cycles... (耗時: 10.4 秒)
-  [Heartbeat] 已經模擬了 7,000,000 個 Cycles... (耗時: 12.2 秒)
-  [Heartbeat] 已經模擬了 8,000,000 個 Cycles... (耗時: 13.9 秒)
-  [Heartbeat] 已經模擬了 9,000,000 個 Cycles... (耗時: 15.6 秒)
-  [Heartbeat] 已經模擬了 10,000,000 個 Cycles... (耗時: 17.6 秒)
-  [Heartbeat] 已經模擬了 11,000,000 個 Cycles... (耗時: 19.8 秒)
-  [Heartbeat] 已經模擬了 12,000,000 個 Cycles... (耗時: 22.0 秒)
-  [Heartbeat] 已經模擬了 13,000,000 個 Cycles... (耗時: 24.1 秒)
-  [Heartbeat] 已經模擬了 14,000,000 個 Cycles... (耗時: 26.3 秒)
-  [Heartbeat] 已經模擬了 15,000,000 個 Cycles... (耗時: 28.4 秒)
-  [Heartbeat] 已經模擬了 16,000,000 個 Cycles... (耗時: 30.3 秒)
-  [Heartbeat] 已經模擬了 17,000,000 個 Cycles... (耗時: 32.0 秒)
-  [Heartbeat] 已經模擬了 18,000,000 個 Cycles... (耗時: 33.7 秒)
-  [Heartbeat] 已經模擬了 19,000,000 個 Cycles... (耗時: 35.4 秒)
-  [Heartbeat] 已經模擬了 20,000,000 個 Cycles... (耗時: 37.2 秒)
-  [Heartbeat] 已經模擬了 21,000,000 個 Cycles... (耗時: 38.9 秒)
-  [Heartbeat] 已經模擬了 22,000,000 個 Cycles... (耗時: 40.7 秒)
-  [Heartbeat] 已經模擬了 23,000,000 個 Cycles... (耗時: 42.4 秒)
-  [Heartbeat] 已經模擬了 24,000,000 個 Cycles... (耗時: 44.1 秒)
-  [Heartbeat] 已經模擬了 25,000,000 個 Cycles... (耗時: 45.9 秒)
-  [Heartbeat] 已經模擬了 26,000,000 個 Cycles... (耗時: 47.6 秒)
-  [Heartbeat] 已經模擬了 27,000,000 個 Cycles... (耗時: 49.3 秒)
-  [Heartbeat] 已經模擬了 28,000,000 個 Cycles... (耗時: 51.1 秒)
-  [Heartbeat] 已經模擬了 29,000,000 個 Cycles... (耗時: 52.8 秒)
-  [Heartbeat] 已經模擬了 30,000,000 個 Cycles... (耗時: 54.5 秒)
-  [Heartbeat] 已經模擬了 31,000,000 個 Cycles... (耗時: 56.3 秒)
-  [Heartbeat] 已經模擬了 32,000,000 個 Cycles... (耗時: 58.0 秒)
-  [Heartbeat] 已經模擬了 33,000,000 個 Cycles... (耗時: 59.7 秒)
-  [Heartbeat] 已經模擬了 34,000,000 個 Cycles... (耗時: 61.4 秒)
-  [Heartbeat] 已經模擬了 35,000,000 個 Cycles... (耗時: 63.0 秒)
-  [Heartbeat] 已經模擬了 36,000,000 個 Cycles... (耗時: 64.7 秒)
-  [Heartbeat] 已經模擬了 37,000,000 個 Cycles... (耗時: 66.4 秒)
-  [Heartbeat] 已經模擬了 38,000,000 個 Cycles... (耗時: 68.1 秒)
-  [Heartbeat] 已經模擬了 39,000,000 個 Cycles... (耗時: 69.8 秒)
-  [Heartbeat] 已經模擬了 40,000,000 個 Cycles... (耗時: 71.5 秒)
-  [Heartbeat] 已經模擬了 41,000,000 個 Cycles... (耗時: 73.2 秒)
-  [Heartbeat] 已經模擬了 42,000,000 個 Cycles... (耗時: 74.8 秒)
-============================================================
-Simulation Report (Total Cycles: 42,627,041)
-============================================================
-[Instruction Fetch Bandwidth Reduction]
-  - CPU Macro Ops Fetched : 2,144
-  - VPU Micro Ops Executed: 1,123,456
-  - Expansion Ratio       : 1:524.0
-
-[Frontend Stall Analysis]
-  - Queue Full Stalls     : 41,501,367 cycles (97.4%)
-
-[Backend Overlap & Hazard Analysis (The True Decoupling)]
-  - LSU Active  : 90.8% | Wait Data (RAW/WAR):  9.2%
-  - VALU Active :  5.4% | Wait Data (RAW/WAR): 11.7%
-  - CIM Active  : 76.2% | Wait Data (RAW/WAR): 23.7%
-
-[SRAM Memory Bandwidth Monitor (@ 1.0 GHz)]
-  - Total Data Transferred: 295.24 MB
-  - Average Bandwidth     : 7.26 GB/s
-  - Peak AXI Bandwidth    : 8.00 GB/s
-  - Bandwidth Utilization : 90.8%
-
-[Sparsity & Datafusion Bandwidth Savings Analysis]
-  - [Causal Mask] Theoretical Dense K/V Traffic : 48.00 MB
-  - [Causal Mask] Actual Skipped K/V Traffic  : 23.25 MB
-  - [Causal Mask] K/V Bandwidth Reduction     : 48.4%
-  - [FlashAttn Datafusion] O(N^2) SRAM Traffic Saved : 49.50 MB
-============================================================
+  [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.8 秒)
+  [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.6 秒)
+  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.3 秒)
+  [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 7.1 秒)
+  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.8 秒)
+  [Heartbeat] 已經模擬了 6,000,000 個 Cycles... (耗時: 10.6 秒)
+  [Heartbeat] 已經模擬了 7,000,000 個 Cycles... (耗時: 12.4 秒)
+  [Heartbeat] 已經模擬了 8,000,000 個 Cycles... (耗時: 14.1 秒)
+  [Heartbeat] 已經模擬了 9,000,000 個 Cycles... (耗時: 15.9 秒)
+Sparse Mask: 1
+Sparse Mask: 2
+Sparse Mask: 6
+Sparse Mask: 8
+Sparse Mask: 22
+Sparse Mask: 36
+Sparse Mask: 110
+Sparse Mask: 213
+Sparse Mask: 418
+Sparse Mask: 907
+Sparse Mask: 1066
+Sparse Mask: 3014
+Sparse Mask: 7738
+Sparse Mask: 15563
+  [Heartbeat] 已經模擬了 10,000,000 個 Cycles... (耗時: 17.8 秒)
+Sparse Mask: 30091
+Sparse Mask: 37800
+Sparse Mask: 109311
+Sparse Mask: 222630
+Sparse Mask: 355249
+Sparse Mask: 884683
+Sparse Mask: 2038130
+Sparse Mask: 3296838
+Sparse Mask: 6646771
+Sparse Mask: 8830727
+Sparse Mask: 29601796
+Sparse Mask: 43963134
+Sparse Mask: 75666297
+Sparse Mask: 212914358
+Sparse Mask: 304501379
+Sparse Mask: 778906295
+Sparse Mask: 1837786389
+Sparse Mask: 3061849034
+Sparse Mask: 1
+Sparse Mask: 2
+Sparse Mask: 7
+Sparse Mask: 12
+Sparse Mask: 25
+Sparse Mask: 40
+Sparse Mask: 81
+Sparse Mask: 141
+Sparse Mask: 303
+Sparse Mask: 994
+Sparse Mask: 1852
+Sparse Mask: 2339
+Sparse Mask: 4584
+Sparse Mask: 8547
+Sparse Mask: 21426
+Sparse Mask: 64447
+Sparse Mask: 103548
+Sparse Mask: 216557
+Sparse Mask: 324964
+Sparse Mask: 834594
+Sparse Mask: 1369314
+Sparse Mask: 2807661
+Sparse Mask: 5921830
+Sparse Mask: 8817780
+Sparse Mask: 25257630
+Sparse Mask: 49909462
+Sparse Mask: 92945753
+Sparse Mask: 262709786
+Sparse Mask: 288093793
+Sparse Mask: 549530221
+Sparse Mask: 1143506586
+Sparse Mask: 2367851822
+Sparse Mask: 1
+Sparse Mask: 3
+Sparse Mask: 4
+Sparse Mask: 8
+Sparse Mask: 29
+Sparse Mask: 39
+Sparse Mask: 85
+Sparse Mask: 134
+Sparse Mask: 393
+Sparse Mask: 779
+Sparse Mask: 1711
+Sparse Mask: 2448
+Sparse Mask: 5636
+Sparse Mask: 8600
+Sparse Mask: 30821
+Sparse Mask: 34068
+Sparse Mask: 69541
+Sparse Mask: 174570
+Sparse Mask: 267344
+Sparse Mask: 772932
+Sparse Mask: 1857877
+Sparse Mask: 3560591
+Sparse Mask: 4265859
+Sparse Mask: 9085010
+Sparse Mask: 19909688
+Sparse Mask: 57699145
+Sparse Mask: 110645128
+Sparse Mask: 159647191
+Sparse Mask: 394698845
+Sparse Mask: 941487605
+Sparse Mask: 1586087010
+Sparse Mask: 3103713066
+Sparse Mask: 1
+Sparse Mask: 2
+Sparse Mask: 4
+Sparse Mask: 9
+Sparse Mask: 28
+Sparse Mask: 33
+Sparse Mask: 75
+Sparse Mask: 211
+Sparse Mask: 320
+Sparse Mask: 769
+Sparse Mask: 1209
+Sparse Mask: 2431
+Sparse Mask: 6665
+Sparse Mask: 8542
+Sparse Mask: 18370
+Sparse Mask: 37388
+Sparse Mask: 130736
+Sparse Mask: 221462
+Sparse Mask: 477598
+Sparse Mask: 992339
+Sparse Mask: 1665151
+Sparse Mask: 3945575
+Sparse Mask: 8122143
+Sparse Mask: 13009352
+Sparse Mask: 22458128
+Sparse Mask: 54695023
+Sparse Mask: 100117873
+Sparse Mask: 193392566
+Sparse Mask: 354570537
+Sparse Mask: 800476287
+Sparse Mask: 1437816632
+  [Heartbeat] 已經模擬了 11,000,000 個 Cycles... (耗時: 20.1 秒)
+Sparse Mask: 3077199011
+Sparse Mask: 1
+Sparse Mask: 3
+Sparse Mask: 4
+Sparse Mask: 8
+Sparse Mask: 24
+Sparse Mask: 51
+Sparse Mask: 76
+Sparse Mask: 224
+Sparse Mask: 492
+Sparse Mask: 670
+Sparse Mask: 1577
+Sparse Mask: 3839
+Sparse Mask: 4927
+Sparse Mask: 13338
+Sparse Mask: 26908
+Sparse Mask: 63688
+Sparse Mask: 124010
+Sparse Mask: 232143
+Sparse Mask: 507510
+Sparse Mask: 597669
+Sparse Mask: 1243670
+Sparse Mask: 3414888
+Sparse Mask: 5728306
+Sparse Mask: 10966395
+Sparse Mask: 22566104
+Sparse Mask: 55660307
+Sparse Mask: 76524449
+Sparse Mask: 244537574
+Sparse Mask: 289390709
+Sparse Mask: 737359925
+Sparse Mask: 1320699639
+Sparse Mask: 2601520558
+Sparse Mask: 1
+Sparse Mask: 2
+Sparse Mask: 4
+Sparse Mask: 10
+Sparse Mask: 18
+Sparse Mask: 38
+Sparse Mask: 120
+Sparse Mask: 192
+Sparse Mask: 465
+Sparse Mask: 765
+Sparse Mask: 1618
+Sparse Mask: 3443
+Sparse Mask: 5263
+Sparse Mask: 9277
+Sparse Mask: 19568
+Sparse Mask: 51929
+Sparse Mask: 86808
+Sparse Mask: 235640
+Sparse Mask: 298527
+Sparse Mask: 791254
+Sparse Mask: 1841721
+Sparse Mask: 3405196
+Sparse Mask: 7408526
+Sparse Mask: 11000112
+Sparse Mask: 22822981
+Sparse Mask: 61594247
+Sparse Mask: 105184009
+Sparse Mask: 194754674
+Sparse Mask: 347347282
+Sparse Mask: 793967482
+Sparse Mask: 1465879726
+Sparse Mask: 4021643797
+Sparse Mask: 1
+Sparse Mask: 3
+Sparse Mask: 6
+Sparse Mask: 11
+Sparse Mask: 24
+Sparse Mask: 50
+Sparse Mask: 90
+Sparse Mask: 134
+Sparse Mask: 303
+Sparse Mask: 660
+Sparse Mask: 1293
+Sparse Mask: 3036
+Sparse Mask: 6715
+Sparse Mask: 14300
+Sparse Mask: 17918
+Sparse Mask: 63633
+Sparse Mask: 66928
+Sparse Mask: 201753
+Sparse Mask: 337814
+Sparse Mask: 816245
+Sparse Mask: 1478489
+Sparse Mask: 2771721
+Sparse Mask: 8355098
+Sparse Mask: 12040543
+Sparse Mask: 24872490
+Sparse Mask: 49581752
+Sparse Mask: 130533234
+Sparse Mask: 185608756
+Sparse Mask: 457838431
+Sparse Mask: 606407520
+Sparse Mask: 1966877610
+Sparse Mask: 4068306542
+Sparse Mask: 1
+Sparse Mask: 3
+Sparse Mask: 5
+Sparse Mask: 9
+Sparse Mask: 17
+Sparse Mask: 43
+Sparse Mask: 118
+Sparse Mask: 163
+Sparse Mask: 505
+Sparse Mask: 699
+Sparse Mask: 1223
+Sparse Mask: 3971
+Sparse Mask: 4628
+Sparse Mask: 10101
+Sparse Mask: 32270
+Sparse Mask: 34097
+Sparse Mask: 109904
+Sparse Mask: 157043
