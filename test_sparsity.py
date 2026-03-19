@@ -10,7 +10,7 @@ from tqdm import tqdm
 GLOBAL_SPARSITY_RATIO = 0.0
 
 # ==============================================================================
-# 1. 神級偷天換日：攔截 PyTorch Softmax，實作 Oracle Block Sparsity
+# 1. 終極優化版：攔截 PyTorch Softmax，實作 Hybrid Oracle Block Sparsity
 # ==============================================================================
 original_softmax = F.softmax
 
@@ -19,36 +19,52 @@ def custom_softmax(input, *args, **kwargs):
         batch, heads, seq_len_q, seq_len_k = input.shape
         block_size = 32
         
-        # 確保是 Attention 矩陣，且大小可以被 32 整除
         if seq_len_q == seq_len_k and seq_len_q % block_size == 0:
             num_blocks = seq_len_q // block_size
             
-            # --- 1. 計算每個 32x32 Block 的平均重要性 (上帝視角) ---
-            reshaped_input = input.view(batch, heads, num_blocks, block_size, num_blocks, block_size)
-            block_scores = reshaped_input.mean(dim=(3, 5)) 
+            # --- 1. 計算 Block 級別的分數 (Max Pooling) ---
+            pool_input = input.view(batch * heads, 1, seq_len_q, seq_len_k)
+            block_scores = F.max_pool2d(pool_input, kernel_size=block_size, stride=block_size)
+            block_scores = block_scores.squeeze(1).view(batch, heads, num_blocks, num_blocks)
             
-            # --- 2. 套用 Causal Mask (未來的 Block 不能選) ---
+            # --- 2. 處理因果遮罩 ---
             causal_mask = torch.tril(torch.ones(num_blocks, num_blocks, device=input.device))
             block_scores = block_scores.masked_fill(causal_mask == 0, float('-inf'))
             
-            # --- 3. 找出 Top-K 最重要的 Block 並產生 Mask ---
+            # 🛡️ 修正：大模型稀疏化的「三大黃金護盾」 🛡️
+            
+            # 護盾 A: 保護對角線 (Current Block)
+            eye_mask = torch.eye(num_blocks, device=input.device)
+            block_scores = block_scores.masked_fill(eye_mask == 1, float('inf'))
+            
+            # 護盾 B: 保護前一個區塊 (Local Window，維持語法連貫)
+            sub_eye_mask = torch.diag(torch.ones(num_blocks - 1, device=input.device), diagonal=-1)
+            block_scores = block_scores.masked_fill(sub_eye_mask == 1, float('inf'))
+            
+            # 護盾 C: 保護第 0 個區塊 (Attention Sink，穩定 Softmax)
+            block_scores[:, :, :, 0] = float('inf')
+            
+            # --- 3. 產生 Block Mask ---
             keep_ratio = 1.0 - GLOBAL_SPARSITY_RATIO
             block_mask = torch.zeros_like(block_scores)
             
             for row_b in range(num_blocks):
-                num_valid_blocks = row_b + 1 # 這個 row 合法的歷史 Block 數量
-                num_keep = max(1, int(num_valid_blocks * keep_ratio)) # 至少保留 1 個 (對角線)
+                num_valid_blocks = row_b + 1 
+                
+                # 確保我們至少保留那些被「護盾」保護的 Block (最多 3 個)
+                min_keep = min(3, num_valid_blocks)
+                # 使用 round，避免 int() 造成 10% Sparsity 卻過度砍掉 Block
+                num_keep = max(min_keep, int(round(num_valid_blocks * keep_ratio)))
                 
                 row_scores = block_scores[:, :, row_b, :num_valid_blocks]
                 _, topk_indices = torch.topk(row_scores, k=num_keep, dim=-1)
                 
                 block_mask[:, :, row_b].scatter_(-1, topk_indices, 1.0)
                 
-            # --- 4. 將 Block Mask 還原回 Pixel 級別並套用 ---
-            expanded_mask = block_mask.unsqueeze(3).unsqueeze(5).expand(batch, heads, num_blocks, block_size, num_blocks, block_size)
-            expanded_mask = expanded_mask.reshape(batch, heads, seq_len_q, seq_len_k)
+            # --- 4. 放大 Mask 並套用 ---
+            ones_block = torch.ones((block_size, block_size), device=input.device)
+            expanded_mask = torch.kron(block_mask, ones_block)
             
-            # 🔪 把被淘汰的 Block 強制設為 -1e4 (等同於硬體 Bypass)
             input = input.masked_fill(expanded_mask == 0, -1e4)
 
     return original_softmax(input, *args, **kwargs)

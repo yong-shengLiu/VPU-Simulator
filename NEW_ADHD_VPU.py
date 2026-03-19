@@ -1048,8 +1048,8 @@ def set_gemm_csr(csr: CSRConfig, A_base, B_base, C_base, A_stride, B_stride, C_s
                  m_tile, n_tile, k_tile, k_total, act=ActivationType.NONE):
     """ Helper to populate standard GEMM CSR parameters """
     csr.M_tile, csr.N_tile, csr.K_tile, csr.K_total = m_tile, n_tile, k_tile, k_total
-    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_C = A_base, B_base, C_base
-    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_C = A_stride, B_stride, C_stride
+    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_C, csr.Mem_Base_D = A_base, B_base, C_base, 0
+    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_C, csr.Mem_Stride_D = A_stride, B_stride, C_stride, 0
     
     # Standard GEMM 64x64 Double Buffer Allocation
     csr.MatA_reg_base, csr.VREG_stride_A = 0, 2
@@ -1058,6 +1058,12 @@ def set_gemm_csr(csr: CSRConfig, A_base, B_base, C_base, A_stride, B_stride, C_s
     csr.Enable_Double_Buffer = True
     csr.Act_Type = act
     csr.Macro_Op_Name = "GEMM"
+
+    # clear zero
+    csr.MatD_reg_base, csr.VREG_stride_D = 0, 0
+    csr.MatE_reg_base, csr.VREG_stride_E = 0, 0
+    csr.Temp_reg_base, csr.VREG_stride_O = 0, 0
+    csr.M_total, csr.N_total = 0, 0
 
     # ★ 2D Tile Scatter/Gather 自動推導 ★
     # 對於 Matrix A (M x K)，每個 row 需要連續讀取 k_tile 個元素
@@ -1096,7 +1102,7 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     K_out = mem_mgr.allocate(seq_len * D); W_K = mem_mgr.allocate(D * D)
     V_out = mem_mgr.allocate(seq_len * D); W_V = mem_mgr.allocate(D * D)
 
-    for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]:
+    for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]: # Q, K, V
         for m in range(0, seq_len, 64):
             for n in range(0, D, 64):
                 set_gemm_csr(csr, hidden_state_in + (m*D), w_ptr + n, out_ptr + (m*D) + n, D, D, D, 64, 64, 32, D, ActivationType.NONE)
@@ -1721,7 +1727,7 @@ def build_subOP(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySe
 # 6. Run Simulation
 # ==============================================================================
 def run_simulation():
-    model = "GPT2_Base" # 可切換 "BERT_Base", "ViT_Base", "GPT2_Base", "TEST_SUBOP"
+    model = "BERT_Base" # 可切換 "BERT_Base", "ViT_Base", "GPT2_Base", "TEST_SUBOP"
     
     # 建立 DualLogger (自動導向到 log/ 資料夾中，包含模型名稱)
     current_dir = os.path.dirname(os.path.abspath(__file__))
