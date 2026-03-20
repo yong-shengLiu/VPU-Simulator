@@ -1126,10 +1126,10 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
             csr.Mem_Stride_A = csr.Mem_Stride_B = csr.Mem_Stride_D = csr.Mem_Stride_C = D
             
             # Flash Attention 的 2D Tile 設定
-            csr.Is_Gather_A = True; csr.BLOCK_LEN_A = head_dim
-            csr.Is_Gather_B = True; csr.BLOCK_LEN_B = head_dim
+            csr.Is_Gather_A  = True; csr.BLOCK_LEN_A = head_dim
+            csr.Is_Gather_B  = True; csr.BLOCK_LEN_B = head_dim
             csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = head_dim
-            csr.Is_Gather_D = True; csr.BLOCK_LEN_D = head_dim
+            csr.Is_Gather_D  = True; csr.BLOCK_LEN_D = head_dim
             
             # 32x32 Flash Attention 雙緩衝專用 VRF 配置
             csr.MatA_reg_base, csr.VREG_stride_A = 0, 2    
