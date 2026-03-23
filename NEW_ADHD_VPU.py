@@ -894,7 +894,6 @@ def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: Lat
 
     # 🌟 [新增] 讀取 CPU 傳下來的 Sparse_Mask (預設為全 1，代表全部要算)
     sparse_mask = getattr(csr, "Sparse_Mask", 0xFFFFFFFF)
-    print(f"Sparse Mask: {sparse_mask}")
 
     uops = []
     head_dim = csr.K_total
@@ -1047,46 +1046,115 @@ def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
 def set_gemm_csr(csr: CSRConfig, A_base, B_base, C_base, A_stride, B_stride, C_stride, 
                  m_tile, n_tile, k_tile, k_total, act=ActivationType.NONE):
     """ Helper to populate standard GEMM CSR parameters """
-    csr.M_tile, csr.N_tile, csr.K_tile, csr.K_total = m_tile, n_tile, k_tile, k_total
-    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_C, csr.Mem_Base_D = A_base, B_base, C_base, 0
-    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_C, csr.Mem_Stride_D = A_stride, B_stride, C_stride, 0
-    
-    # Standard GEMM 64x64 Double Buffer Allocation
+    # ==========================================
+    # 1. 執行控制與維度設定 (Execution & Dimensions)
+    # ==========================================
+    csr.Macro_Op_Name = "GEMM"
+    csr.Act_Type = act
+    csr.M_tile, csr.N_tile, csr.K_tile = m_tile, n_tile, k_tile
+    csr.K_total = k_total
+    csr.M_total, csr.N_total = 0, 0  # GEMM template 不使用這兩個總維度變數，清零
+
+    # ==========================================
+    # 2. 外部記憶體設定 (External Memory)
+    # ==========================================
+    csr.Mem_Base_A, csr.Mem_Stride_A = A_base, A_stride
+    csr.Mem_Base_B, csr.Mem_Stride_B = B_base, B_stride
+    csr.Mem_Base_C, csr.Mem_Stride_C = C_base, C_stride
+    csr.Mem_Base_D, csr.Mem_Stride_D = 0, 0  # 矩陣 D (V) 在普通 GEMM 中用不到
+
+    # ==========================================
+    # 3. 2D AGU 存取模式 (Scatter/Gather Block Length)
+    # ==========================================
+    # Matrix A (M x K): 每個 row 需要連續讀取 k_tile 個元素
+    csr.Is_Gather_A,  csr.BLOCK_LEN_A = True,  k_tile
+    # Matrix B (K x N): 每個 row 需要連續讀取 n_tile 個元素
+    csr.Is_Gather_B,  csr.BLOCK_LEN_B = True,  n_tile
+    # Matrix C (M x N): 每個 row 需要連續寫回 n_tile 個元素
+    csr.Is_Scatter_C, csr.BLOCK_LEN_C = True,  n_tile
+    # Matrix D: 未使用
+    csr.Is_Gather_D,  csr.BLOCK_LEN_D = False, 0
+
+    # ==========================================
+    # 4. 內部暫存器規劃 (VRF Allocation - 64x64 Double Buffer)
+    # ==========================================
+    csr.Enable_Double_Buffer = True
     csr.MatA_reg_base, csr.VREG_stride_A = 0, 2
     csr.MatB_reg_base, csr.VREG_stride_B = 4, 2
     csr.MatC_reg_base, csr.VREG_stride_C = 8, 4
-    csr.Enable_Double_Buffer = True
-    csr.Act_Type = act
-    csr.Macro_Op_Name = "GEMM"
 
-    # clear zero
+    # 清空未使用的內部暫存器設定
     csr.MatD_reg_base, csr.VREG_stride_D = 0, 0
     csr.MatE_reg_base, csr.VREG_stride_E = 0, 0
     csr.Temp_reg_base, csr.VREG_stride_O = 0, 0
-    csr.M_total, csr.N_total = 0, 0
 
-    # ★ 2D Tile Scatter/Gather 自動推導 ★
-    # 對於 Matrix A (M x K)，每個 row 需要連續讀取 k_tile 個元素
-    csr.Is_Gather_A = True
-    csr.BLOCK_LEN_A = k_tile
+def set_flash_attn_csr(csr: CSRConfig, Q_base, K_base, V_base, Out_base, 
+                       stride_A, stride_B, stride_D, stride_C, 
+                       m_tile, n_tile, head_dim, seq_len):
+    """ Helper to populate standard FlashAttention CSR parameters """
+    csr.M_tile, csr.N_tile, csr.K_total, csr.N_total = m_tile, n_tile, head_dim, seq_len
     
-    # 對於 Matrix B (K x N)，每個 row 需要連續讀取 n_tile 個元素
-    csr.Is_Gather_B = True
-    csr.BLOCK_LEN_B = n_tile
+    # Set External Memory
+    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_D, csr.Mem_Base_C = Q_base, K_base, V_base, Out_base
+    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_D, csr.Mem_Stride_C = stride_A, stride_B, stride_D, stride_C
     
-    # 對於 Matrix C (M x N)，每個 row 需要連續寫回 n_tile 個元素
-    csr.Is_Scatter_C = True
-    csr.BLOCK_LEN_C = n_tile
+    # 2D Tile Scatter/Gather 自動推導
+    csr.Is_Gather_A  = True; csr.BLOCK_LEN_A = head_dim
+    csr.Is_Gather_B  = True; csr.BLOCK_LEN_B = head_dim
+    csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = head_dim
+    csr.Is_Gather_D  = True; csr.BLOCK_LEN_D = head_dim
     
-    # 矩陣 D (V) 在普通 GEMM 中用不到
-    csr.Is_Gather_D = False
-    csr.BLOCK_LEN_D = 0
+    # 32x32 Flash Attention 雙緩衝專用 VRF 配置
+    csr.MatA_reg_base, csr.VREG_stride_A = 0, 2    
+    csr.MatB_reg_base, csr.VREG_stride_B = 2, 2    
+    csr.MatD_reg_base, csr.VREG_stride_D = 6, 2    
+    csr.MatE_reg_base, csr.VREG_stride_E = 10, 1   
+    csr.MatC_reg_base, csr.VREG_stride_O = 16, 8   
+    
+    csr.Enable_Double_Buffer = True
+    csr.Act_Type = ActivationType.NONE
+    csr.Macro_Op_Name = "FLASH_ATTN"
+
+def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base, 
+                   stride_A, stride_B, stride_C, 
+                   m_tile, k_total):
+    """ Helper to populate standard Residual Add + LayerNorm CSR parameters """
+    csr.M_tile, csr.K_total = m_tile, k_total
+    csr.N_tile, csr.N_total = 0, 0 # Not used in 1D-LN
+    
+    # Set External Memory
+    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_C, csr.Mem_Base_D = A_base, B_base, C_base, 0
+    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_C, csr.Mem_Stride_D = stride_A, stride_B, stride_C, 0
+    
+    # 2D Tile Scatter/Gather 自動推導
+    csr.Is_Gather_A  = True; csr.BLOCK_LEN_A = k_total
+    csr.Is_Gather_B  = True; csr.BLOCK_LEN_B = k_total
+    csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = k_total
+    csr.Is_Gather_D  = False; csr.BLOCK_LEN_D = 0
+    
+    # LayerNorm 專用 VRF 配置
+    csr.MatA_reg_base = 0
+    csr.MatB_reg_base = 4
+    csr.MatC_reg_base = 8
+    csr.VREG_stride_C = 4
+    
+    csr.Enable_Double_Buffer = False
+    csr.Act_Type = ActivationType.NONE
+    csr.Macro_Op_Name = "RES_LN"
+
 
 def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, 
-                          seq_len: int, layer_idx: int, hidden_state_in: int, hidden_state_out: int, mem_mgr: MemoryManager):
+                          seq_len: int, layer_idx: int, hidden_state_in: int, hidden_state_out: int, 
+                          mem_mgr: MemoryManager, weights: dict):
     """
-    【不偷懶的完整單層 BERT Base】
-    包含 Q, K, V Projections, 12 Heads FlashAttention, O Projection, AddNorm 1, FFN1 (GELU), FFN2, AddNorm 2
+    Procedure of BERT-base layer
+    1. Q, K, V Projections
+    2. 12 Heads FlashAttention
+    3. O Projection
+    4. AddNorm 1
+    5. FFN1 (GELU)
+    6. FFN2
+    7. AddNorm 2
     """
     D = 768
     D_FFN = 3072
@@ -1095,111 +1163,108 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     print(f"  -> Dispatching Layer {layer_idx+1}/12 ...")
 
     # =====================================================================
-    # 1. Q, K, V Projections (線性投影)
-    # 形狀: [seq_len, D] * [D, D] -> [seq_len, D]
+    # 1. Q, K, V Projections
+    # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
     # =====================================================================
-    Q_out = mem_mgr.allocate(seq_len * D); W_Q = mem_mgr.allocate(D * D)
-    K_out = mem_mgr.allocate(seq_len * D); W_K = mem_mgr.allocate(D * D)
-    V_out = mem_mgr.allocate(seq_len * D); W_V = mem_mgr.allocate(D * D)
+    Q_out = mem_mgr.allocate(seq_len * D); W_Q = weights["W_Q"]
+    K_out = mem_mgr.allocate(seq_len * D); W_K = weights["W_K"]
+    V_out = mem_mgr.allocate(seq_len * D); W_V = weights["W_V"]
 
     for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]: # Q, K, V
         for m in range(0, seq_len, 64):
             for n in range(0, D, 64):
-                set_gemm_csr(csr, hidden_state_in + (m*D), w_ptr + n, out_ptr + (m*D) + n, D, D, D, 64, 64, 32, D, ActivationType.NONE)
+                set_gemm_csr(csr, hidden_state_in + (m*D), w_ptr + n, out_ptr + (m*D) + n, 
+                                  D, D, D, 
+                                  64, 64, 32, 
+                                  D, ActivationType.NONE)
                 sim.fetch_macro([MacroOp(f"L{layer_idx}_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
-    # 2. Multi-Head Flash Attention (12 個 Head 完整執行)
-    # 利用 Mem_Stride 魔法，直接在 [seq_len, 768] 的記憶體中抽取 [seq_len, 64]
+    # 2. Multi-Head Flash Attention (12 Head)
+    # Shape: Q, K, V -> [seq_len, head_Dim], Context -> [seq_len, head_Dim]
     # =====================================================================
     Attn_out = mem_mgr.allocate(seq_len * D) 
     
     for h in range(12):
         for q_start in range(0, seq_len, 32):
-            csr.M_tile, csr.N_tile, csr.K_total, csr.N_total = 32, 32, head_dim, seq_len
+            # Address Generation for Heads
+            Q_base = Q_out + (q_start * D) + (h * head_dim)
+            K_base = K_out + (h * head_dim)
+            V_base = V_out + (h * head_dim)
+            O_base = Attn_out + (q_start * D) + (h * head_dim)
             
-            # 【Stride 魔法】：位址起點加上 (h * head_dim)，每次跨步一整個 D (768)
-            csr.Mem_Base_A = Q_out + (q_start * D) + (h * head_dim)
-            csr.Mem_Base_B = K_out + (h * head_dim)
-            csr.Mem_Base_D = V_out + (h * head_dim)
-            csr.Mem_Base_C = Attn_out + (q_start * D) + (h * head_dim)
-            csr.Mem_Stride_A = csr.Mem_Stride_B = csr.Mem_Stride_D = csr.Mem_Stride_C = D
-            
-            # Flash Attention 的 2D Tile 設定
-            csr.Is_Gather_A  = True; csr.BLOCK_LEN_A = head_dim
-            csr.Is_Gather_B  = True; csr.BLOCK_LEN_B = head_dim
-            csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = head_dim
-            csr.Is_Gather_D  = True; csr.BLOCK_LEN_D = head_dim
-            
-            # 32x32 Flash Attention 雙緩衝專用 VRF 配置
-            csr.MatA_reg_base, csr.VREG_stride_A = 0, 2    
-            csr.MatB_reg_base, csr.VREG_stride_B = 2, 2    
-            csr.MatD_reg_base, csr.VREG_stride_D = 6, 2    
-            csr.MatE_reg_base, csr.VREG_stride_E = 10, 1   
-            csr.MatC_reg_base, csr.VREG_stride_O = 16, 8   
-            csr.Enable_Double_Buffer = True
-            
+            set_flash_attn_csr(csr, Q_base, K_base, V_base, O_base, 
+                                    D, D, D, D, 
+                                    32, 32, head_dim, 
+                                    seq_len)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
     # =====================================================================
     # 3. Attention Output Projection
+    # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
     # =====================================================================
-    O_proj_out = mem_mgr.allocate(seq_len * D); W_O = mem_mgr.allocate(D * D)
+    O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
     for m in range(0, seq_len, 64):
         for n in range(0, D, 64):
-            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, D, D, D, 64, 64, 32, D, ActivationType.NONE)
+            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
+                              D, D, D, 
+                              64, 64, 32, 
+                              D, ActivationType.NONE)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
     # 4. Residual Add + LayerNorm 1
+    # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
     # =====================================================================
     Norm1_out = mem_mgr.allocate(seq_len * D)
     for m in range(0, seq_len, 64):
-        csr.M_tile = 64; csr.K_total = D
-        csr.Mem_Base_A = hidden_state_in + (m * D) # Main Branch (原始輸入)
-        csr.Mem_Base_B = O_proj_out + (m * D)      # Residual Branch
-        csr.Mem_Base_C = Norm1_out + (m * D)       # Output
-        csr.Mem_Stride_A = csr.Mem_Stride_B = csr.Mem_Stride_C = D
-        # LayerNorm 的 2D Tile 設定
-        csr.Is_Gather_A = True; csr.BLOCK_LEN_A = D
-        csr.Is_Gather_B = True; csr.BLOCK_LEN_B = D
-        csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = D
-        csr.Is_Gather_D = False; csr.BLOCK_LEN_D = 0
-        csr.MatA_reg_base, csr.MatB_reg_base, csr.MatC_reg_base = 0, 4, 8
-        csr.VREG_stride_C = 4
-        csr.Enable_Double_Buffer = False
+        A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
+        B_base = O_proj_out + (m * D)      # Residual Branch
+        C_base = Norm1_out + (m * D)       # Output
+        
+        set_res_ln_csr(csr, A_base, B_base, C_base, 
+                            D, D, D, 
+                            64, D)
         sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
     # =====================================================================
-    # 5. FFN 1 (GEMM + GELU) -> 維度擴展至 3072
+    # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
+    # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
     # =====================================================================
-    FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = mem_mgr.allocate(D * D_FFN)
+    FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
     for m in range(0, seq_len, 64):
         for n in range(0, D_FFN, 64):
-            set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, D, D_FFN, D_FFN, 64, 64, 32, D, act=ActivationType.GELU)
+            set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
+                              D, D_FFN, D_FFN, 
+                              64, 64, 32, 
+                              D, act=ActivationType.GELU)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
-    # 6. FFN 2 -> 維度縮回 768
+    # 6. FFN 2 -> dimension scale down to 768
+    # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
     # =====================================================================
-    FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = mem_mgr.allocate(D_FFN * D)
+    FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
     for m in range(0, seq_len, 64):
         for n in range(0, D, 64):
-            set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, D_FFN, D, D, 64, 64, 32, D_FFN, ActivationType.NONE)
+            set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
+                              D_FFN, D, D, 
+                              64, 64, 32, 
+                              D_FFN, ActivationType.NONE)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
-    # 7. Residual Add + LayerNorm 2 (寫回 hidden_state_out，供下一層使用)
+    # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
+    # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
     # =====================================================================
     for m in range(0, seq_len, 64):
-        csr.M_tile = 64; csr.K_total = D
-        csr.Mem_Base_A = Norm1_out + (m * D)       # Main Branch
-        csr.Mem_Base_B = FFN2_out + (m * D)        # Residual Branch
-        csr.Mem_Base_C = hidden_state_out + (m * D)# Output (成為下一層的輸入)
-        csr.Mem_Stride_A = csr.Mem_Stride_B = csr.Mem_Stride_C = D
-        csr.MatA_reg_base, csr.MatB_reg_base, csr.MatC_reg_base = 0, 4, 8
-        csr.VREG_stride_C = 4
-        csr.Enable_Double_Buffer = False
+        A_base = Norm1_out + (m * D)        # Main Branch
+        B_base = FFN2_out + (m * D)         # Residual Branch
+        C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
+        
+        set_res_ln_csr(csr, A_base, B_base, C_base, 
+                            D, D, D,
+                            64, D)
         sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
 def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int, mem_mgr: MemoryManager):
@@ -1212,21 +1277,46 @@ def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     print(f"{'='*60}")
     
     D = 768
+    D_FFN = 3072
+
+    # 1. for weight size alignment
+    def align64(size):
+        return (size + 63) & ~63
+
+    # 2. Static Mememory Allocation (Weight, Ping-Pong)
+    ADDR_BASE = mem_mgr.start_addr
+    # Accurate weight allocation
+    MEM_WQ = ADDR_BASE
+    MEM_WK = MEM_WQ + align64(D * D)
+    MEM_WV = MEM_WK + align64(D * D)
+    MEM_WO = MEM_WV + align64(D * D)
+    MEM_W1 = MEM_WO + align64(D * D)
+    MEM_W2 = MEM_W1 + align64(D * D_FFN)
+    # ping-pong buffer of input and output
+    MEM_PING = MEM_W2 + align64(D_FFN * D)
+    MEM_PONG = MEM_PING + align64(seq_len * D)
+    # Intermediate tensor
+    SCRATCHPAD_BASE = MEM_PONG + align64(seq_len * D)
     
-    # 準備兩個 Ping-Pong Workspace 讓 Hidden State 在 12 層之間來回傳遞
-    hidden_workspace_0 = mem_mgr.allocate(seq_len * D)
-    hidden_workspace_1 = mem_mgr.allocate(seq_len * D)
+    # Packed the weight into MemoryManager
+    weights = {
+        "W_Q": MEM_WQ, "W_K": MEM_WK, "W_V": MEM_WV,
+        "W_O": MEM_WO, "W_1": MEM_W1, "W_2": MEM_W2
+    }
+
+    # current address point to volatile memory region
+    mem_mgr.current_addr = SCRATCHPAD_BASE
     
     for layer in range(12):
-        # 決定當前層的輸入與輸出在哪個 Workspace
-        hidden_in = hidden_workspace_0 if layer % 2 == 0 else hidden_workspace_1
-        hidden_out = hidden_workspace_1 if layer % 2 == 0 else hidden_workspace_0
+        # 決定當前層的輸入與輸出在哪個 Workspace (Ping-Pong)
+        hidden_in = MEM_PING if layer % 2 == 0 else MEM_PONG
+        hidden_out = MEM_PONG if layer % 2 == 0 else MEM_PING
         
         # 紀錄當前記憶體游標，以便層結束後釋放中間的 activations
         mem_checkpoint = mem_mgr.current_addr
         
         # 呼叫該層的排程器
-        build_bert_base_layer(sim, csr, tensorHW, latencySet, seq_len, layer, hidden_in, hidden_out, mem_mgr)
+        build_bert_base_layer(sim, csr, tensorHW, latencySet, seq_len, layer, hidden_in, hidden_out, mem_mgr, weights)
         
         # 層結束，釋放 Q,K,V 等中間變數，防止 OOM (模擬軟體 Compiler 的 Liveness Analysis)
         mem_mgr.current_addr = mem_checkpoint
