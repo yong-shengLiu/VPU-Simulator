@@ -1092,7 +1092,8 @@ def set_flash_attn_csr(csr: CSRConfig, Q_base, K_base, V_base, Out_base,
                        stride_A, stride_B, stride_D, stride_C, 
                        m_tile, n_tile, head_dim, seq_len):
     """ Helper to populate standard FlashAttention CSR parameters """
-    csr.M_tile, csr.N_tile, csr.K_total, csr.N_total = m_tile, n_tile, head_dim, seq_len
+    csr.M_tile, csr.N_tile, csr.K_tile = m_tile, n_tile, head_dim
+    csr.K_total, csr.N_total = head_dim, seq_len
     
     # Set External Memory
     csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_D, csr.Mem_Base_C = Q_base, K_base, V_base, Out_base
@@ -1120,6 +1121,7 @@ def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base,
                    m_tile, k_total):
     """ Helper to populate standard Residual Add + LayerNorm CSR parameters """
     csr.M_tile, csr.K_total = m_tile, k_total
+    csr.K_tile = k_total # TODO check the logic
     csr.N_tile, csr.N_total = 0, 0 # Not used in 1D-LN
     
     # Set External Memory
@@ -1133,10 +1135,12 @@ def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base,
     csr.Is_Gather_D  = False; csr.BLOCK_LEN_D = 0
     
     # LayerNorm 專用 VRF 配置
-    csr.MatA_reg_base = 0
-    csr.MatB_reg_base = 4
-    csr.MatC_reg_base = 8
-    csr.VREG_stride_C = 4
+    csr.MatA_reg_base = 0; csr.VREG_stride_A = 2  # TODO check the logic
+    csr.MatB_reg_base = 4; csr.VREG_stride_B = 2  # TODO check the logic
+    csr.MatC_reg_base = 8; csr.VREG_stride_C = 8  # TODO check the logic
+    csr.MatD_reg_base = 0; csr.VREG_stride_D = 0
+    csr.MatE_reg_base = 0; csr.VREG_stride_E = 0
+    
     
     csr.Enable_Double_Buffer = False
     csr.Act_Type = ActivationType.NONE
