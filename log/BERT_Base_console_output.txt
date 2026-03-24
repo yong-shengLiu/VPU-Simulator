@@ -3,31 +3,36 @@
 🚀 初始化 BERT Base 模型 (12 Layers, Seq Length: 512)
 ============================================================
   -> Dispatching Layer 1/12 ...
-  -> Dispatching Layer 2/12 ...
-  -> Dispatching Layer 3/12 ...
-  -> Dispatching Layer 4/12 ...
-  -> Dispatching Layer 5/12 ...
-  -> Dispatching Layer 6/12 ...
-  -> Dispatching Layer 7/12 ...
-  -> Dispatching Layer 8/12 ...
-  -> Dispatching Layer 9/12 ...
-  -> Dispatching Layer 10/12 ...
-  -> Dispatching Layer 11/12 ...
-  -> Dispatching Layer 12/12 ...
 
 ✅ 所有 12 層巨集指令派發完成！進入硬體 FSM 模擬...
 --- Simulation Running BERT_Base ... ---
-  [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.8 秒)
-  [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.6 秒)
-  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.4 秒)
-  [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 7.1 秒)
-  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 9.0 秒)
-  [Heartbeat] 已經模擬了 6,000,000 個 Cycles... (耗時: 10.7 秒)
-  [Heartbeat] 已經模擬了 7,000,000 個 Cycles... (耗時: 12.4 秒)
-  [Heartbeat] 已經模擬了 8,000,000 個 Cycles... (耗時: 14.2 秒)
-  [Heartbeat] 已經模擬了 9,000,000 個 Cycles... (耗時: 16.0 秒)
-  [Heartbeat] 已經模擬了 10,000,000 個 Cycles... (耗時: 17.8 秒)
-  [Heartbeat] 已經模擬了 11,000,000 個 Cycles... (耗時: 19.5 秒)
-  [Heartbeat] 已經模擬了 12,000,000 個 Cycles... (耗時: 21.3 秒)
-  [Heartbeat] 已經模擬了 13,000,000 個 Cycles... (耗時: 23.0 秒)
-  [Heartbeat] 已經模擬了 14,000,000 個 Cycles... (耗時: 24.8 秒)
+  [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.7 秒)
+  [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.4 秒)
+  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.0 秒)
+  [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 6.7 秒)
+  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.3 秒)
+============================================================
+Simulation Report (Total Cycles: 5,862,242)
+============================================================
+[Instruction Fetch Bandwidth Reduction]
+  - CPU Macro Ops Fetched : 288
+  - VPU Micro Ops Executed: 21,600
+  - Expansion Ratio       : 1:75.0
+
+[Frontend Stall Analysis]
+  - Queue Full Stalls     : 5,830,499 cycles (99.5%)
+
+[Backend Overlap & Hazard Analysis (The True Decoupling)]
+  - LSU Active  : 83.6% | Wait Data (RAW/WAR): 16.4%
+  - VALU Active : 10.1% | Wait Data (RAW/WAR): 29.8%
+  - CIM Active  : 75.5% | Wait Data (RAW/WAR): 24.5%
+
+[SRAM Memory Bandwidth Monitor (@ 1.0 GHz)]
+  - Total Data Transferred: 37.37 MB
+  - Average Bandwidth     : 6.68 GB/s
+  - Peak AXI Bandwidth    : 8.00 GB/s
+  - Bandwidth Utilization : 83.6%
+
+[Sparsity & Datafusion Bandwidth Savings Analysis]
+  - [FlashAttn Datafusion] O(N^2) SRAM Traffic Saved : 0.00 MB
+============================================================

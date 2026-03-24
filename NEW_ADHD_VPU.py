@@ -9,6 +9,7 @@ import sys
 import time
 import copy
 import random
+import math
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from collections import deque
@@ -650,19 +651,60 @@ def _get_lsu_latency(base_lat, stride, is_sg, block_len):
     penalty = (stride * VLENB // max(1, block_len)) if is_sg else 0
     return int(base_lat * stride + penalty)
 
+def calculate_gemm_ws_latency(M_tile, K_tile, N_tile, phys_K, phys_N):
+    """
+    計算 Weight-Stationary (WS) 架構下的 GEMM 總執行週期 (Latency)。
+    
+    Args:
+        csr: 包含 Tiling 資訊的暫存器物件 (K_tile, N_tile, M_tile, Enable_Double_Buffer)
+        tensor: 包含硬體實體規格的物件 (phys_K, phys_N)
+        config: (選擇性) 包含硬體載入權重所需的 cycles 設定
+        
+    Returns:
+        int: 估計的總週期數
+    """
+    
+    # 1. 計算在當前 Tile 大小下，需要切割成多少個實體陣列區塊 (Folds)
+    # 使用 ceil 確保即使不足一個 Tile 也要佔用完整計算週期
+    k_folds = math.ceil(K_tile / phys_K)
+    n_folds = math.ceil(N_tile / phys_N)
+    
+    # 2. 計算核心計算週期 (Base Compute)
+    # 在 WS 模式下，權重固定在陣列，輸入 (M_tile) 流過陣列
+    # 每一組 (K_fold, N_fold) 需要處理 M_tile 個週期
+    base_compute_cycles = k_folds * n_folds * M_tile
+
+    # 3. 計算權重載入開銷 (Weight Loading Overhead)
+    # 假設載入一個 phys_K x phys_N 的權重塊需要 phys_K 個 cycles (連續 Load)
+    load_cycles_per_tile = phys_K 
+    total_weight_load_cycles = k_folds * n_folds * load_cycles_per_tile
+    
+    # 4. 考慮 Double Buffering (隱藏開銷)
+    # 如果開啟 Double Buffer，權重載入通常可以被前一個計算區塊掩蓋
+    # if getattr(csr, 'Enable_Double_Buffer', False):
+    #     # 理想狀態下，只有第一次啟動 (Cold Start) 需要算 Load 時間
+    #     # 後續可以被 Pipeline 隱藏，這裡簡化模擬為只加一次 Cold Start
+    #     total_latency = base_compute_cycles + load_cycles_per_tile
+    # else:
+        # 無 Double Buffer，每次換 Tile 都要等待載入
+    total_latency = base_compute_cycles + total_weight_load_cycles
+
+    return int(total_latency)
+
 def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet):
     """
-    【一維解耦 GEMM】：外層 M, N 迴圈已交由 CPU 軟體處理。
-    硬體 FSM 僅負責 K 維度的歸約與 Output Stationary。
-    csr.Mem_Base_A/B/C 已經由 CPU 設定為該 Tile 的精確實體位址。
+    The FSM response for K dimension Output Stationary
     """
     uops = []
-    c_regs = [csr.MatC_reg_base + i for i in range(csr.VREG_stride_C)]
+    c_regs = [csr.MatC_reg_base + i for i in range(csr.VREG_stride_C)] # Output @INT32
+    d_regs = [csr.MatD_reg_base + i for i in range(csr.VREG_stride_D)] # Output @INT8
 
     uops.append(MicroOp("CIM_CLEAR_PSUM", UnitType.CIM, latency=1))
 
     # [Inner Loop]: 只有 K_total 是硬體要負責遍歷的
     for k_start in range(0, csr.K_total, csr.K_tile):
+
+        # Ping-Pong Load Weight / Input Activation
         offset_a = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_A if csr.Enable_Double_Buffer else 0
         offset_b = ((k_start // csr.K_tile) % 2) * csr.VREG_stride_B if csr.Enable_Double_Buffer else 0
         
@@ -688,25 +730,32 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
             is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
         ))
 
-        # CIM 運算
-        for m_sub in range(0, csr.M_tile, tensor.phys_M):
-            for n_sub in range(0, csr.N_tile, tensor.phys_N):
-                actual_reg_a = get_actual_vreg(reg_a, m_sub, csr.M_tile, csr.VREG_stride_A)
-                actual_reg_b = get_actual_vreg(reg_b, n_sub, csr.N_tile, csr.VREG_stride_B)
-                uops.append(MicroOp(
-                    name=f"CIM_MAC_{m_sub}_{n_sub}", unit_type=UnitType.CIM, latency=csr.K_tile, 
-                    src_regs=[actual_reg_a, actual_reg_b]
+        # phys_K = tensor.phys_M 就是hardware 16 * 16
+        total_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, csr.N_tile, tensor.phys_M , tensor.phys_N)
+        uops.append(MicroOp(
+                    name=f"CIM_MAC_{k_start}", unit_type=UnitType.CIM,
+                    latency=total_ws_latency,
+                    dst_regs=c_regs, src_regs=a_regs + b_regs
                 ))
+        # for m_sub in range(0, csr.M_tile, tensor.phys_M):
+        #     for n_sub in range(0, csr.N_tile, tensor.phys_N):
+        #         actual_reg_a = get_actual_vreg(reg_a, m_sub, csr.M_tile, csr.VREG_stride_A)
+        #         actual_reg_b = get_actual_vreg(reg_b, n_sub, csr.N_tile, csr.VREG_stride_B)
+        #         uops.append(MicroOp(
+        #             name=f"CIM_MAC_{m_sub}_{n_sub}", unit_type=UnitType.CIM, latency=csr.K_tile, 
+        #             src_regs=[actual_reg_a, actual_reg_b]
+        #         ))
 
     # Output 寫回
-    uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*csr.VREG_stride_C, dst_regs=c_regs))
+    # uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*csr.VREG_stride_C, dst_regs=c_regs))
+    uops.append(MicroOp("REQUANT_OUT", UnitType.VALU, latency=latency.Store_One_Vector*csr.VREG_stride_C, src_regs=c_regs, dst_regs=d_regs))
     if csr.Act_Type == ActivationType.GELU:
-        uops.append(MicroOp(f"VALU_GELU", UnitType.VALU, latency=latency.VALU_VGELU*csr.VREG_stride_C, src_regs=c_regs, dst_regs=c_regs))
+        uops.append(MicroOp(f"VALU_GELU", UnitType.VALU, latency=latency.VALU_VGELU*csr.VREG_stride_C, src_regs=d_regs, dst_regs=d_regs))
         
     uops.append(MicroOp(
         name=f"LSU_STORE_C", unit_type=UnitType.LSU, 
         latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_C, csr.Is_Scatter_C, csr.BLOCK_LEN_C),
-        src_regs=c_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
+        src_regs=d_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
         is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
     ))
     return uops
@@ -829,11 +878,15 @@ def macro_flash_attn_template_deprecate(csr: CSRConfig, tensor: TensorConfig, la
         ))
 
         # GEMM 1: Q * K^T -> S
-        for m_sub in range(0, csr.M_tile, tensor.phys_M):
-            for n_sub in range(0, current_n_tile, tensor.phys_N):
-                actual_q = get_actual_vreg(reg_q, m_sub, csr.M_tile, csr.VREG_stride_A)
-                actual_k = get_actual_vreg(reg_k_actual, n_sub, csr.N_tile, csr.VREG_stride_B)
-                uops.append(MicroOp(f"CIM_QK_{m_sub}_{n_sub}", UnitType.CIM, latency=head_dim, src_regs=[actual_q, actual_k], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+        QKT_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, current_n_tile, tensor.phys_M , tensor.phys_N)
+        uops.append(MicroOp(f"CIM_QK_{k_start}", UnitType.CIM, 
+                            latency=QKT_ws_latency,
+                            src_regs=reg_q+reg_k_actual, dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+        # for m_sub in range(0, csr.M_tile, tensor.phys_M):
+        #     for n_sub in range(0, current_n_tile, tensor.phys_N):
+        #         actual_q = get_actual_vreg(reg_q, m_sub, csr.M_tile, csr.VREG_stride_A)
+        #         actual_k = get_actual_vreg(reg_k_actual, n_sub, csr.N_tile, csr.VREG_stride_B)
+        #         uops.append(MicroOp(f"CIM_QK_{m_sub}_{n_sub}", UnitType.CIM, latency=head_dim, src_regs=[actual_q, actual_k], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
 
         uops.append(MicroOp("VALU_SOFTMAX_UPDATE", UnitType.VALU, latency=20, src_regs=[VIRTUAL_L0_BUFFER_ID]))
         uops.append(MicroOp("VALU_SOFTMAX_EXP", UnitType.VALU, latency=max(1, csr.M_tile*current_n_tile//LANE), src_regs=[VIRTUAL_L0_BUFFER_ID], dst_regs=p_regs))
@@ -1010,6 +1063,7 @@ def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
     out_regs = [reg_out + i for i in range(csr.VREG_stride_C)]
     reg_mean, reg_var  = csr.Temp_reg_base, csr.Temp_reg_base + 1
     
+    # INT8, v0
     uops.append(MicroOp(
         "LSU_LOAD_MAIN", UnitType.LSU, 
         latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_A, csr.Is_Gather_A, csr.BLOCK_LEN_A),
@@ -1017,6 +1071,7 @@ def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
         is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
     ))
 
+    # INT8, v1
     uops.append(MicroOp(
         "LSU_LOAD_RES", UnitType.LSU, 
         latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_B, csr.Is_Gather_B, csr.BLOCK_LEN_B),
@@ -1024,6 +1079,7 @@ def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
         is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
     ))
 
+    # INT32, v2 ~ v5
     uops.append(MicroOp(f"VALU_VADD_RES", UnitType.VALU, latency=int(latency.VALU_VADD*csr.VREG_stride_C), src_regs=main_regs + res_regs, dst_regs=out_regs))
     
     realistic_valu_lat = int((csr.M_tile * csr.K_total) // (LANE * AXI_WIDTH) + 10)
@@ -1045,18 +1101,25 @@ def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
 # ==============================================================================
 def set_gemm_csr(csr: CSRConfig, A_base, B_base, C_base, A_stride, B_stride, C_stride, 
                  m_tile, n_tile, k_tile, k_total, act=ActivationType.NONE):
-    """ Helper to populate standard GEMM CSR parameters """
+    """
+    Helper to populate standard GEMM CSR parameters 
+    Behavior: A[64, 32] * B[32, 64] = C[64, 64]  @INT8 (M, K) * (K, N) = (M, N)
+    [Ping A]: v0 ~ v1   [Pong A]: v2 ~ v3
+    [Ping B]: v4 ~ v5   [Pong B]: v6 ~ v7
+    [C]: v8 ~ v11
+    [Reservesd]: v12 ~ v31
+    """
     # ==========================================
-    # 1. 執行控制與維度設定 (Execution & Dimensions)
+    # 1. Execution & Dimensions
     # ==========================================
     csr.Macro_Op_Name = "GEMM"
     csr.Act_Type = act
     csr.M_tile, csr.N_tile, csr.K_tile = m_tile, n_tile, k_tile
     csr.K_total = k_total
-    csr.M_total, csr.N_total = 0, 0  # GEMM template 不使用這兩個總維度變數，清零
+    csr.M_total, csr.N_total = 0, 0  # this two dimension is useless in GEMM template
 
     # ==========================================
-    # 2. 外部記憶體設定 (External Memory)
+    # 2. External Memory: Base Address & Stride
     # ==========================================
     csr.Mem_Base_A, csr.Mem_Stride_A = A_base, A_stride
     csr.Mem_Base_B, csr.Mem_Stride_B = B_base, B_stride
@@ -1064,87 +1127,126 @@ def set_gemm_csr(csr: CSRConfig, A_base, B_base, C_base, A_stride, B_stride, C_s
     csr.Mem_Base_D, csr.Mem_Stride_D = 0, 0  # 矩陣 D (V) 在普通 GEMM 中用不到
 
     # ==========================================
-    # 3. 2D AGU 存取模式 (Scatter/Gather Block Length)
+    # 3. 2D AGU (Scatter/Gather Block Length)
     # ==========================================
-    # Matrix A (M x K): 每個 row 需要連續讀取 k_tile 個元素
     csr.Is_Gather_A,  csr.BLOCK_LEN_A = True,  k_tile
-    # Matrix B (K x N): 每個 row 需要連續讀取 n_tile 個元素
     csr.Is_Gather_B,  csr.BLOCK_LEN_B = True,  n_tile
-    # Matrix C (M x N): 每個 row 需要連續寫回 n_tile 個元素
     csr.Is_Scatter_C, csr.BLOCK_LEN_C = True,  n_tile
-    # Matrix D: 未使用
     csr.Is_Gather_D,  csr.BLOCK_LEN_D = False, 0
 
     # ==========================================
-    # 4. 內部暫存器規劃 (VRF Allocation - 64x64 Double Buffer)
+    # 4. VRF Allocation - 64x64 Double Buffer
     # ==========================================
     csr.Enable_Double_Buffer = True
-    csr.MatA_reg_base, csr.VREG_stride_A = 0, 2
-    csr.MatB_reg_base, csr.VREG_stride_B = 4, 2
-    csr.MatC_reg_base, csr.VREG_stride_C = 8, 4
+    csr.MatA_reg_base, csr.VREG_stride_A = 0, 2   # @INT8
+    csr.MatB_reg_base, csr.VREG_stride_B = 4, 2   # @INT8
+    csr.MatC_reg_base, csr.VREG_stride_C = 8, 16  # @INT32
+    csr.MatD_reg_base, csr.VREG_stride_D = 24, 4  # @INT8
 
-    # 清空未使用的內部暫存器設定
-    csr.MatD_reg_base, csr.VREG_stride_D = 0, 0
+    # clear
     csr.MatE_reg_base, csr.VREG_stride_E = 0, 0
     csr.Temp_reg_base, csr.VREG_stride_O = 0, 0
 
 def set_flash_attn_csr(csr: CSRConfig, Q_base, K_base, V_base, Out_base, 
                        stride_A, stride_B, stride_D, stride_C, 
                        m_tile, n_tile, head_dim, seq_len):
-    """ Helper to populate standard FlashAttention CSR parameters """
+    """
+    Helper to populate standard FlashAttention CSR parameters
+    Behavior: 
+    1. Q[32, 64] * KT[64, 32] = S[32, 32] @ INT8
+    [Q]: v0 ~ v1   --> A
+    [Ping KT]: v2 ~ v3   [Pong KT]: v4, v5  --> B
+
+    2. Softmax(S)[32, 32] = P[32, 32] @ INT32 --> INT8 (requant at Tensor core)
+    [S, Pnew]: v10 --> will not touch the external memory
+
+    3. P[32, 32] * V[32, 64] = O[32, 64] @ INT32 --> INT8 (accumulate O temp in VRF, final requant at Tensor core)
+    [Ping V]: v6, v7    [Pong V]: v8. v9 --> D
+    [Otemp]: v16 ~ v23 --> C
+
+    [Reserved] v24 ~ v31
+    """
+    # ==========================================
+    # 1. Execution & Dimensions
+    # ==========================================
+    csr.Macro_Op_Name = "FLASH_ATTN"
+    csr.Act_Type = ActivationType.NONE
     csr.M_tile, csr.N_tile, csr.K_tile = m_tile, n_tile, head_dim
     csr.K_total, csr.N_total = head_dim, seq_len
+    csr.M_total = 0
     
-    # Set External Memory
-    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_D, csr.Mem_Base_C = Q_base, K_base, V_base, Out_base
-    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_D, csr.Mem_Stride_C = stride_A, stride_B, stride_D, stride_C
+    # ==========================================
+    # 2. External Memory: Base Address & Stride
+    # ==========================================
+    csr.Mem_Base_A, csr.Mem_Stride_A = Q_base,   stride_A
+    csr.Mem_Base_B, csr.Mem_Stride_B = K_base,   stride_B
+    csr.Mem_Base_C, csr.Mem_Stride_C = Out_base, stride_C
+    csr.Mem_Base_D, csr.Mem_Stride_D = V_base,   stride_D
+
+    # ==========================================
+    # 3. 2D AGU (Scatter/Gather Block Length)
+    # ==========================================
+    csr.Is_Gather_A,  csr.BLOCK_LEN_A = True, head_dim
+    csr.Is_Gather_B,  csr.BLOCK_LEN_B = True, head_dim
+    csr.Is_Scatter_C, csr.BLOCK_LEN_C = True, head_dim
+    csr.Is_Gather_D,  csr.BLOCK_LEN_D = True, head_dim
     
-    # 2D Tile Scatter/Gather 自動推導
-    csr.Is_Gather_A  = True; csr.BLOCK_LEN_A = head_dim
-    csr.Is_Gather_B  = True; csr.BLOCK_LEN_B = head_dim
-    csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = head_dim
-    csr.Is_Gather_D  = True; csr.BLOCK_LEN_D = head_dim
-    
-    # 32x32 Flash Attention 雙緩衝專用 VRF 配置
-    csr.MatA_reg_base, csr.VREG_stride_A = 0, 2    
-    csr.MatB_reg_base, csr.VREG_stride_B = 2, 2    
-    csr.MatD_reg_base, csr.VREG_stride_D = 6, 2    
-    csr.MatE_reg_base, csr.VREG_stride_E = 10, 1   
-    csr.MatC_reg_base, csr.VREG_stride_O = 16, 8   
-    
+    # ==========================================
+    # 4. VRF Allocation - 32x32 Flash Attention
+    # ==========================================
     csr.Enable_Double_Buffer = True
-    csr.Act_Type = ActivationType.NONE
-    csr.Macro_Op_Name = "FLASH_ATTN"
+    csr.MatA_reg_base, csr.VREG_stride_A = 0, 2   # Q
+    csr.MatB_reg_base, csr.VREG_stride_B = 2, 2   # K
+    csr.MatD_reg_base, csr.VREG_stride_D = 6, 2   # V
+    csr.MatE_reg_base, csr.VREG_stride_E = 10, 1  # P
+    csr.MatC_reg_base, csr.VREG_stride_O = 16, 8  # O
+
+    csr.Temp_reg_base, csr.VREG_stride_C = 0, 4  # TODO Not Sure, need to check with micro op
 
 def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base, 
                    stride_A, stride_B, stride_C, 
-                   m_tile, k_total):
-    """ Helper to populate standard Residual Add + LayerNorm CSR parameters """
-    csr.M_tile, csr.K_total = m_tile, k_total
-    csr.K_tile = k_total # TODO check the logic
-    csr.N_tile, csr.N_total = 0, 0 # Not used in 1D-LN
+                   hidden_size):
+    """
+    Helper to populate standard Residual Add + LayerNorm CSR parameters
+    Main[1, 768] --> v0
+    RES[1, 768] --> v1
+    LayerNorm[1, 768] --> v13
+    """
+
+    # ==========================================
+    # 1. Execution & Dimensions
+    # ==========================================
+    csr.Macro_Op_Name = "RES_LN"
+    csr.Act_Type = ActivationType.NONE
+    csr.M_tile, csr.N_tile, csr.K_tile = 0, 0, 0
+    csr.M_total, csr.K_total, csr.N_total = 0, 0, hidden_size
     
-    # Set External Memory
-    csr.Mem_Base_A, csr.Mem_Base_B, csr.Mem_Base_C, csr.Mem_Base_D = A_base, B_base, C_base, 0
-    csr.Mem_Stride_A, csr.Mem_Stride_B, csr.Mem_Stride_C, csr.Mem_Stride_D = stride_A, stride_B, stride_C, 0
+    # ==========================================
+    # 2. External Memory: Base Address & Stride
+    # ==========================================
+    csr.Mem_Base_A, csr.Mem_Stride_A = A_base, stride_A
+    csr.Mem_Base_B, csr.Mem_Stride_B = B_base, stride_B
+    csr.Mem_Base_C, csr.Mem_Stride_C = C_base, stride_C
+    csr.Mem_Base_D, csr.Mem_Stride_D = 0,   0
     
-    # 2D Tile Scatter/Gather 自動推導
-    csr.Is_Gather_A  = True; csr.BLOCK_LEN_A = k_total
-    csr.Is_Gather_B  = True; csr.BLOCK_LEN_B = k_total
-    csr.Is_Scatter_C = True; csr.BLOCK_LEN_C = k_total
+    # ==========================================
+    # 3. 2D AGU (Scatter/Gather Block Length)
+    # ==========================================
+    csr.Is_Gather_A  = False; csr.BLOCK_LEN_A = hidden_size
+    csr.Is_Gather_B  = False; csr.BLOCK_LEN_B = hidden_size
+    csr.Is_Scatter_C = False; csr.BLOCK_LEN_C = hidden_size
     csr.Is_Gather_D  = False; csr.BLOCK_LEN_D = 0
     
-    # LayerNorm 專用 VRF 配置
-    csr.MatA_reg_base = 0; csr.VREG_stride_A = 2  # TODO check the logic
-    csr.MatB_reg_base = 4; csr.VREG_stride_B = 2  # TODO check the logic
-    csr.MatC_reg_base = 8; csr.VREG_stride_C = 8  # TODO check the logic
-    csr.MatD_reg_base = 0; csr.VREG_stride_D = 0
-    csr.MatE_reg_base = 0; csr.VREG_stride_E = 0
-    
-    
+    # ==========================================
+    # 4. VRF Allocation
+    # ==========================================
     csr.Enable_Double_Buffer = False
-    csr.Act_Type = ActivationType.NONE
-    csr.Macro_Op_Name = "RES_LN"
+    csr.MatA_reg_base, csr.VREG_stride_A = 0,  1  # Main
+    csr.MatB_reg_base, csr.VREG_stride_B = 1,  1  # residual
+    csr.MatC_reg_base, csr.VREG_stride_C = 13, 1  # layerNorm result
+    csr.MatD_reg_base, csr.VREG_stride_D = 0,  0
+    csr.MatE_reg_base, csr.VREG_stride_E = 0,  0
+    csr.Temp_reg_base, csr.VREG_stride_O = 0,  0
 
 
 def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, 
@@ -1183,93 +1285,93 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
                                   D, ActivationType.NONE)
                 sim.fetch_macro([MacroOp(f"L{layer_idx}_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 2. Multi-Head Flash Attention (12 Head)
-    # Shape: Q, K, V -> [seq_len, head_Dim], Context -> [seq_len, head_Dim]
-    # =====================================================================
-    Attn_out = mem_mgr.allocate(seq_len * D) 
+    # # =====================================================================
+    # # 2. Multi-Head Flash Attention (12 Head)
+    # # Shape: Q, K, V -> [seq_len, head_Dim], Context -> [seq_len, head_Dim]
+    # # =====================================================================
+    # Attn_out = mem_mgr.allocate(seq_len * D) 
     
-    for h in range(12):
-        for q_start in range(0, seq_len, 32):
-            # Address Generation for Heads
-            Q_base = Q_out + (q_start * D) + (h * head_dim)
-            K_base = K_out + (h * head_dim)
-            V_base = V_out + (h * head_dim)
-            O_base = Attn_out + (q_start * D) + (h * head_dim)
+    # for h in range(12):
+    #     for q_start in range(0, seq_len, 32):
+    #         # Address Generation for Heads
+    #         Q_base = Q_out + (q_start * D) + (h * head_dim)
+    #         K_base = K_out + (h * head_dim)
+    #         V_base = V_out + (h * head_dim)
+    #         O_base = Attn_out + (q_start * D) + (h * head_dim)
             
-            set_flash_attn_csr(csr, Q_base, K_base, V_base, O_base, 
-                                    D, D, D, D, 
-                                    32, 32, head_dim, 
-                                    seq_len)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
+    #         set_flash_attn_csr(csr, Q_base, K_base, V_base, O_base, 
+    #                                 D, D, D, D, 
+    #                                 32, 32, head_dim, 
+    #                                 seq_len)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
-    # =====================================================================
-    # 3. Attention Output Projection
-    # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
-    # =====================================================================
-    O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
-    for m in range(0, seq_len, 64):
-        for n in range(0, D, 64):
-            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
-                              D, D, D, 
-                              64, 64, 32, 
-                              D, ActivationType.NONE)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # # =====================================================================
+    # # 3. Attention Output Projection
+    # # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
+    # # =====================================================================
+    # O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
+    # for m in range(0, seq_len, 64):
+    #     for n in range(0, D, 64):
+    #         set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
+    #                           D, D, D, 
+    #                           64, 64, 32, 
+    #                           D, ActivationType.NONE)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 4. Residual Add + LayerNorm 1
-    # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
-    # =====================================================================
-    Norm1_out = mem_mgr.allocate(seq_len * D)
-    for m in range(0, seq_len, 64):
-        A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
-        B_base = O_proj_out + (m * D)      # Residual Branch
-        C_base = Norm1_out + (m * D)       # Output
+    # # =====================================================================
+    # # 4. Residual Add + LayerNorm 1
+    # # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
+    # # =====================================================================
+    # Norm1_out = mem_mgr.allocate(seq_len * D)
+    # for m in range(0, seq_len, 64):
+    #     A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
+    #     B_base = O_proj_out + (m * D)      # Residual Branch
+    #     C_base = Norm1_out + (m * D)       # Output
         
-        set_res_ln_csr(csr, A_base, B_base, C_base, 
-                            D, D, D, 
-                            64, D)
-        sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
+    #     set_res_ln_csr(csr, A_base, B_base, C_base, 
+    #                         D, D, D, 
+    #                         D)
+    #     sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
-    # =====================================================================
-    # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
-    # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
-    # =====================================================================
-    FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
-    for m in range(0, seq_len, 64):
-        for n in range(0, D_FFN, 64):
-            set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
-                              D, D_FFN, D_FFN, 
-                              64, 64, 32, 
-                              D, act=ActivationType.GELU)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # # =====================================================================
+    # # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
+    # # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
+    # # =====================================================================
+    # FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
+    # for m in range(0, seq_len, 64):
+    #     for n in range(0, D_FFN, 64):
+    #         set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
+    #                           D, D_FFN, D_FFN, 
+    #                           64, 64, 32, 
+    #                           D, act=ActivationType.GELU)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 6. FFN 2 -> dimension scale down to 768
-    # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
-    # =====================================================================
-    FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
-    for m in range(0, seq_len, 64):
-        for n in range(0, D, 64):
-            set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
-                              D_FFN, D, D, 
-                              64, 64, 32, 
-                              D_FFN, ActivationType.NONE)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # # =====================================================================
+    # # 6. FFN 2 -> dimension scale down to 768
+    # # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
+    # # =====================================================================
+    # FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
+    # for m in range(0, seq_len, 64):
+    #     for n in range(0, D, 64):
+    #         set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
+    #                           D_FFN, D, D, 
+    #                           64, 64, 32, 
+    #                           D_FFN, ActivationType.NONE)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
-    # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
-    # =====================================================================
-    for m in range(0, seq_len, 64):
-        A_base = Norm1_out + (m * D)        # Main Branch
-        B_base = FFN2_out + (m * D)         # Residual Branch
-        C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
+    # # =====================================================================
+    # # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
+    # # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
+    # # =====================================================================
+    # for m in range(0, seq_len, 64):
+    #     A_base = Norm1_out + (m * D)        # Main Branch
+    #     B_base = FFN2_out + (m * D)         # Residual Branch
+    #     C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
         
-        set_res_ln_csr(csr, A_base, B_base, C_base, 
-                            D, D, D,
-                            64, D)
-        sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
+    #     set_res_ln_csr(csr, A_base, B_base, C_base, 
+    #                         D, D, D,
+    #                         D)
+    #     sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
 def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int, mem_mgr: MemoryManager):
     """
@@ -1311,7 +1413,7 @@ def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     # current address point to volatile memory region
     mem_mgr.current_addr = SCRATCHPAD_BASE
     
-    for layer in range(12):
+    for layer in range(1):
         # 決定當前層的輸入與輸出在哪個 Workspace (Ping-Pong)
         hidden_in = MEM_PING if layer % 2 == 0 else MEM_PONG
         hidden_out = MEM_PONG if layer % 2 == 0 else MEM_PING
