@@ -653,15 +653,10 @@ def _get_lsu_latency(base_lat, stride, is_sg, block_len):
 
 def calculate_gemm_ws_latency(M_tile, K_tile, N_tile, phys_K, phys_N):
     """
-    計算 Weight-Stationary (WS) 架構下的 GEMM 總執行週期 (Latency)。
-    
-    Args:
-        csr: 包含 Tiling 資訊的暫存器物件 (K_tile, N_tile, M_tile, Enable_Double_Buffer)
-        tensor: 包含硬體實體規格的物件 (phys_K, phys_N)
-        config: (選擇性) 包含硬體載入權重所需的 cycles 設定
-        
-    Returns:
-        int: 估計的總週期數
+    Calculate the GEMM Latency for CIM in weight stationary
+    Weight [16, 16]
+    Input  [16, 1 ]
+    Output [1,  16]
     """
     
     # 1. 計算在當前 Tile 大小下，需要切割成多少個實體陣列區塊 (Folds)
@@ -675,10 +670,9 @@ def calculate_gemm_ws_latency(M_tile, K_tile, N_tile, phys_K, phys_N):
     base_compute_cycles = k_folds * n_folds * M_tile
 
     # 3. 計算權重載入開銷 (Weight Loading Overhead)
-    # 假設載入一個 phys_K x phys_N 的權重塊需要 phys_K 個 cycles (連續 Load)
-    load_cycles_per_tile = phys_K 
-    total_weight_load_cycles = k_folds * n_folds * load_cycles_per_tile
-    
+    # Total weights / Bandwidth
+    total_weight_load_cycles = math.ceil((K_tile * N_tile) / (LANE * AXI_WIDTH / 8))
+
     # 4. 考慮 Double Buffering (隱藏開銷)
     # 如果開啟 Double Buffer，權重載入通常可以被前一個計算區塊掩蓋
     # if getattr(csr, 'Enable_Double_Buffer', False):
@@ -694,6 +688,11 @@ def calculate_gemm_ws_latency(M_tile, K_tile, N_tile, phys_K, phys_N):
 def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet):
     """
     The FSM response for K dimension Output Stationary
+    [VRF Allocation]
+        reg_a ping-pong: input activation @INT8
+        reg_b ping-pong: weight @INT8
+        reg_c: CIM output @INT32
+        reg_d: VALU requant @INT8
     """
     uops = []
     c_regs = [csr.MatC_reg_base + i for i in range(csr.VREG_stride_C)] # Output @INT32
@@ -834,10 +833,14 @@ def macro_lsh_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet
     
     return uops
 
-def macro_flash_attn_template_deprecate(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
+def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
     """
-    【一維解耦 FlashAttention】：外層 Q 迴圈已交由 CPU 軟體處理。
-    硬體 FSM 僅負責 K, V 的上下文序列遍歷。
+    [VRF Allocation]
+        reg_q
+        reg_k ping_pong
+        reg_v ping_pong
+        reg_p
+        reg_o
     """
     uops = []
     head_dim = csr.K_total  
@@ -901,11 +904,15 @@ def macro_flash_attn_template_deprecate(csr: CSRConfig, tensor: TensorConfig, la
         ))
 
         # GEMM 2: P * V -> O
-        for m_sub in range(0, csr.M_tile, tensor.phys_M):
-            for d_sub in range(0, head_dim, tensor.phys_N): 
-                actual_p = get_actual_vreg(reg_p, m_sub, csr.M_tile, csr.VREG_stride_E)
-                actual_v = get_actual_vreg(reg_v_actual, d_sub, head_dim, csr.VREG_stride_D)
-                uops.append(MicroOp(f"CIM_PV_{m_sub}_{d_sub}", UnitType.CIM, latency=current_n_tile, src_regs=[actual_p, actual_v], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+        PV_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, head_dim, tensor.phys_M , tensor.phys_N)
+        uops.append(MicroOp(f"CIM_PV_{k_start}", UnitType.CIM, 
+                            latency=PV_ws_latency, 
+                            src_regs=reg_p+reg_v, dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+        # for m_sub in range(0, csr.M_tile, tensor.phys_M):
+        #     for d_sub in range(0, head_dim, tensor.phys_N): 
+        #         actual_p = get_actual_vreg(reg_p, m_sub, csr.M_tile, csr.VREG_stride_E)
+        #         actual_v = get_actual_vreg(reg_v_actual, d_sub, head_dim, csr.VREG_stride_D)
+        #         uops.append(MicroOp(f"CIM_PV_{m_sub}_{d_sub}", UnitType.CIM, latency=current_n_tile, src_regs=[actual_p, actual_v], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
 
         uops.append(MicroOp("VALU_GLOBAL_O", UnitType.VALU, latency=64, src_regs=o_global_regs + [VIRTUAL_L0_BUFFER_ID], dst_regs=o_global_regs))
 
@@ -938,7 +945,7 @@ def macro_flash_attn_template_deprecate(csr: CSRConfig, tensor: TensorConfig, la
 
     return uops
 
-def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
+def macro_flash_attn_template_dynamic_sparsity_deprecate(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
     """
     1.【一維解耦 FlashAttention】：外層 Q 迴圈已交由 CPU 軟體處理。
     硬體 FSM 僅負責 K, V 的上下文序列遍歷。
@@ -1248,7 +1255,6 @@ def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base,
     csr.MatE_reg_base, csr.VREG_stride_E = 0,  0
     csr.Temp_reg_base, csr.VREG_stride_O = 0,  0
 
-
 def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, 
                           seq_len: int, layer_idx: int, hidden_state_in: int, hidden_state_out: int, 
                           mem_mgr: MemoryManager, weights: dict):
@@ -1285,25 +1291,25 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
                                   D, ActivationType.NONE)
                 sim.fetch_macro([MacroOp(f"L{layer_idx}_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # # =====================================================================
-    # # 2. Multi-Head Flash Attention (12 Head)
-    # # Shape: Q, K, V -> [seq_len, head_Dim], Context -> [seq_len, head_Dim]
-    # # =====================================================================
-    # Attn_out = mem_mgr.allocate(seq_len * D) 
+    # =====================================================================
+    # 2. Multi-Head Flash Attention (12 Head)
+    # Shape: Q, K, V -> [seq_len, head_Dim], Context -> [seq_len, head_Dim]
+    # =====================================================================
+    Attn_out = mem_mgr.allocate(seq_len * D) 
     
-    # for h in range(12):
-    #     for q_start in range(0, seq_len, 32):
-    #         # Address Generation for Heads
-    #         Q_base = Q_out + (q_start * D) + (h * head_dim)
-    #         K_base = K_out + (h * head_dim)
-    #         V_base = V_out + (h * head_dim)
-    #         O_base = Attn_out + (q_start * D) + (h * head_dim)
+    for h in range(12):
+        for q_start in range(0, seq_len, 32):
+            # Address Generation for Heads
+            Q_base = Q_out + (q_start * D) + (h * head_dim)
+            K_base = K_out + (h * head_dim)
+            V_base = V_out + (h * head_dim)
+            O_base = Attn_out + (q_start * D) + (h * head_dim)
             
-    #         set_flash_attn_csr(csr, Q_base, K_base, V_base, O_base, 
-    #                                 D, D, D, D, 
-    #                                 32, 32, head_dim, 
-    #                                 seq_len)
-    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
+            set_flash_attn_csr(csr, Q_base, K_base, V_base, O_base, 
+                                    D, D, D, D, 
+                                    32, 32, head_dim, 
+                                    seq_len)
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
     # # =====================================================================
     # # 3. Attention Output Projection

@@ -8,31 +8,6 @@
 --- Simulation Running BERT_Base ... ---
   [Heartbeat] 已經模擬了 1,000,000 個 Cycles... (耗時: 1.7 秒)
   [Heartbeat] 已經模擬了 2,000,000 個 Cycles... (耗時: 3.4 秒)
-  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.0 秒)
+  [Heartbeat] 已經模擬了 3,000,000 個 Cycles... (耗時: 5.1 秒)
   [Heartbeat] 已經模擬了 4,000,000 個 Cycles... (耗時: 6.7 秒)
-  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.3 秒)
-============================================================
-Simulation Report (Total Cycles: 5,862,242)
-============================================================
-[Instruction Fetch Bandwidth Reduction]
-  - CPU Macro Ops Fetched : 288
-  - VPU Micro Ops Executed: 21,600
-  - Expansion Ratio       : 1:75.0
-
-[Frontend Stall Analysis]
-  - Queue Full Stalls     : 5,830,499 cycles (99.5%)
-
-[Backend Overlap & Hazard Analysis (The True Decoupling)]
-  - LSU Active  : 83.6% | Wait Data (RAW/WAR): 16.4%
-  - VALU Active : 10.1% | Wait Data (RAW/WAR): 29.8%
-  - CIM Active  : 75.5% | Wait Data (RAW/WAR): 24.5%
-
-[SRAM Memory Bandwidth Monitor (@ 1.0 GHz)]
-  - Total Data Transferred: 37.37 MB
-  - Average Bandwidth     : 6.68 GB/s
-  - Peak AXI Bandwidth    : 8.00 GB/s
-  - Bandwidth Utilization : 83.6%
-
-[Sparsity & Datafusion Bandwidth Savings Analysis]
-  - [FlashAttn Datafusion] O(N^2) SRAM Traffic Saved : 0.00 MB
-============================================================
+  [Heartbeat] 已經模擬了 5,000,000 個 Cycles... (耗時: 8.4 秒)
