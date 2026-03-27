@@ -836,11 +836,14 @@ def macro_lsh_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet
 def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: LatencySet, vpu: ADHD_VPU = None):
     """
     [VRF Allocation]
-        reg_q
-        reg_k ping_pong
-        reg_v ping_pong
-        reg_p
-        reg_o
+        v0 ~ v1   : reg_q        (Static, INT8)
+        v2 ~ v5   : reg_k        (Ping-Pong, INT8)
+        v6 ~ v9   : reg_v        (Ping-Pong, INT8)
+        v10 ~ v13 : reg_s_local  (QK^T 中繼站, INT32) -> 需要新增 csr.S_local_reg_base
+        v14       : reg_p_local  (Softmax 結果, INT8) -> 需要新增 csr.P_local_reg_base
+        v15       : reg_stats    (m, l 統計量, INT32)  -> 需要新增 csr.Stats_reg_base
+        v16 ~ v23 : reg_o_global (全域累加輸出, INT32)
+        v24 ~ v31 : reg_o_local  (P*V 中繼站, INT32) -> 需要新增 csr.O_local_reg_base
     """
     uops = []
     head_dim = csr.K_total  
