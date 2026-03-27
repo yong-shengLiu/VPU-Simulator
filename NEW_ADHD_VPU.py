@@ -69,7 +69,9 @@ class MicroOp:
     latency: int       
     src_regs: List[int] = field(default_factory=list) 
     dst_regs: List[int] = field(default_factory=list) 
-    
+    src_precision: str = 'INT8'
+    dst_precision: str = 'INT8'
+
     # --- Ticket-based Scoreboard Tracking (Resolves Deadlocks natively) ---
     wait_for_writes: dict = field(default_factory=dict)     # RAW hazard tracking
     wait_for_reads: dict = field(default_factory=dict)      # WAR hazard tracking
@@ -138,11 +140,13 @@ class CSRConfig:
       - Bits [9:5]   : MatB_reg_base        (5-bit)  | 矩陣 B 基址 (K / Residual)
       - Bits [14:10] : MatC_reg_base        (5-bit)  | 矩陣 C 基址 (Output)
       - Bits [19:15] : MatD_reg_base        (5-bit)  | 矩陣 D 基址 (FlashAttn V)
-      - Bits [24:20] : MatE_reg_base        (5-bit)  | 矩陣 E 基址 (FlashAttn P)
-      - Bits [29:25] : Temp_reg_base        (5-bit)  | 中繼暫存器基址 (LayerNorm 等)
-      - Bits [30]    : Enable_Double_Buffer (1-bit)  | 1: 開啟硬體自動 Ping-Pong
-      - Bits [33:31] : Act_Type             (3-bit)  | 激勵函數種類 (0:NONE, 1:GELU, 2:RELU, 3:SILU)
-      - Bits [63:34] : Reserved             (30-bit) | 保留未來擴展
+      - Bits [24:20] : MatE_reg_base        (5-bit)  | 矩陣 E 基址
+      - Bits [29:25] : MatF_reg_base        (5-bit)  | 矩陣 F 基址
+      - Bits [34:30] : MatG_reg_base        (5-bit)  | 矩陣 G 基址
+      - Bits [39:35] : MatH_reg_base        (5-bit)  | 矩陣 H 基址
+      - Bits [40]    : Enable_Double_Buffer (1-bit)  | 1: 開啟硬體自動 Ping-Pong
+      - Bits [43:41] : Act_Type             (3-bit)  | 激勵函數種類 (0:NONE, 1:GELU, 2:RELU, 3:SILU)
+      - Bits [63:44] : Reserved             (20-bit) | 保留未來擴展
 
     [ 0x808 ] CSR_VPU_STRIDE_CFG (硬體暫存器跨步設定 - 佔用 VREG 數)
       - Bits [4:0]   : VREG_stride_A        (5-bit)
@@ -150,8 +154,10 @@ class CSRConfig:
       - Bits [14:10] : VREG_stride_C        (5-bit)
       - Bits [19:15] : VREG_stride_D        (5-bit)
       - Bits [24:20] : VREG_stride_E        (5-bit)
-      - Bits [29:25] : VREG_stride_O        (5-bit)     # TODO this stride O is same function with stride C ??
-      - Bits [63:30] : Reserved             (34-bit)
+      - Bits [29:25] : VREG_stride_F        (5-bit)
+      - Bits [34:30] : VREG_stride_G        (5-bit)
+      - Bits [39:35] : VREG_stride_H        (5-bit)
+      - Bits [63:40] : Reserved             (24-bit)
 
     [ 0x809 ] CSR_VPU_TILE_CFG (硬體 Tiling 邊界維度)
       - Bits [15:0]  : M_tile               (16-bit)
@@ -194,21 +200,25 @@ class CSRConfig:
 
     # --- 3. Internal VRF Pointers ---
     MatA_reg_base: int = 0
-    MatB_reg_base: int = 4
-    MatC_reg_base: int = 20
-    MatD_reg_base: int = 8    
-    MatE_reg_base: int = 12   
-    Temp_reg_base: int = 28
+    MatB_reg_base: int = 0
+    MatC_reg_base: int = 0
+    MatD_reg_base: int = 0   
+    MatE_reg_base: int = 0 
+    MatF_reg_base: int = 0 
+    MatG_reg_base: int = 0 
+    MatH_reg_base: int = 0 
     Enable_Double_Buffer: bool = True
     Act_Type: ActivationType = ActivationType.NONE
 
     # --- 4. VRF Strides ---
-    VREG_stride_A: int = 2 
-    VREG_stride_B: int = 2
-    VREG_stride_C: int = 4
-    VREG_stride_D: int = 2    
-    VREG_stride_E: int = 4    
-    VREG_stride_O: int = 16   
+    VREG_stride_A: int = 0 
+    VREG_stride_B: int = 0
+    VREG_stride_C: int = 0
+    VREG_stride_D: int = 0    
+    VREG_stride_E: int = 0  
+    VREG_stride_F: int = 0  
+    VREG_stride_G: int = 0  
+    VREG_stride_H: int = 0  
 
     # --- 5. Tiling Dimensions ---
     M_tile: int = 64
@@ -716,25 +726,31 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
         addr_A = csr.Mem_Base_A + k_start 
         addr_B = csr.Mem_Base_B + (k_start * csr.Mem_Stride_B)
 
+        # --- Load Input Act. (INT8) ---
         uops.append(MicroOp(
             name=f"LSU_LOAD_A_k{k_start}", unit_type=UnitType.LSU, 
             latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_A, csr.Is_Gather_A, csr.BLOCK_LEN_A),
             dst_regs=a_regs, mem_addr=addr_A, mem_stride=csr.Mem_Stride_A, 
-            is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
+            is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A,
+            dst_precision=f"INT8"
         ))
+        # --- Load Weight (INT8) ---
         uops.append(MicroOp(
             name=f"LSU_LOAD_B_k{k_start}", unit_type=UnitType.LSU, 
             latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_B, csr.Is_Gather_B, csr.BLOCK_LEN_B),
             dst_regs=b_regs, mem_addr=addr_B, mem_stride=csr.Mem_Stride_B, 
-            is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
+            is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B,
+            dst_precision=f"INT8"
         ))
 
+        # --- Compute GEMM (INT8 --> INT32) ---
         # phys_K = tensor.phys_M 就是hardware 16 * 16
         total_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, csr.N_tile, tensor.phys_M , tensor.phys_N)
         uops.append(MicroOp(
                     name=f"CIM_MAC_{k_start}", unit_type=UnitType.CIM,
                     latency=total_ws_latency,
-                    dst_regs=c_regs, src_regs=a_regs + b_regs
+                    dst_regs=c_regs, src_regs=a_regs + b_regs,
+                    src_precision=f"INT8", dst_precision=f"INT32"
                 ))
         # for m_sub in range(0, csr.M_tile, tensor.phys_M):
         #     for n_sub in range(0, csr.N_tile, tensor.phys_N):
@@ -745,17 +761,27 @@ def macro_gemm_template(csr: CSRConfig, tensor: TensorConfig, latency:LatencySet
         #             src_regs=[actual_reg_a, actual_reg_b]
         #         ))
 
-    # Output 寫回
+    # --- Re-Quantize Output (INT32 --> INT8) ---
     # uops.append(MicroOp("CIM_QUANT_OUT", UnitType.CIM, latency=latency.Store_One_Vector*csr.VREG_stride_C, dst_regs=c_regs))
-    uops.append(MicroOp("REQUANT_OUT", UnitType.VALU, latency=latency.Store_One_Vector*csr.VREG_stride_C, src_regs=c_regs, dst_regs=d_regs))
+    uops.append(MicroOp("REQUANT_OUT", UnitType.VALU,
+                        latency=latency.Store_One_Vector*csr.VREG_stride_C, 
+                        src_regs=c_regs, dst_regs=d_regs,
+                        src_precision=f"INT32", dst_precision=f"INT8"
+                ))
     if csr.Act_Type == ActivationType.GELU:
-        uops.append(MicroOp(f"VALU_GELU", UnitType.VALU, latency=latency.VALU_VGELU*csr.VREG_stride_C, src_regs=d_regs, dst_regs=d_regs))
-        
+        uops.append(MicroOp(f"VALU_GELU", UnitType.VALU, 
+                            latency=latency.VALU_VGELU*csr.VREG_stride_C, 
+                            src_regs=d_regs, dst_regs=d_regs,
+                            src_precision=f"INT8", dst_precision=f"INT8"
+                    ))
+
+    # --- Store Output (INT8) ---
     uops.append(MicroOp(
         name=f"LSU_STORE_C", unit_type=UnitType.LSU, 
         latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_C, csr.Is_Scatter_C, csr.BLOCK_LEN_C),
         src_regs=d_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
-        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
+        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C,
+        src_precision=f"INT8"
     ))
     return uops
 
@@ -839,110 +865,224 @@ def macro_flash_attn_template(csr: CSRConfig, tensor: TensorConfig, latency: Lat
         v0 ~ v1   : reg_q        (Static, INT8)
         v2 ~ v5   : reg_k        (Ping-Pong, INT8)
         v6 ~ v9   : reg_v        (Ping-Pong, INT8)
-        v10 ~ v13 : reg_s_local  (QK^T 中繼站, INT32) -> 需要新增 csr.S_local_reg_base
-        v14       : reg_p_local  (Softmax 結果, INT8) -> 需要新增 csr.P_local_reg_base
-        v15       : reg_stats    (m, l 統計量, INT32)  -> 需要新增 csr.Stats_reg_base
+        v10 ~ v13 : reg_s_local  (QK^T 中繼站, INT32)
+        v14       : reg_p_local  (Softmax 結果, INT8)
+        v15       : reg_stats    (m, l 統計量, INT32)
         v16 ~ v23 : reg_o_global (全域累加輸出, INT32)
-        v24 ~ v31 : reg_o_local  (P*V 中繼站, INT32) -> 需要新增 csr.O_local_reg_base
+        v24 ~ v31 : reg_o_local  (P*V 中繼站, INT32)
     """
     uops = []
     head_dim = csr.K_total  
     
-    reg_q, reg_k, reg_v, reg_p, reg_o_global = csr.MatA_reg_base, csr.MatB_reg_base, csr.MatD_reg_base, csr.MatE_reg_base, csr.MatC_reg_base
-    q_regs = [reg_q + i for i in range(csr.VREG_stride_A)]
-    p_regs = [reg_p + i for i in range(csr.VREG_stride_E)]
-    o_global_regs = [reg_o_global + i for i in range(csr.VREG_stride_O)]
-    quant_regs = [csr.Temp_reg_base + i for i in range(csr.VREG_stride_C)]
+    # The Base vreg from csr
+    reg_q        = csr.MatA_reg_base
+    reg_k        = csr.MatB_reg_base
+    reg_v        = csr.MatD_reg_base
+    reg_s_local  = csr.MatE_reg_base  # 預設 v10
+    reg_p_local  = csr.MatF_reg_base  # 預設 v14
+    reg_stats    = csr.MatG_reg_base  # 預設 v15
+    reg_o_local  = csr.MatH_reg_base  # 預設 v24
+    reg_o_global = csr.MatC_reg_base  # 預設 v16, output attention
+    
+    # The vreg list for scoreboard
+    q_regs        = [reg_q        + i for i in range(csr.VREG_stride_A)]
+    s_local_regs  = [reg_s_local  + i for i in range(csr.VREG_stride_E)] # S_local 佔用 4 個 VREG
+    p_local_regs  = [reg_p_local  + i for i in range(csr.VREG_stride_F)] # P_local 佔用 1 個 VREG
+    stats_regs    = [reg_stats    + i for i in range(csr.VREG_stride_G)] # 統計量 佔用 1 個 VREG
+    o_local_regs  = [reg_o_local  + i for i in range(csr.VREG_stride_H)] # O_local 與 O_global 大小相同
+    o_global_regs = [reg_o_global + i for i in range(csr.VREG_stride_C)]
 
-    # 1. 載入 CPU 指定好的 Q-Tile
-    uops.append(MicroOp("VALU_CLEAR_O_GLOBAL", UnitType.VALU, latency=1, dst_regs=o_global_regs))
+
+    # ==========================================
+    # 暫存器別名 (Register Aliasing for Scratchpad)
+    # ==========================================
+    # 將 v15 (stats_regs) 拆分為跨迴圈保存的 m_old 與 l_old 
+    # (在 Scoreboard 依賴追蹤上，它們都指向同一個 VREG ID)
+    reg_m_old   = stats_regs[0]  # v15
+    reg_l_old   = stats_regs[0]  # v15
+
+    # 借用 O_local (v24~v27) 當作 VALU Softmax 計算的中繼站 (Scratchpad)
+    # 因為 O_local 直到迴圈後段的 CIM_PV_MAC 才會被寫入，前半段是完全閒置的
+    reg_m_local = o_local_regs[0]  # v24
+    reg_m_new   = o_local_regs[1]  # v25
+    reg_scale   = o_local_regs[2]  # v26
+    reg_l_local = o_local_regs[3]  # v27
+
+
+    # ==========================================
+    # 1. Initialize the O_global and online m, l
+    # ==========================================
+    # 清空全域輸出與統計量 (m=-inf, l=0)
+    uops.append(MicroOp("VALU_CLEAR_O_GLOBAL", UnitType.VALU, latency=1, dst_regs=o_global_regs, dst_precision=f"INT64"))  # clear to zero
+    uops.append(MicroOp("VALU_INIT_STATS", UnitType.VALU, latency=1, dst_regs=stats_regs, dst_precision=f"INT64"))         # m -> -inf, l -> 0
+    
+    # Load Q tile
     uops.append(MicroOp(
-        name=f"LSU_LOAD_Q_TILE", unit_type=UnitType.LSU, 
+        name="LSU_LOAD_Q_TILE", unit_type=UnitType.LSU, 
         latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_A, csr.Is_Gather_A, csr.BLOCK_LEN_A), 
         dst_regs=q_regs, mem_addr=csr.Mem_Base_A, mem_stride=csr.Mem_Stride_A,
-        is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
+        is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A,
+        dst_precision=f"INT8"
     ))
 
-    # [Inner Loop]: 遍歷 K, V 的 Sequence (Context Length)
+    # =============================================
+    # 2. Inner accumulate loop for output attention
+    # =============================================
     for k_start in range(0, csr.N_total, csr.N_tile):
         current_n_tile = min(csr.N_tile, csr.N_total - k_start)
-        uops.append(MicroOp("CIM_CLEAR_L0", UnitType.CIM, latency=1))
         
-        # 🏓 Ping-Pong 邏輯
-        offset_k = ((k_start // csr.N_tile) % 2) * csr.VREG_stride_B if csr.Enable_Double_Buffer else 0
-        offset_v = ((k_start // csr.N_tile) % 2) * csr.VREG_stride_D if csr.Enable_Double_Buffer else 0
-        reg_k_actual, reg_v_actual = reg_k + offset_k, reg_v + offset_v
+        # Ping-Pong K, V
+        buf_idx = (k_start // csr.N_tile) % 2 if csr.Enable_Double_Buffer else 0
+        offset_k = buf_idx * csr.VREG_stride_B 
+        offset_v = buf_idx * csr.VREG_stride_D 
+        
+        reg_k_actual = reg_k + offset_k
+        reg_v_actual = reg_v + offset_v
         k_regs_actual = [reg_k_actual + i for i in range(csr.VREG_stride_B)]
         v_regs_actual = [reg_v_actual + i for i in range(csr.VREG_stride_D)]
 
+        # --- Load K tile ---
         addr_K = csr.Mem_Base_B + (k_start * csr.Mem_Stride_B)
         uops.append(MicroOp(
             name=f"LSU_LOAD_K_k{k_start}", unit_type=UnitType.LSU, 
             latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_B, csr.Is_Gather_B, csr.BLOCK_LEN_B), 
             dst_regs=k_regs_actual, mem_addr=addr_K, mem_stride=csr.Mem_Stride_B,
-            is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
+            is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B,
+            dst_precision=f"INT8"
         ))
 
-        # GEMM 1: Q * K^T -> S
-        QKT_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, current_n_tile, tensor.phys_M , tensor.phys_N)
-        uops.append(MicroOp(f"CIM_QK_{k_start}", UnitType.CIM, 
-                            latency=QKT_ws_latency,
-                            src_regs=reg_q+reg_k_actual, dst_regs=[VIRTUAL_L0_BUFFER_ID]))
-        # for m_sub in range(0, csr.M_tile, tensor.phys_M):
-        #     for n_sub in range(0, current_n_tile, tensor.phys_N):
-        #         actual_q = get_actual_vreg(reg_q, m_sub, csr.M_tile, csr.VREG_stride_A)
-        #         actual_k = get_actual_vreg(reg_k_actual, n_sub, csr.N_tile, csr.VREG_stride_B)
-        #         uops.append(MicroOp(f"CIM_QK_{m_sub}_{n_sub}", UnitType.CIM, latency=head_dim, src_regs=[actual_q, actual_k], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
-
-        uops.append(MicroOp("VALU_SOFTMAX_UPDATE", UnitType.VALU, latency=20, src_regs=[VIRTUAL_L0_BUFFER_ID]))
-        uops.append(MicroOp("VALU_SOFTMAX_EXP", UnitType.VALU, latency=max(1, csr.M_tile*current_n_tile//LANE), src_regs=[VIRTUAL_L0_BUFFER_ID], dst_regs=p_regs))
-        uops.append(MicroOp("CIM_CLEAR_L0", UnitType.CIM, latency=1))
-        
+        # --- Load V tile ---
         addr_V = csr.Mem_Base_D + (k_start * csr.Mem_Stride_D)
         uops.append(MicroOp(
             name=f"LSU_LOAD_V_k{k_start}", unit_type=UnitType.LSU, 
             latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_D, csr.Is_Gather_D, csr.BLOCK_LEN_D), 
             dst_regs=v_regs_actual, mem_addr=addr_V, mem_stride=csr.Mem_Stride_D,
-            is_gather_scatter=csr.Is_Gather_D, block_length=csr.BLOCK_LEN_D
+            is_gather_scatter=csr.Is_Gather_D, block_length=csr.BLOCK_LEN_D,
+            dst_precision=f"INT8"
         ))
 
-        # GEMM 2: P * V -> O
+        # -----------------------------------------------------------------
+        # 1. Tensor Op: CIM 計算 Q * K^T -> S_local (v10~v13)
+        # -----------------------------------------------------------------
+        QKT_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, current_n_tile, tensor.phys_M , tensor.phys_N)
+        uops.append(MicroOp(
+            name=f"CIM_QK_MAC_{k_start}", unit_type=UnitType.CIM, latency=QKT_ws_latency,
+            src_regs=q_regs + k_regs_actual, dst_regs=s_local_regs,
+            src_precision=f"INT8", dst_precision=f"IN32"            
+        ))
+
+        # -----------------------------------------------------------------
+        # 2. VALU: Intra-Lane Online Softmax (利用 v24~v27 作為暫存)
+        # -----------------------------------------------------------------
+        # 2a. 計算區域最大值 S_local 最大值 -> 存入 v24
+        uops.append(MicroOp(
+            name=f"VALU_RED_MAX_INTRA_{k_start}", unit_type=UnitType.VALU, latency=csr.M_tile, 
+            src_regs=s_local_regs, dst_regs=[reg_m_local],
+            src_precision=f"INT32", dst_precision=f"INT32" 
+        ))
+
+        # 2b. 更新全域最大值 m_new = max(m_old(v15), m_local(v24)) -> 存入 v25
+        uops.append(MicroOp(
+            name=f"VALU_MAX_{k_start}", unit_type=UnitType.VALU, latency=1, 
+            src_regs=[reg_m_old, reg_m_local], dst_regs=[reg_m_new],
+            src_precision=f"INT32", dst_precision=f"IN32" 
+        ))
+
+        # 2c. 計算 scale = exp(m_old(v15) - m_new(v25)) -> 存入 v26
+        uops.append(MicroOp(
+            name=f"VALU_SUB_EXP_SCALE_{k_start}", unit_type=UnitType.VALU, latency=4, 
+            src_regs=[reg_m_old, reg_m_new], dst_regs=[reg_scale],
+            src_precision=f"INT32", dst_precision=f"IN32" 
+        ))
+
+        # 2d. 計算Softmax P_local = exp(S_local(v10~v13) - m_new(v25)) -> 存入 v14 (P_local)
+        uops.append(MicroOp(
+            name=f"VALU_SUB_EXP_PLOCAL_{k_start}", unit_type=UnitType.VALU, latency=csr.M_tile, 
+            src_regs=s_local_regs + [reg_m_new], dst_regs=p_local_regs,
+            src_precision=f"INT32", dst_precision=f"INT8"
+        ))
+
+        # 2e. 計算 l_local = sum(P_local(v14)) -> 存入 v27
+        uops.append(MicroOp(
+            name=f"VALU_RED_SUM_INTRA_{k_start}", unit_type=UnitType.VALU, latency=csr.M_tile, 
+            src_regs=p_local_regs, dst_regs=[reg_l_local],
+            src_precision=f"INT32", dst_precision=f"INT32"
+        ))
+
+        # 2f. 更新 l_old = (l_old(v15) * scale(v26)) + l_local(v27) -> 原地更新 v15
+        uops.append(MicroOp(
+            name=f"VALU_FMA_L_{k_start}", unit_type=UnitType.VALU, latency=2, 
+            src_regs=[reg_l_old, reg_scale, reg_l_local], dst_regs=[reg_l_old],
+            src_precision=f"INT32", dst_precision=f"INT32" 
+        ))
+
+        # -----------------------------------------------------------------
+        # 3. VALU: Rescale O_global
+        # O_global(v16~v23) = O_global * scale(v26)
+        # -----------------------------------------------------------------
+        uops.append(MicroOp(
+            name=f"VALU_MUL_RESCALE_O_{k_start}", unit_type=UnitType.VALU, latency=csr.M_tile * head_dim // 4, 
+            src_regs=o_global_regs + [reg_scale], dst_regs=o_global_regs,
+            src_precision=f"INT32", dst_precision=f"INT32" 
+        ))
+
+        # -----------------------------------------------------------------
+        # 4. [極度關鍵] 在覆蓋 Scratchpad 前，將 m_new(v25) 更新回 m_old(v15)
+        # -----------------------------------------------------------------
+        uops.append(MicroOp(
+            name=f"VALU_MOV_M_{k_start}", unit_type=UnitType.VALU, latency=1, 
+            src_regs=[reg_m_new], dst_regs=[reg_m_old],
+            src_precision=f"INT32", dst_precision=f"INT32" 
+        ))
+
+        # -----------------------------------------------------------------
+        # 5. Tensor Op: CIM 計算 P_local * V -> O_local (正式將結果寫入 v24~v31)
+        # *注意：這步執行後，v24~v27 裡面的 m_local, m_new, scale 就會被安全地消滅了！*
+        # -----------------------------------------------------------------
         PV_ws_latency = calculate_gemm_ws_latency(csr.M_tile, csr.K_tile, head_dim, tensor.phys_M , tensor.phys_N)
-        uops.append(MicroOp(f"CIM_PV_{k_start}", UnitType.CIM, 
-                            latency=PV_ws_latency, 
-                            src_regs=reg_p+reg_v, dst_regs=[VIRTUAL_L0_BUFFER_ID]))
-        # for m_sub in range(0, csr.M_tile, tensor.phys_M):
-        #     for d_sub in range(0, head_dim, tensor.phys_N): 
-        #         actual_p = get_actual_vreg(reg_p, m_sub, csr.M_tile, csr.VREG_stride_E)
-        #         actual_v = get_actual_vreg(reg_v_actual, d_sub, head_dim, csr.VREG_stride_D)
-        #         uops.append(MicroOp(f"CIM_PV_{m_sub}_{d_sub}", UnitType.CIM, latency=current_n_tile, src_regs=[actual_p, actual_v], dst_regs=[VIRTUAL_L0_BUFFER_ID]))
+        uops.append(MicroOp(
+            name=f"CIM_PV_MAC_{k_start}", unit_type=UnitType.CIM, latency=PV_ws_latency, 
+            src_regs=p_local_regs + v_regs_actual, dst_regs=o_local_regs,
+            src_precision=f"INT8", dst_precision=f"INT32"                   
+        ))
 
-        uops.append(MicroOp("VALU_GLOBAL_O", UnitType.VALU, latency=64, src_regs=o_global_regs + [VIRTUAL_L0_BUFFER_ID], dst_regs=o_global_regs))
+        # -----------------------------------------------------------------
+        # 6. VALU: 累加 O_local 到 O_global
+        # O_global(v16~v23) = O_global + O_local(v24~v31)
+        # -----------------------------------------------------------------
+        uops.append(MicroOp(
+            name=f"VALU_ADD_O_{k_start}", unit_type=UnitType.VALU, latency=csr.M_tile * head_dim // 4, 
+            src_regs=o_global_regs + o_local_regs, dst_regs=o_global_regs,
+            src_precision=f"INT32", dst_precision=f"INT32" 
+        ))
 
-    # [Inner Loop 結束]：量化並寫回 SRAM
-    uops.append(MicroOp("VALU_QUANT_O", UnitType.VALU, latency=20, src_regs=o_global_regs, dst_regs=quant_regs))
+    # ==========================================
+    # 3. Re-Quantize the O (INT32 -> INT8)
+    # ==========================================
+    # 除以最終分母 l，並量化回 INT8
+    uops.append(MicroOp(
+        name="VALU_NORMALIZE_QUANT_O", unit_type=UnitType.VALU, 
+        latency=32, 
+        src_regs=o_global_regs + stats_regs, 
+        dst_regs=o_global_regs,
+            src_precision=f"INT32", dst_precision=f"INT8" 
+    ))
+    
+    # Store O
     uops.append(MicroOp(
         name=f"LSU_STORE_O_TILE", unit_type=UnitType.LSU, 
         latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_C, csr.Is_Scatter_C, csr.BLOCK_LEN_C), 
-        src_regs=quant_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
-        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
+        src_regs=o_global_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
+        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C,
+            src_precision=f"INT8" 
     ))
 
-    
-    # 計算 FlashAttention 幫我們省下的 O(N^2) 中繼 SRAM 頻寬
+    # ==========================================
+    # 4. 分析器紀錄
+    # ==========================================
     if vpu is not None:
-        # 假設資料精度是 16-bit (2 Bytes)
         bytes_per_element = 2 
-        
-        # 中繼矩陣大小: M_tile * N_total
         intermediate_matrix_size = csr.M_tile * csr.N_total * bytes_per_element
-        
-        # 傳統 Attention 的致命傷：
-        # 1. 寫出 QK^T
-        # 2. 讀入 QK^T 做 Softmax
-        # 3. 寫出 Softmax Prob
-        # 4. 讀入 Softmax Prob 去乘 V
-        # 總共 4 次 SRAM 存取！FlashAttention 把它們全部融合在 VRF/L0 Buffer 了！
         saved_traffic = intermediate_matrix_size * 4
         vpu.analyzer.flash_saved_intermediate_bytes += saved_traffic
 
@@ -1062,23 +1202,37 @@ def macro_flash_attn_template_dynamic_sparsity_deprecate(csr: CSRConfig, tensor:
     return uops
 
 def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
-    """ 【一維解耦 LN】：負責處理一個 Seq_Chunk 的 LayerNorm。 """
-    uops = []
-    reg_main = csr.MatA_reg_base 
-    reg_residual = csr.MatB_reg_base 
-    reg_out = csr.MatC_reg_base 
+    """ 
+    【一維解耦 LN】：負責處理一個 Seq_Chunk (例如 BERT-base 的 768 elements) 的 Residual Add + LayerNorm。 
     
-    main_regs = [reg_main + i for i in range(csr.VREG_stride_C)]
-    res_regs = [reg_residual + i for i in range(csr.VREG_stride_C)]
-    out_regs = [reg_out + i for i in range(csr.VREG_stride_C)]
-    reg_mean, reg_var  = csr.Temp_reg_base, csr.Temp_reg_base + 1
+    [VRF Allocation]
+        v0        : reg_main     (Main Path 輸入, INT8) -> 假設佔用 1 個 VREG
+        v1        : reg_residual (Residual 輸入, INT8)  -> 假設佔用 1 個 VREG
+        v2 ~ v5   : reg_out      (Add 結果與 LN 中繼站, INT32) -> INT32 佔用 4 個 VREG
+        v6        : reg_mean     (平均值 mu, INT32 廣播純量)
+        v7        : reg_var      (變異數 sigma^2 與 RSQRT 結果, INT32 廣播純量)
+    """
+    uops = []
+    reg_main     = csr.MatA_reg_base 
+    reg_residual = csr.MatB_reg_base 
+    reg_out      = csr.MatC_reg_base
+    reg_mean     = csr.MatD_reg_base
+    reg_var      = csr.MatE_reg_base
+    
+    main_regs = [reg_main     + i for i in range(csr.VREG_stride_A)]
+    res_regs  = [reg_residual + i for i in range(csr.VREG_stride_B)]
+    out_regs  = [reg_out      + i for i in range(csr.VREG_stride_C)]
+    mean_regs = [reg_mean     + i for i in range(csr.VREG_stride_D)]
+    var_regs  = [reg_var      + i for i in range(csr.VREG_stride_E)]
+
     
     # INT8, v0
     uops.append(MicroOp(
         "LSU_LOAD_MAIN", UnitType.LSU, 
         latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_A, csr.Is_Gather_A, csr.BLOCK_LEN_A),
         dst_regs=main_regs, mem_addr=csr.Mem_Base_A, mem_stride=csr.Mem_Stride_A,
-        is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A
+        is_gather_scatter=csr.Is_Gather_A, block_length=csr.BLOCK_LEN_A,
+        dst_precision="INT8"
     ))
 
     # INT8, v1
@@ -1086,24 +1240,68 @@ def macro_residual_layernorm_template(csr: CSRConfig, latency: LatencySet):
         "LSU_LOAD_RES", UnitType.LSU, 
         latency=_get_lsu_latency(latency.Load_One_Vector, csr.VREG_stride_B, csr.Is_Gather_B, csr.BLOCK_LEN_B),
         dst_regs=res_regs, mem_addr=csr.Mem_Base_B, mem_stride=csr.Mem_Stride_B,
-        is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B
+        is_gather_scatter=csr.Is_Gather_B, block_length=csr.BLOCK_LEN_B,
+        dst_precision="INT8"
     ))
 
-    # INT32, v2 ~ v5
-    uops.append(MicroOp(f"VALU_VADD_RES", UnitType.VALU, latency=int(latency.VALU_VADD*csr.VREG_stride_C), src_regs=main_regs + res_regs, dst_regs=out_regs))
+    # ==========================================
+    # 2. Residual Add (INT8 + INT8 -> INT32)
+    # ==========================================
+    uops.append(MicroOp(f"VALU_VADD_RES", UnitType.VALU, 
+                        latency=int(latency.VALU_VADD*csr.VREG_stride_C), 
+                        src_regs=main_regs + res_regs, dst_regs=out_regs,
+                        src_precision="INT8", dst_precision="INT32"
+                ))
     
+    # ==========================================
+    # 3. LayerNorm 計算
+    # ==========================================
     realistic_valu_lat = int((csr.M_tile * csr.K_total) // (LANE * AXI_WIDTH) + 10)
-    uops.append(MicroOp("VALU_LN_MEAN", UnitType.VALU, latency=realistic_valu_lat, src_regs=out_regs, dst_regs=[reg_mean]))
-    uops.append(MicroOp("VALU_LN_VAR", UnitType.VALU, latency=realistic_valu_lat, src_regs=out_regs + [reg_mean], dst_regs=[reg_var]))
-    uops.append(MicroOp("VALU_LN_RSQRT", UnitType.VALU, latency=20, src_regs=[reg_var], dst_regs=[reg_var]))
-    uops.append(MicroOp("VALU_LN_NORM", UnitType.VALU, latency=realistic_valu_lat, src_regs=out_regs + [reg_mean, reg_var], dst_regs=out_regs))
     
+    # 3a. 計算 Mean (mu) -> INT32 reduction
     uops.append(MicroOp(
-        "LSU_STORE_LN", UnitType.LSU, 
-        latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_C, csr.Is_Scatter_C, csr.BLOCK_LEN_C),
-        src_regs=out_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
-        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C
+        name="VALU_LN_MEAN", unit_type=UnitType.VALU, latency=realistic_valu_lat, 
+        src_regs=out_regs, dst_regs=mean_regs,
+        src_precision="INT32", dst_precision="INT32"
     ))
+    
+    # 3b. 計算 Variance (sigma^2) -> INT32 reduction
+    # 需要讀取 x (out_regs) 與 mu (reg_mean) 進行 (x - mu)^2 / N
+    uops.append(MicroOp(
+        name="VALU_LN_VAR", unit_type=UnitType.VALU, latency=realistic_valu_lat, 
+        src_regs=out_regs + mean_regs, dst_regs=var_regs,
+        src_precision="INT32", dst_precision="INT32"
+    ))
+    
+    # 3c. 計算 RSQRT (1 / sqrt(sigma^2 + eps)) -> INT32 (通常是 Fixed-Point 格式)
+    uops.append(MicroOp(
+        name="VALU_LN_RSQRT", unit_type=UnitType.VALU, latency=20, 
+        src_regs=var_regs, dst_regs=var_regs,
+        src_precision="INT32", dst_precision="INT32"
+    ))
+    
+    # 3d. 正規化與仿射變換 (Normalize & Scale/Shift) -> 重新量化回 INT8
+    # y = (x - mu) * rsqrt * gamma + beta
+    # 注意：這裡的輸出再次被壓縮回 INT8，準備存回記憶體供下一層使用
+    uops.append(MicroOp(
+        name="VALU_LN_NORM", unit_type=UnitType.VALU, latency=realistic_valu_lat, 
+        src_regs=out_regs + mean_regs + var_regs, dst_regs=out_regs,
+        src_precision="INT32", dst_precision="INT8"
+    ))
+    
+    # ==========================================
+    # 4. 寫回記憶體 (INT8)
+    # ==========================================
+    # 注意：雖然暫存器位址還是 out_regs (v2~v5)，但因為前一步已經量化成 INT8，
+    # LSU 實際上只需要 Store v2 即可 (取決於你的硬體怎麼處理量化後的資料壓縮)
+    uops.append(MicroOp(
+        name="LSU_STORE_LN", unit_type=UnitType.LSU, 
+        latency=_get_lsu_latency(latency.Store_One_Vector, csr.VREG_stride_A, csr.Is_Scatter_C, csr.BLOCK_LEN_C),
+        src_regs=out_regs, mem_addr=csr.Mem_Base_C, mem_stride=csr.Mem_Stride_C,
+        is_gather_scatter=csr.Is_Scatter_C, block_length=csr.BLOCK_LEN_C,
+        src_precision="INT8"
+    ))
+
     return uops
 
 # ==============================================================================
@@ -1135,6 +1333,10 @@ def set_gemm_csr(csr: CSRConfig, A_base, B_base, C_base, A_stride, B_stride, C_s
     csr.Mem_Base_B, csr.Mem_Stride_B = B_base, B_stride
     csr.Mem_Base_C, csr.Mem_Stride_C = C_base, C_stride
     csr.Mem_Base_D, csr.Mem_Stride_D = 0, 0  # 矩陣 D (V) 在普通 GEMM 中用不到
+    csr.Mem_Base_E, csr.Mem_Stride_E = 0, 0  # 矩陣 E (V) 在普通 GEMM 中用不到
+    csr.Mem_Base_F, csr.Mem_Stride_F = 0, 0  # 矩陣 F (V) 在普通 GEMM 中用不到
+    csr.Mem_Base_G, csr.Mem_Stride_G = 0, 0  # 矩陣 G (V) 在普通 GEMM 中用不到
+    csr.Mem_Base_H, csr.Mem_Stride_H = 0, 0  # 矩陣 H (V) 在普通 GEMM 中用不到
 
     # ==========================================
     # 3. 2D AGU (Scatter/Gather Block Length)
@@ -1208,10 +1410,11 @@ def set_flash_attn_csr(csr: CSRConfig, Q_base, K_base, V_base, Out_base,
     csr.MatA_reg_base, csr.VREG_stride_A = 0, 2   # Q
     csr.MatB_reg_base, csr.VREG_stride_B = 2, 2   # K
     csr.MatD_reg_base, csr.VREG_stride_D = 6, 2   # V
-    csr.MatE_reg_base, csr.VREG_stride_E = 10, 1  # P
-    csr.MatC_reg_base, csr.VREG_stride_O = 16, 8  # O
-
-    csr.Temp_reg_base, csr.VREG_stride_C = 0, 4  # TODO Not Sure, need to check with micro op
+    csr.MatE_reg_base, csr.VREG_stride_E = 10, 4  # S
+    csr.MatF_reg_base, csr.VREG_stride_F = 14, 1  # P
+    csr.MatG_reg_base, csr.VREG_stride_G = 15, 1  # stats
+    csr.MatH_reg_base, csr.VREG_stride_H = 16, 4  # O_global
+    csr.MatC_reg_base, csr.VREG_stride_C = 24, 4  # O_local
 
 def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base, 
                    stride_A, stride_B, stride_C, 
@@ -1253,10 +1456,12 @@ def set_res_ln_csr(csr: CSRConfig, A_base, B_base, C_base,
     csr.Enable_Double_Buffer = False
     csr.MatA_reg_base, csr.VREG_stride_A = 0,  1  # Main
     csr.MatB_reg_base, csr.VREG_stride_B = 1,  1  # residual
-    csr.MatC_reg_base, csr.VREG_stride_C = 13, 1  # layerNorm result
-    csr.MatD_reg_base, csr.VREG_stride_D = 0,  0
-    csr.MatE_reg_base, csr.VREG_stride_E = 0,  0
-    csr.Temp_reg_base, csr.VREG_stride_O = 0,  0
+    csr.MatC_reg_base, csr.VREG_stride_C = 2,  4  # layerNorm result
+    csr.MatD_reg_base, csr.VREG_stride_D = 6,  1
+    csr.MatE_reg_base, csr.VREG_stride_E = 7,  1
+    csr.MatF_reg_base, csr.VREG_stride_F = 0,  0
+    csr.MatG_reg_base, csr.VREG_stride_G = 0,  0
+    csr.MatH_reg_base, csr.VREG_stride_H = 0,  0
 
 def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, 
                           seq_len: int, layer_idx: int, hidden_state_in: int, hidden_state_out: int, 
@@ -1314,73 +1519,73 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
                                     seq_len)
             sim.fetch_macro([MacroOp(f"L{layer_idx}_FLASH_ATTN_H{h}_q{q_start}", macro_flash_attn_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet, "vpu":sim})])
 
-    # # =====================================================================
-    # # 3. Attention Output Projection
-    # # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
-    # # =====================================================================
-    # O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
-    # for m in range(0, seq_len, 64):
-    #     for n in range(0, D, 64):
-    #         set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
-    #                           D, D, D, 
-    #                           64, 64, 32, 
-    #                           D, ActivationType.NONE)
-    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # =====================================================================
+    # 3. Attention Output Projection
+    # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
+    # =====================================================================
+    O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
+    for m in range(0, seq_len, 64):
+        for n in range(0, D, 64):
+            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
+                              D, D, D, 
+                              64, 64, 32, 
+                              D, ActivationType.NONE)
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # # =====================================================================
-    # # 4. Residual Add + LayerNorm 1
-    # # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
-    # # =====================================================================
-    # Norm1_out = mem_mgr.allocate(seq_len * D)
-    # for m in range(0, seq_len, 64):
-    #     A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
-    #     B_base = O_proj_out + (m * D)      # Residual Branch
-    #     C_base = Norm1_out + (m * D)       # Output
+    # =====================================================================
+    # 4. Residual Add + LayerNorm 1
+    # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
+    # =====================================================================
+    Norm1_out = mem_mgr.allocate(seq_len * D)
+    for m in range(0, seq_len, 64):
+        A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
+        B_base = O_proj_out + (m * D)      # Residual Branch
+        C_base = Norm1_out + (m * D)       # Output
         
-    #     set_res_ln_csr(csr, A_base, B_base, C_base, 
-    #                         D, D, D, 
-    #                         D)
-    #     sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
+        set_res_ln_csr(csr, A_base, B_base, C_base, 
+                            D, D, D, 
+                            D)
+        sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
-    # # =====================================================================
-    # # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
-    # # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
-    # # =====================================================================
-    # FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
-    # for m in range(0, seq_len, 64):
-    #     for n in range(0, D_FFN, 64):
-    #         set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
-    #                           D, D_FFN, D_FFN, 
-    #                           64, 64, 32, 
-    #                           D, act=ActivationType.GELU)
-    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # =====================================================================
+    # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
+    # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
+    # =====================================================================
+    FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
+    for m in range(0, seq_len, 64):
+        for n in range(0, D_FFN, 64):
+            set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
+                              D, D_FFN, D_FFN, 
+                              64, 64, 32, 
+                              D, act=ActivationType.GELU)
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # # =====================================================================
-    # # 6. FFN 2 -> dimension scale down to 768
-    # # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
-    # # =====================================================================
-    # FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
-    # for m in range(0, seq_len, 64):
-    #     for n in range(0, D, 64):
-    #         set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
-    #                           D_FFN, D, D, 
-    #                           64, 64, 32, 
-    #                           D_FFN, ActivationType.NONE)
-    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # =====================================================================
+    # 6. FFN 2 -> dimension scale down to 768
+    # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
+    # =====================================================================
+    FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
+    for m in range(0, seq_len, 64):
+        for n in range(0, D, 64):
+            set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
+                              D_FFN, D, D, 
+                              64, 64, 32, 
+                              D_FFN, ActivationType.NONE)
+            sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # # =====================================================================
-    # # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
-    # # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
-    # # =====================================================================
-    # for m in range(0, seq_len, 64):
-    #     A_base = Norm1_out + (m * D)        # Main Branch
-    #     B_base = FFN2_out + (m * D)         # Residual Branch
-    #     C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
+    # =====================================================================
+    # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
+    # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
+    # =====================================================================
+    for m in range(0, seq_len, 64):
+        A_base = Norm1_out + (m * D)        # Main Branch
+        B_base = FFN2_out + (m * D)         # Residual Branch
+        C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
         
-    #     set_res_ln_csr(csr, A_base, B_base, C_base, 
-    #                         D, D, D,
-    #                         D)
-    #     sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
+        set_res_ln_csr(csr, A_base, B_base, C_base, 
+                            D, D, D,
+                            D)
+        sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
 def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int, mem_mgr: MemoryManager):
     """
@@ -1422,7 +1627,7 @@ def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     # current address point to volatile memory region
     mem_mgr.current_addr = SCRATCHPAD_BASE
     
-    for layer in range(1):
+    for layer in range(12):
         # 決定當前層的輸入與輸出在哪個 Workspace (Ping-Pong)
         hidden_in = MEM_PING if layer % 2 == 0 else MEM_PONG
         hidden_out = MEM_PONG if layer % 2 == 0 else MEM_PING
