@@ -154372,3 +154372,4 @@ static inline void dispatch_bert_base_macros() {
     __asm__ volatile("csrw 0x808, %0" :: "r"(0x0000000000109021ULL));
     __asm__ volatile("csrw 0x809, %0" :: "r"(0x0000000000000000ULL));
     __asm__ volatile("csrw 0x80A, %0" :: "r"(0x0000000300000002ULL));
+}
