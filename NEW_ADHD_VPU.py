@@ -439,6 +439,19 @@ class ADHD_VPU:
         
         self.trace_filepath = os.path.join(log_dir, trace_filename)
         self.c_filepath = os.path.join(log_dir, c_macro_header)
+
+        # ======================================================
+        # ★ [新增] 建立 RTL Testbench 需要的三個 uOP 測資檔
+        # ======================================================
+        self.file_lsu  = open(os.path.join(log_dir, f"{model_name}_lsu_uops.txt"), "w")
+        self.file_valu = open(os.path.join(log_dir, f"{model_name}_valu_uops.txt"), "w")
+        self.file_cim  = open(os.path.join(log_dir, f"{model_name}_cim_uops.txt"), "w")
+        
+        # 寫入 Header 方便閱讀
+        header = "// OP_NAME   ELEMS ADDR_HEX         S1v S1 S2v S2 Dv D  WR_MASK  WR_TICKETS_HEX(256b)                                             RD_MASK  RD_TICKETS_HEX(256b)                                             // ORIGINAL_NAME\n"
+        self.file_lsu.write(header)
+        self.file_valu.write(header)
+        self.file_cim.write(header)
         
         # 3. 寫入標頭
         with open(self.trace_filepath, "w") as f:
@@ -505,7 +518,7 @@ class ADHD_VPU:
                 ((csr.MatC_reg_base & 0x1F) << 10) |
                 ((csr.MatD_reg_base & 0x1F) << 15) |
                 ((csr.MatE_reg_base & 0x1F) << 20) |
-                ((csr.Temp_reg_base & 0x1F) << 25) |
+                ((csr.MatF_reg_base & 0x1F) << 25) |
                 ((int(csr.Enable_Double_Buffer) & 0x1) << 30) |
                 ((act_type_val & 0x7) << 31)
             )
@@ -518,7 +531,7 @@ class ADHD_VPU:
                 ((csr.VREG_stride_C & 0x1F) << 10) |
                 ((csr.VREG_stride_D & 0x1F) << 15) |
                 ((csr.VREG_stride_E & 0x1F) << 20) |
-                ((csr.VREG_stride_O & 0x1F) << 25)
+                ((csr.VREG_stride_F & 0x1F) << 25)
             )
             f.write(f"csrw 0x808, 0x{reg_stride_payload:016X}  # CSR_VPU_STRIDE_CFG\n")
 
@@ -567,6 +580,66 @@ class ADHD_VPU:
             f_c.write(f"    __asm__ volatile(\"csrw 0x809, %0\" :: \"r\"(0x{tile_payload:016X}ULL));\n")
             f_c.write(f"    __asm__ volatile(\"csrw 0x80A, %0\" :: \"r\"(0x{trigger_payload:016X}ULL));\n")
 
+    def _emit_uop_to_file(self, uop: MicroOp):
+        """ 將 Python 的 uOP 與 Scoreboard 號碼牌轉譯成 RTL 可讀的 Hex String 格式 """
+        # 1. 映射到 RTL 的 uop_op_e 名稱
+        op_str = "OP_NOP"
+        if   "LOAD" in uop.name: op_str = "VLE"
+        elif "STORE" in uop.name: op_str = "VSE"
+        elif "ADD" in uop.name: op_str = "VADD"
+        elif "SUB" in uop.name: op_str = "VSUB"
+        elif "EXP" in uop.name: op_str = "VEXP"
+        elif "GELU" in uop.name: op_str = "VGELU"
+        elif "MAX" in uop.name: op_str = "VMAX" # 視你的 SV Enum 而定
+        elif "MAC" in uop.name or "QK" in uop.name or "PV" in uop.name: op_str = "OP_MAC"
+        else: op_str = "OP_CUSTOM"
+
+        # 2. 擷取 Operands (SV 只支援最多 2 Src, 1 Dst)
+        src1_v, src1_r = (1, uop.src_regs[0]) if len(uop.src_regs) > 0 else (0, 0)
+        src2_v, src2_r = (1, uop.src_regs[1]) if len(uop.src_regs) > 1 else (0, 0)
+        dst_v, dst_r   = (1, uop.dst_regs[0]) if len(uop.dst_regs) > 0 else (0, 0)
+        
+        # 避免 VIRTUAL_L0_BUFFER_ID (63) 爆出 RTL 的 5-bit (0~31) 限制
+        src1_r = src1_r if src1_r < 32 else 0
+        src2_r = src2_r if src2_r < 32 else 0
+        dst_r  = dst_r if dst_r < 32 else 0
+
+        # 3. 推算 Element 數量 (讓 LSU 與 VALU 知道要做多久)
+        elems = uop.block_length if uop.block_length > 0 else 64 
+
+        # 4. 生成 32-bit Mask 與 256-bit Tickets
+        wr_mask, rd_mask = 0, 0
+        wr_tickets, rd_tickets = [0]*32, [0]*32
+
+        # 整合 RAW 與 WAW 到 wait_wr
+        for r, t in uop.wait_for_writes.items():
+            if r < 32:
+                wr_mask |= (1 << r)
+                wr_tickets[r] = t
+        for r, t in uop.wait_for_writes_waw.items():
+            if r < 32:
+                wr_mask |= (1 << r)
+                wr_tickets[r] = max(wr_tickets[r], t)
+
+        # 處理 WAR 到 wait_rd
+        for r, t in uop.wait_for_reads.items():
+            if r < 32:
+                rd_mask |= (1 << r)
+                rd_tickets[r] = t
+
+        # 將 Ticket Array 轉成 64 字元的 Hex String (給 SV 的 ticket_t [31:0] 讀取)
+        # 為了對齊 SystemVerilog 的 packed array，index 31 放最左邊(MSB)
+        wr_tickets_hex = "".join([f"{wr_tickets[31-i]:02X}" for i in range(32)])
+        rd_tickets_hex = "".join([f"{rd_tickets[31-i]:02X}" for i in range(32)])
+
+        # 5. 組裝最終字串
+        line = f"{op_str:<10} {elems:<5} {uop.mem_addr:016X} {src1_v} {src1_r:02d} {src2_v} {src2_r:02d} {dst_v} {dst_r:02d} {wr_mask:08X} {wr_tickets_hex} {rd_mask:08X} {rd_tickets_hex} // {uop.name}\n"
+
+        # 6. 分發寫入對應的檔案
+        if uop.unit_type == UnitType.LSU:    self.file_lsu.write(line)
+        elif uop.unit_type == UnitType.VALU: self.file_valu.write(line)
+        elif uop.unit_type == UnitType.CIM:  self.file_cim.write(line)
+
     def tick(self):
         self.global_cycle += 1
         
@@ -609,6 +682,9 @@ class ADHD_VPU:
             self.micro_op_buffer.popleft() 
             target_queue.push(uop)
             self.scoreboard.allocate(uop) 
+            
+            # ★ [新增] 在此處將指令匯出至文字檔
+            self._emit_uop_to_file(uop)
 
     def is_idle(self):
         return (not self.macro_instr_buffer and not self.micro_op_buffer and 
@@ -1490,14 +1566,14 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     K_out = mem_mgr.allocate(seq_len * D); W_K = weights["W_K"]
     V_out = mem_mgr.allocate(seq_len * D); W_V = weights["W_V"]
 
-    for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]: # Q, K, V
-        for m in range(0, seq_len, 64):
-            for n in range(0, D, 64):
-                set_gemm_csr(csr, hidden_state_in + (m*D), w_ptr + n, out_ptr + (m*D) + n, 
-                                  D, D, D, 
-                                  64, 64, 32, 
-                                  D, ActivationType.NONE)
-                sim.fetch_macro([MacroOp(f"L{layer_idx}_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # for name, out_ptr, w_ptr in [("Q", Q_out, W_Q), ("K", K_out, W_K), ("V", V_out, W_V)]: # Q, K, V
+    #     for m in range(0, seq_len, 64):
+    #         for n in range(0, D, 64):
+    #             set_gemm_csr(csr, hidden_state_in + (m*D), w_ptr + n, out_ptr + (m*D) + n, 
+    #                               D, D, D, 
+    #                               64, 64, 32, 
+    #                               D, ActivationType.NONE)
+    #             sim.fetch_macro([MacroOp(f"L{layer_idx}_PROJ_{name}_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
     # =====================================================================
     # 2. Multi-Head Flash Attention (12 Head)
@@ -1523,69 +1599,69 @@ def build_bert_base_layer(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     # 3. Attention Output Projection
     # Shape: [seq_len, D] * [D, D] -> [seq_len, D]
     # =====================================================================
-    O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
-    for m in range(0, seq_len, 64):
-        for n in range(0, D, 64):
-            set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
-                              D, D, D, 
-                              64, 64, 32, 
-                              D, ActivationType.NONE)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # O_proj_out = mem_mgr.allocate(seq_len * D); W_O = weights["W_O"]
+    # for m in range(0, seq_len, 64):
+    #     for n in range(0, D, 64):
+    #         set_gemm_csr(csr, Attn_out + (m*D), W_O + n, O_proj_out + (m*D) + n, 
+    #                           D, D, D, 
+    #                           64, 64, 32, 
+    #                           D, ActivationType.NONE)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_ATTN_OUT_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 4. Residual Add + LayerNorm 1
-    # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
-    # =====================================================================
-    Norm1_out = mem_mgr.allocate(seq_len * D)
-    for m in range(0, seq_len, 64):
-        A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
-        B_base = O_proj_out + (m * D)      # Residual Branch
-        C_base = Norm1_out + (m * D)       # Output
+    # # =====================================================================
+    # # 4. Residual Add + LayerNorm 1
+    # # Shape: I[seq_len, D] + Att[seq_len, D] = RES1[seq_len, D]
+    # # =====================================================================
+    # Norm1_out = mem_mgr.allocate(seq_len * D)
+    # for m in range(0, seq_len, 64):
+    #     A_base = hidden_state_in + (m * D) # Main Branch (原始輸入)
+    #     B_base = O_proj_out + (m * D)      # Residual Branch
+    #     C_base = Norm1_out + (m * D)       # Output
         
-        set_res_ln_csr(csr, A_base, B_base, C_base, 
-                            D, D, D, 
-                            D)
-        sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
+    #     set_res_ln_csr(csr, A_base, B_base, C_base, 
+    #                         D, D, D, 
+    #                         D)
+    #     sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN1_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
-    # =====================================================================
-    # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
-    # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
-    # =====================================================================
-    FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
-    for m in range(0, seq_len, 64):
-        for n in range(0, D_FFN, 64):
-            set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
-                              D, D_FFN, D_FFN, 
-                              64, 64, 32, 
-                              D, act=ActivationType.GELU)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # # =====================================================================
+    # # 5. FFN 1 (GEMM + GELU) -> dimension scale up to 3072
+    # # Shape: [seq_len, D] * [D, D_FFN] -> [seq_len, D_FFN]
+    # # =====================================================================
+    # FFN1_out = mem_mgr.allocate(seq_len * D_FFN); W_F1 = weights["W_1"]
+    # for m in range(0, seq_len, 64):
+    #     for n in range(0, D_FFN, 64):
+    #         set_gemm_csr(csr, Norm1_out + (m*D), W_F1 + n, FFN1_out + (m*D_FFN) + n, 
+    #                           D, D_FFN, D_FFN, 
+    #                           64, 64, 32, 
+    #                           D, act=ActivationType.GELU)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN1_GELU_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 6. FFN 2 -> dimension scale down to 768
-    # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
-    # =====================================================================
-    FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
-    for m in range(0, seq_len, 64):
-        for n in range(0, D, 64):
-            set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
-                              D_FFN, D, D, 
-                              64, 64, 32, 
-                              D_FFN, ActivationType.NONE)
-            sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
+    # # =====================================================================
+    # # 6. FFN 2 -> dimension scale down to 768
+    # # Shape: [seq_len, D_FFN] * [D_FFN, D] -> [seq_len, D]
+    # # =====================================================================
+    # FFN2_out = mem_mgr.allocate(seq_len * D); W_F2 = weights["W_2"]
+    # for m in range(0, seq_len, 64):
+    #     for n in range(0, D, 64):
+    #         set_gemm_csr(csr, FFN1_out + (m*D_FFN), W_F2 + n, FFN2_out + (m*D) + n, 
+    #                           D_FFN, D, D, 
+    #                           64, 64, 32, 
+    #                           D_FFN, ActivationType.NONE)
+    #         sim.fetch_macro([MacroOp(f"L{layer_idx}_FFN2_m{m}_n{n}", macro_gemm_template, {"csr":copy.deepcopy(csr), "tensor": tensorHW, "latency": latencySet})])
 
-    # =====================================================================
-    # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
-    # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
-    # =====================================================================
-    for m in range(0, seq_len, 64):
-        A_base = Norm1_out + (m * D)        # Main Branch
-        B_base = FFN2_out + (m * D)         # Residual Branch
-        C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
+    # # =====================================================================
+    # # 7. Residual Add + LayerNorm 2 (write back to hidden_state_out)
+    # # Shape: RES1[seq_len, D] + FFN2[seq_len, D] = RES2[seq_len, D]
+    # # =====================================================================
+    # for m in range(0, seq_len, 64):
+    #     A_base = Norm1_out + (m * D)        # Main Branch
+    #     B_base = FFN2_out + (m * D)         # Residual Branch
+    #     C_base = hidden_state_out + (m * D) # Output (成為下一層的輸入)
         
-        set_res_ln_csr(csr, A_base, B_base, C_base, 
-                            D, D, D,
-                            D)
-        sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
+    #     set_res_ln_csr(csr, A_base, B_base, C_base, 
+    #                         D, D, D,
+    #                         D)
+    #     sim.fetch_macro([MacroOp(f"L{layer_idx}_RES_LN2_m{m}", macro_residual_layernorm_template, {"csr":copy.deepcopy(csr), "latency": latencySet})])
 
 def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig, latencySet: LatencySet, seq_len: int, mem_mgr: MemoryManager):
     """
@@ -1627,7 +1703,7 @@ def build_bert_base_model(sim: ADHD_VPU, csr: CSRConfig, tensorHW: TensorConfig,
     # current address point to volatile memory region
     mem_mgr.current_addr = SCRATCHPAD_BASE
     
-    for layer in range(12):
+    for layer in range(1):
         # 決定當前層的輸入與輸出在哪個 Workspace (Ping-Pong)
         hidden_in = MEM_PING if layer % 2 == 0 else MEM_PONG
         hidden_out = MEM_PONG if layer % 2 == 0 else MEM_PING
